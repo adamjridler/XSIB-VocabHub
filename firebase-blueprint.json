@@ -1,0 +1,65 @@
+{
+  "entities": {
+    "VocabularyWord": {
+      "title": "Vocabulary Word",
+      "description": "A vocabulary word entry added by a teacher",
+      "type": "object",
+      "properties": {
+        "word": { "type": "string", "description": "The vocabulary word itself" },
+        "translation": { "type": "string", "description": "The translation of the word" },
+        "definition": { "type": "string", "description": "The definition of the word" },
+        "example": { "type": "string", "description": "An example sentence" },
+        "subject": { "type": "string", "description": "The subject context" },
+        "level": { "type": "string", "description": "Year level" },
+        "teacherId": { "type": "string", "description": "User ID of teacher" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["word", "definition", "example", "subject", "level", "teacherId", "createdAt", "updatedAt"]
+    },
+    "AccessCode": {
+      "title": "Student Access Code",
+      "description": "Pre-generated code for students to sign up",
+      "type": "object",
+      "properties": {
+        "code": { "type": "string", "description": "XSIB-1234 prefix format" },
+        "name": { "type": "string", "description": "Student real name" },
+        "gradeLevel": { "type": "string", "description": "Student grade level" },
+        "claimed": { "type": "boolean", "description": "Has this been claimed?" },
+        "claimedBy": { "type": "string", "description": "UID of the student if claimed" },
+        "createdBy": { "type": "string", "description": "UID of admin" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["code", "name", "gradeLevel", "claimed", "createdBy", "createdAt"]
+    },
+    "StudentProfile": {
+      "title": "Student Profile",
+      "description": "Profile information for a signed-up student",
+      "type": "object",
+      "properties": {
+        "accessCode": { "type": "string" },
+        "name": { "type": "string" },
+        "gradeLevel": { "type": "string" },
+        "highScore": { "type": "number" },
+        "gamesPlayed": { "type": "number" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["accessCode", "name", "gradeLevel", "highScore", "gamesPlayed", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/words/{wordId}": {
+      "schema": { "$ref": "#/entities/VocabularyWord" },
+      "description": "Store all vocabulary words at the root level collection"
+    },
+    "/accessCodes/{codeId}": {
+      "schema": { "$ref": "#/entities/AccessCode" },
+      "description": "Store predefined access codes"
+    },
+    "/students/{studentId}": {
+      "schema": { "$ref": "#/entities/StudentProfile" },
+      "description": "Store student profiles, indexed by UID"
+    }
+  }
+}

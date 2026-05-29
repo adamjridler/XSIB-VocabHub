@@ -1,0 +1,6 @@
+{
+  "name": "XSIB VocabHub",
+  "description": "A vocabulary platform for XSIB students to learn through flashcards and games, uploaded weekly by teachers.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
