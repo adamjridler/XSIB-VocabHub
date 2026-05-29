@@ -92,7 +92,7 @@ export function StudentLogin({ onLoginSuccess }: { onLoginSuccess: (user: any) =
               <label className="text-xs uppercase tracking-widest font-bold text-slate-500 ml-1">Name / Access Code</label>
               <input
                 type="text"
-                placeholder="e.g. Adam or XSIB-1234"
+                placeholder="e.g. Jimmy Li or XSIB-1234"
                 className="w-full bg-white border border-slate-200 rounded-xl p-4 text-slate-900 text-lg focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all font-medium"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
