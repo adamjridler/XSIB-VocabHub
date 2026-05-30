@@ -1168,7 +1168,7 @@ export function TeacherDashboard({ onLogout }: { onLogout: () => void }) {
                           return;
                         }
                         try {
-                          await api.changePassword(passwords.current, passwords.new);
+                          await api.updatePassword(passwords.new);
                           setPasswords({ current: '', new: '', confirm: '' });
                           alert('Password changed successfully');
                         } catch(err: any) { alert(err.message); }

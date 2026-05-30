@@ -144,7 +144,7 @@ export const api = {
   },
 
   async generateBlanks(words: string[]) {
-    return { success: false, msg: "AI functionality removed." };
+    return { success: false, msg: "AI functionality removed.", text: "", answers: [] as any[] };
   },
 
   lastRecorded: null as { timestamp: number, score: number, game: string } | null,
@@ -320,6 +320,15 @@ export const api = {
     });
     if (error) throw error;
     return { success: true };
+  },
+
+  async resendVerification(email: string, _password?: string) {
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email
+    });
+    if (error) throw error;
+    return true;
   },
 
   async studentLogin(identifier: string, password: string) {

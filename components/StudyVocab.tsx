@@ -3,6 +3,7 @@ import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, RefreshCw, CheckCircle2, MessageSquare, BookOpen, Brain, XCircle } from "lucide-react";
+import { AutoTextFit } from '@/components/ui/AutoTextFit';
 import { motion, AnimatePresence } from "motion/react";
 import { Input } from "@/components/ui/input";
 
@@ -299,16 +300,28 @@ export function StudyVocab({ onBack }: { onBack: () => void }) {
                   >
                     <div className="absolute inset-0 backface-hidden w-full h-full bg-white rounded-[2.5rem] shadow-xl border border-slate-200 flex flex-col items-center justify-center p-8 md:p-12 text-center hover:border-purple-300 transition-colors">
                       <span className="text-base font-bold uppercase tracking-widest text-slate-400 mb-6 block">Tap to reveal</span>
-                      <h2 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight break-words w-full">
-                        {currentWord?.word}
-                      </h2>
+                      <div className="w-full h-24 mb-6">
+                        <AutoTextFit 
+                          text={currentWord?.word || ""} 
+                          minFontSize={24} 
+                          maxFontSize={72} 
+                          className="font-extrabold text-slate-900 tracking-tight" 
+                        />
+                      </div>
                     </div>
                     
                     <div className="absolute inset-0 backface-hidden w-full h-full bg-white rounded-[2.5rem] shadow-xl border-2 border-purple-200 rotate-y-180 flex flex-col p-8 lg:p-10 overflow-y-auto">
                       <div className="flex flex-col gap-2 mb-6">
-                         <div className="flex justify-between items-start">
-                           <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">{currentWord?.word}</h2>
-                           <Button variant="ghost" onClick={(e) => { e.stopPropagation(); setIsFlipped(false); }} className="text-slate-400 hover:text-slate-700">Hide Card</Button>
+                         <div className="flex justify-between items-start gap-4">
+                           <div className="flex-1 w-0 min-w-0">
+                             <AutoTextFit 
+                               text={currentWord?.word || ""} 
+                               minFontSize={20} 
+                               maxFontSize={48} 
+                               className="font-extrabold text-slate-900 tracking-tight text-left justify-start" 
+                             />
+                           </div>
+                           <Button variant="ghost" onClick={(e) => { e.stopPropagation(); setIsFlipped(false); }} className="text-slate-400 hover:text-slate-700 shrink-0">Hide Card</Button>
                          </div>
                       </div>
                       

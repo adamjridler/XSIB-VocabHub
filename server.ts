@@ -8,7 +8,17 @@ dotenv.config();
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+let _supabaseAdmin: any = null;
+function getSupabaseAdmin() {
+  if (!supabaseUrl || !supabaseServiceKey) {
+    throw new Error("Supabase URL and Service Key are required to use this feature. Please set them in your environment variables.");
+  }
+  if (!_supabaseAdmin) {
+    _supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+  }
+  return _supabaseAdmin;
+}
 
 async function startServer() {
   const app = express();
@@ -22,7 +32,8 @@ async function startServer() {
       
       // We use the admin API to create the user and bypass email confirmation.
       // This requires the SUPABASE_SERVICE_ROLE_KEY to be in the env variables.
-      const { data, error } = await supabaseAdmin.auth.admin.createUser({
+      const admin = getSupabaseAdmin();
+      const { data, error } = await admin.auth.admin.createUser({
         email: pseudoEmail,
         password: password,
         email_confirm: true, // Bypass email confirmation
@@ -35,7 +46,7 @@ async function startServer() {
 
       if (data.user) {
         // Create the profile via admin
-        await supabaseAdmin.from('profiles').upsert({
+        await admin.from('profiles').upsert({
           id: data.user.id,
           role: 'student',
           name: studentName,
@@ -44,7 +55,7 @@ async function startServer() {
         });
 
         // Mark the access code as claimed
-        await supabaseAdmin.from('access_codes').update({ claimed: true }).eq('code', accessCode);
+        await admin.from('access_codes').update({ claimed: true }).eq('code', accessCode);
       }
 
       res.json({ success: true, user: data.user });
@@ -62,14 +73,15 @@ async function startServer() {
         return;
       }
       
-      const { error } = await supabaseAdmin.auth.admin.deleteUser(uid);
+      const admin = getSupabaseAdmin();
+      const { error } = await admin.auth.admin.deleteUser(uid);
       if (error) {
         throw error;
       }
       
       // Profiles and sessions should cascade, or we can manually delete them
-      await supabaseAdmin.from('profiles').delete().eq('id', uid);
-      await supabaseAdmin.from('game_sessions').delete().eq('user_id', uid);
+      await admin.from('profiles').delete().eq('id', uid);
+      await admin.from('game_sessions').delete().eq('user_id', uid);
 
       res.json({ success: true });
     } catch (err: any) {

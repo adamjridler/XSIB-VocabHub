@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Heart, RefreshCw, AlertTriangle, CheckCircle2, XCircle, Trophy, Flame, Target, BarChart3, Activity, Users } from 'lucide-react';
+import { AutoTextFit } from '@/components/ui/AutoTextFit';
 import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
 import { api } from '@/lib/api';
@@ -672,10 +673,10 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', isMul
                       key={opt}
                       size="lg" 
                       variant="secondary" 
-                      className="text-sm md:text-base font-bold bg-white/10 hover:bg-white/20 text-white border border-white/10 hover:border-white/40 backdrop-blur-sm transition-all shadow-inner"
+                      className="p-1 font-bold bg-white/10 w-full h-[60px] hover:bg-white/20 text-white border border-white/10 hover:border-white/40 backdrop-blur-sm transition-all shadow-inner"
                       onClick={(e) => handleChoice(opt, drop.id, e)}
                     >
-                      {opt}
+                      <AutoTextFit text={opt} minFontSize={12} maxFontSize={18} className="w-full font-bold" />
                     </Button>
                   ))}
                 </div>

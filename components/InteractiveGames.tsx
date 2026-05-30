@@ -172,7 +172,7 @@ export function InteractiveGames({ onBack, backgroundWords }: { onBack: () => vo
             </h1>
           </div>
         </header>
-        <main className="flex-1 w-full h-full relative p-0 pt-16">
+        <main className="flex-1 min-h-0 w-full h-full relative p-0 pt-16 flex flex-col">
           {selectedGame === 'word-scramble' ? (
             <WordScrambleGame words={gameWords} timeLimit={scrambleTimeLimit} mode={scrambleMode} onGameOver={handleGameOver} />
           ) : selectedGame === 'word-fall' ? (
@@ -221,17 +221,17 @@ export function InteractiveGames({ onBack, backgroundWords }: { onBack: () => vo
         {gameState === 'menu' && (
           <div className="w-full max-w-[100rem] mx-auto flex flex-col xl:flex-row gap-8">
             <div className="flex-1 h-full flex flex-col">
-              <div className="text-center md:text-left mb-6">
+              <div className="text-center md:text-left mb-4">
                 <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-2">Choose a Game</h2>
-                <p className="text-base text-slate-600">Select a mini-game to practice your vocabulary.</p>
+                <p className="text-sm text-slate-600">Select a mini-game to practice your vocabulary.</p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               <div 
                 className="bg-white flex flex-col border-2 border-slate-200 hover:border-purple-400 hover:shadow-xl hover:shadow-purple-500/10 transition-all cursor-pointer rounded-2xl overflow-hidden group"
                 onClick={() => { setSelectedGame('word-fall'); setGameState('setup'); }}
               >
-                <div className="h-40 bg-gradient-to-br from-indigo-500 to-purple-600 p-6 flex flex-col justify-end relative overflow-hidden">
+                <div className="h-32 bg-gradient-to-br from-indigo-500 to-purple-600 p-4 pb-3 flex flex-col justify-end relative overflow-hidden">
                    <div className="absolute top-0 left-0 w-full h-full opacity-20">
                      {/* abstract falling shapes */}
                      <div className="absolute top-4 left-1/4 w-8 h-8 rounded bg-white rotate-12 group-hover:translate-y-20 transition-transform duration-1000"></div>
@@ -245,8 +245,8 @@ export function InteractiveGames({ onBack, backgroundWords }: { onBack: () => vo
                      </div>
                    </div>
                 </div>
-                <div className="p-5">
-                  <p className="text-slate-600 text-sm font-medium leading-relaxed">Catch the falling definitions or translations before they hit the ground. A fast-paced reflex game!</p>
+                <div className="p-4">
+                  <p className="text-slate-600 text-xs sm:text-sm font-medium leading-relaxed">Catch the falling definitions or translations before they hit the ground. A fast-paced reflex game!</p>
                 </div>
               </div>
 
@@ -254,8 +254,8 @@ export function InteractiveGames({ onBack, backgroundWords }: { onBack: () => vo
                 className="bg-white flex flex-col border-2 border-slate-200 hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/10 transition-all cursor-pointer rounded-2xl overflow-hidden group"
                 onClick={() => { setSelectedGame('fill-blanks'); setGameState('setup'); }}
               >
-                <div className="h-40 bg-gradient-to-br from-cyan-500 to-blue-600 p-6 flex flex-col justify-end relative overflow-hidden">
-                   <div className="absolute top-0 left-0 w-full h-full opacity-30 flex flex-col justify-center gap-3 px-6 pb-4">
+                <div className="h-32 bg-gradient-to-br from-cyan-500 to-blue-600 p-4 pb-3 flex flex-col justify-end relative overflow-hidden">
+                   <div className="absolute top-0 left-0 w-full h-full opacity-30 flex flex-col justify-center gap-3 px-6 pb-2">
                      <div className="h-3 w-5/6 bg-white rounded-full translate-x-0 group-hover:translate-x-4 transition-transform duration-700 ease-out"></div>
                      <div className="flex gap-2 w-full items-center">
                         <div className="h-3 w-1/4 bg-white rounded-full"></div>
@@ -275,8 +275,8 @@ export function InteractiveGames({ onBack, backgroundWords }: { onBack: () => vo
                      </div>
                    </div>
                 </div>
-                <div className="p-5">
-                  <p className="text-slate-600 text-sm font-medium leading-relaxed">Read AI-generated paragraphs and fill in the missing vocabulary words!</p>
+                <div className="p-4">
+                  <p className="text-slate-600 text-xs sm:text-sm font-medium leading-relaxed">Read AI-generated paragraphs and fill in the missing vocabulary words!</p>
                 </div>
               </div>
 
@@ -285,8 +285,8 @@ export function InteractiveGames({ onBack, backgroundWords }: { onBack: () => vo
                 className="bg-white flex flex-col border-2 border-slate-200 hover:border-rose-400 hover:shadow-xl hover:shadow-rose-500/10 transition-all cursor-pointer rounded-2xl overflow-hidden group"
                 onClick={() => { setSelectedGame('memory-match'); setGameState('setup'); }}
               >
-                <div className="h-40 bg-gradient-to-br from-rose-500 to-pink-600 p-6 flex flex-col justify-end relative overflow-hidden">
-                   <div className="absolute inset-0 opacity-30 flex justify-center items-center gap-2 px-2 overflow-hidden perspective-1000 pb-4">
+                <div className="h-32 bg-gradient-to-br from-rose-500 to-pink-600 p-4 pb-3 flex flex-col justify-end relative overflow-hidden">
+                   <div className="absolute inset-0 opacity-30 flex justify-center items-center gap-2 px-2 overflow-hidden perspective-1000 pb-2">
                      <div className="w-10 h-14 bg-white rounded-md border-2 border-rose-200 -rotate-12 translate-y-4 group-hover:rotate-0 group-hover:translate-y-0 group-hover:rotate-y-180 transition-all duration-700 ease-out"></div>
                      <div className="w-10 h-14 bg-white/60 rounded-md border-2 border-rose-200 rotate-6 -translate-y-2 group-hover:rotate-0 group-hover:translate-y-0 group-hover:shadow-[0_0_15px_rgba(255,255,255,1)] transition-all duration-700 ease-out delay-75"></div>
                      <div className="w-10 h-14 bg-white rounded-md border-2 border-rose-200 rotate-12 translate-y-4 group-hover:rotate-0 group-hover:translate-y-0 group-hover:-rotate-y-180 transition-all duration-700 ease-out delay-150"></div>
@@ -298,8 +298,8 @@ export function InteractiveGames({ onBack, backgroundWords }: { onBack: () => vo
                      </div>
                    </div>
                 </div>
-                <div className="p-5">
-                  <p className="text-slate-600 text-sm font-medium leading-relaxed">Flip cards to match the vocabulary words with their translations! Test your memory and speed!</p>
+                <div className="p-4">
+                  <p className="text-slate-600 text-xs sm:text-sm font-medium leading-relaxed">Flip cards to match the vocabulary words with their translations! Test your memory and speed!</p>
                 </div>
               </div>
 
@@ -308,7 +308,7 @@ export function InteractiveGames({ onBack, backgroundWords }: { onBack: () => vo
                 className="bg-white flex flex-col border-2 border-slate-200 hover:border-violet-400 hover:shadow-xl hover:shadow-violet-500/10 transition-all cursor-pointer rounded-2xl overflow-hidden group"
                 onClick={() => { setSelectedGame('word-scramble'); setGameState('setup'); }}
               >
-                <div className="h-40 bg-gradient-to-br from-violet-500 to-purple-600 p-6 flex flex-col justify-end relative overflow-hidden">
+                <div className="h-32 bg-gradient-to-br from-violet-500 to-purple-600 p-4 pb-3 flex flex-col justify-end relative overflow-hidden">
                    <WordScrambleCardAnimation />
                    <div className="flex justify-between items-end relative z-10 w-full gap-2 h-full">
                      <h3 className="text-xl font-extrabold text-white drop-shadow-sm leading-tight max-w-[75%] break-words">Word Scramble</h3>
@@ -317,8 +317,8 @@ export function InteractiveGames({ onBack, backgroundWords }: { onBack: () => vo
                      </div>
                    </div>
                 </div>
-                <div className="p-5">
-                  <p className="text-slate-600 text-sm font-medium leading-relaxed">Unscramble letters to reveal the target vocabulary word before time runs out!</p>
+                <div className="p-4">
+                  <p className="text-slate-600 text-xs sm:text-sm font-medium leading-relaxed">Unscramble letters to reveal the target vocabulary word before time runs out!</p>
                 </div>
               </div>
 
@@ -327,7 +327,7 @@ export function InteractiveGames({ onBack, backgroundWords }: { onBack: () => vo
                 className="bg-white flex flex-col border-2 border-slate-200 hover:border-emerald-400 hover:shadow-xl hover:shadow-emerald-500/10 transition-all cursor-pointer rounded-2xl overflow-hidden group"
                 onClick={() => { setSelectedGame('word-search'); setGameState('setup'); }}
               >
-                <div className="h-40 bg-gradient-to-br from-emerald-500 to-teal-600 p-6 flex flex-col justify-end relative overflow-hidden">
+                <div className="h-32 bg-gradient-to-br from-emerald-500 to-teal-600 p-4 pb-3 flex flex-col justify-end relative overflow-hidden">
                    <WordSearchCardAnimation />
                    <div className="flex justify-between items-end relative z-10 w-full gap-2 h-full">
                      <h3 className="text-xl font-extrabold text-white drop-shadow-sm leading-tight max-w-[75%] break-words">Word Search</h3>
@@ -336,8 +336,8 @@ export function InteractiveGames({ onBack, backgroundWords }: { onBack: () => vo
                      </div>
                    </div>
                 </div>
-                <div className="p-5">
-                  <p className="text-slate-600 text-sm font-medium leading-relaxed">Find hidden vocabulary words in the grid. Connect letters horizontally, vertically, or diagonally!</p>
+                <div className="p-4">
+                  <p className="text-slate-600 text-xs sm:text-sm font-medium leading-relaxed">Find hidden vocabulary words in the grid. Connect letters horizontally, vertically, or diagonally!</p>
                 </div>
               </div>
             </div>

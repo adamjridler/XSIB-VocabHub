@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
 import { Button } from '@/components/ui/button';
 import { Trophy, Clock, MousePointerClick, Target } from 'lucide-react';
+import { AutoTextFit } from '@/components/ui/AutoTextFit';
 import { api } from '@/lib/api';
 import { LeaderboardForGame } from '@/components/LeaderboardForGame';
 
@@ -162,6 +163,13 @@ export function MemoryMatchGame({ words, previewTime = 0, timeLimit = 0, onGameO
 
       if (card1 && card2 && card1.matchId === card2.matchId) {
         // match!
+        confetti({
+          particleCount: 40,
+          spread: 60,
+          origin: { y: 0.8 },
+          colors: ['#fb7185', '#f43f5e', '#e11d48'],
+          zIndex: 100
+        });
         setTimeout(() => {
           setMatchedIds(prev => [...prev, card1.matchId]);
           setScore(s => s + 100 + Math.max(0, 50 - currentMoves * 2));
@@ -254,7 +262,7 @@ export function MemoryMatchGame({ words, previewTime = 0, timeLimit = 0, onGameO
   }
 
   return (
-    <div className="absolute inset-0 flex flex-col items-center p-4 sm:p-8 pt-6">
+    <div className="h-full w-full flex flex-col items-center p-4 sm:p-8 pt-6 sm:pt-6">
       {/* Top Bar */}
       <div className="w-full max-w-5xl flex justify-between items-center mb-8 bg-slate-900/50 backdrop-blur-md p-4 rounded-2xl border border-white/10 shadow-lg">
         <div className="flex items-center gap-6">
@@ -287,8 +295,8 @@ export function MemoryMatchGame({ words, previewTime = 0, timeLimit = 0, onGameO
       </div>
 
       {/* Grid */}
-      <div className="w-full max-w-5xl flex-1 flex items-center justify-center pb-8">
-        <div className={`grid grid-cols-4 sm:grid-cols-5 gap-3 max-w-full`}>
+      <div className="w-full max-w-6xl flex-1 min-h-0 px-2 pb-4 sm:pb-8 flex flex-col items-center overflow-hidden">
+        <div className="flex flex-wrap justify-center content-center gap-2 sm:gap-3 lg:gap-4 h-full w-full">
           <AnimatePresence>
             {cards.map(card => {
               const isMatched = matchedIds.includes(card.matchId);
@@ -297,8 +305,8 @@ export function MemoryMatchGame({ words, previewTime = 0, timeLimit = 0, onGameO
               return (
                 <motion.div
                   key={card.id}
-                  className="relative [perspective:1000px] select-none"
-                  style={{ width: 'clamp(60px, 15vw, 120px)', height: 'clamp(80px, 20vw, 160px)' }}
+                  className="relative [perspective:1000px] select-none flex-shrink-0"
+                  style={{ width: 'clamp(65px, min(16vw, 12vh), 130px)', height: 'clamp(85px, min(22vw, 18vh), 170px)' }}
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   whileHover={{ scale: isFlipped ? 1.05 : 1.1, translateY: isFlipped ? 0 : -5 }}
@@ -321,7 +329,7 @@ export function MemoryMatchGame({ words, previewTime = 0, timeLimit = 0, onGameO
 
                     {/* Back of card (revealed text) */}
                     <div 
-                      className={`absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-xl sm:rounded-2xl flex items-center justify-center p-3 text-center border-2 border-b-4 z-10 transition-all duration-300 ${
+                      className={`absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-xl sm:rounded-2xl flex items-center justify-center p-2 sm:p-3 text-center border-2 border-b-4 z-10 transition-all duration-300 ${
                         isMatched 
                         ? 'bg-gradient-to-b from-rose-50 to-rose-100 border-rose-400 text-rose-800 shadow-[0_0_20px_rgba(244,63,94,0.3)] scale-105' 
                         : 'bg-gradient-to-b from-white to-slate-50 border-slate-200 text-slate-800 shadow-xl shadow-black/10'
@@ -330,9 +338,14 @@ export function MemoryMatchGame({ words, previewTime = 0, timeLimit = 0, onGameO
                       {isMatched && (
                         <div className="absolute inset-0 rounded-xl sm:rounded-2xl border-2 border-rose-400 animate-ping opacity-20 pointer-events-none"></div>
                       )}
-                      <span className="font-bold text-sm sm:text-base leading-tight drop-shadow-sm z-20">
-                        {card.text}
-                      </span>
+                      <div className="w-full max-h-full overflow-y-auto overflow-x-hidden flex items-center justify-center z-20" style={{ scrollbarWidth: 'none' }}>
+                        <AutoTextFit 
+                          text={card.text} 
+                          minFontSize={10} 
+                          maxFontSize={18} 
+                          className="font-bold leading-tight drop-shadow-sm w-full"
+                        />
+                      </div>
                     </div>
                   </motion.div>
                 </motion.div>

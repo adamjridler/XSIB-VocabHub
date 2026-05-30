@@ -61,7 +61,7 @@ export function TeacherAuthModal({ onLoginSuccess }: TeacherAuthModalProps) {
       setIsOpen(false);
       if (onLoginSuccess) onLoginSuccess();
     } catch (err: any) {
-      if (err.message === 'unverified_email') {
+      if (err.message === 'unverified_email' || err.message === 'Email not confirmed') {
         setIsVerifying(true);
         setSignupError('Please verify your email before logging in.');
       } else {
@@ -94,12 +94,16 @@ export function TeacherAuthModal({ onLoginSuccess }: TeacherAuthModalProps) {
     setIsLoading(true);
     try {
       await api.signup(signupEmail, signupPassword);
-      // SQLite backend logs in immediately
       await api.login(signupEmail, signupPassword);
       setIsOpen(false);
       if (onLoginSuccess) onLoginSuccess();
     } catch (err: any) {
-      setSignupError(err.message || 'Failed to create account');
+      if (err.message === 'Email not confirmed' || err.message === 'unverified_email') {
+        setIsVerifying(true);
+        setActiveTab('login');
+      } else {
+        setSignupError(err.message || 'Failed to create account');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -144,7 +148,7 @@ export function TeacherAuthModal({ onLoginSuccess }: TeacherAuthModalProps) {
       </div>
       
       {signupError && (
-        <div className="p-3 bg-red-100 border border-red-200 text-red-600 text-sm rounded-lg flex items-center justify-center">
+        <div className={`p-3 border text-sm rounded-lg flex items-center justify-center ${signupError.includes('resent') ? 'bg-emerald-50 border-emerald-200 text-emerald-600' : 'bg-red-100 border-red-200 text-red-600'}`}>
           <p>{signupError}</p>
         </div>
       )}
