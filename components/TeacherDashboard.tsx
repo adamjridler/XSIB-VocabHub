@@ -943,8 +943,8 @@ export function TeacherDashboard({ onLogout }: { onLogout: () => void }) {
                   }
 
                   return displayWords.map((wordObj) => {
-                    const isAdminUser = user?.email === 'admin@nbxiaoshi.cn';
-                    const isOwner = (user?.uid && wordObj.teacherId === user.uid) || isAdminUser;
+                    const isAdminUser = user?.role === 'admin';
+                    const isOwner = (user?.uid && wordObj.teacher_id === user.uid) || isAdminUser;
                     const isFlipped = flippedWords[wordObj.id];
 
                     if (editingWordId === wordObj.id) {
