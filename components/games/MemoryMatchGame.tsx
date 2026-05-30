@@ -306,7 +306,7 @@ export function MemoryMatchGame({ words, previewTime = 0, timeLimit = 0, onGameO
                 <motion.div
                   key={card.id}
                   className="relative [perspective:1000px] select-none flex-shrink-0"
-                  style={{ width: 'clamp(65px, min(16vw, 12vh), 130px)', height: 'clamp(85px, min(22vw, 18vh), 170px)' }}
+                  style={{ width: 'clamp(85px, min(22vw, 16vh), 180px)', height: 'clamp(75px, min(18vw, 13vh), 140px)' }}
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   whileHover={{ scale: isFlipped ? 1.05 : 1.1, translateY: isFlipped ? 0 : -5 }}

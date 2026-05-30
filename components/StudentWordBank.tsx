@@ -3,6 +3,7 @@ import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Search, Info, ArrowLeft, RefreshCw } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { AutoTextFit } from "@/components/ui/AutoTextFit";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { motion } from "motion/react";
 
@@ -160,7 +161,7 @@ export function StudentWordBank({ onBack }: { onBack: () => void }) {
                     key={word.id}
                   >
                     <Dialog>
-                      <DialogTrigger render={<button className="group relative cursor-pointer text-left rounded-[2rem] border-2 border-purple-200/50 bg-white/60 backdrop-blur-sm overflow-hidden shadow-sm hover:shadow-md hover:border-purple-300 transition-all flex flex-col aspect-square w-full" />}>
+                      <DialogTrigger render={<button className="group relative cursor-pointer text-left rounded-[2rem] border-2 border-purple-200/50 bg-white/60 backdrop-blur-sm overflow-hidden shadow-sm hover:shadow-md hover:border-purple-300 transition-all flex flex-col aspect-[4/3] w-full" />}>
                           <div className="bg-purple-100/50 py-2 px-2 border-b-2 border-purple-200/50 flex-none w-full flex flex-col items-center justify-center min-h-[48px] gap-0.5">
                             <p className="text-center text-[#5c3e84] font-bold text-[9px] sm:text-[10px] tracking-wider uppercase w-full line-clamp-2 leading-tight">
                               {word.subject}
@@ -169,9 +170,14 @@ export function StudentWordBank({ onBack }: { onBack: () => void }) {
                               {word.level}
                             </p>
                           </div>
-                          <div className="flex-1 flex items-center justify-center p-3 w-full">
-                            <h3 className="text-lg sm:text-xl font-bold tracking-tight text-black text-center w-full break-words line-clamp-2">
-                              {word.word}
+                          <div className="flex-1 flex items-center justify-center p-3 w-full min-h-0 overflow-hidden">
+                            <h3 className="w-full text-center h-full flex items-center justify-center">
+                              <AutoTextFit 
+                                text={word.word} 
+                                minFontSize={12} 
+                                maxFontSize={32} 
+                                className="font-bold tracking-tight text-black flex-1" 
+                              />
                             </h3>
                           </div>
                       </DialogTrigger>
