@@ -186,98 +186,117 @@ export function TeacherAuthModal({ onLoginSuccess }: TeacherAuthModalProps) {
         </DialogHeader>
         
         {isVerifying ? renderVerifyUI() : (
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-6">
-            <TabsList className="grid w-full grid-cols-2 bg-white border border-slate-200 p-1 rounded-xl">
-              <TabsTrigger value="login" className="rounded-lg text-slate-500 data-[state=active]:bg-purple-600 data-[state=active]:text-white uppercase tracking-widest text-[10px] font-bold">Log In</TabsTrigger>
-              <TabsTrigger value="signup" className="rounded-lg text-slate-500 data-[state=active]:bg-purple-600 data-[state=active]:text-white uppercase tracking-widest text-[10px] font-bold">Sign Up</TabsTrigger>
-            </TabsList>
+          <div className="w-full mt-6">
+            <div className="flex w-full bg-slate-100 border border-slate-200 p-1 rounded-xl">
+              <button 
+                type="button"
+                onClick={() => setActiveTab('login')}
+                className={`flex-1 py-3 rounded-lg uppercase tracking-widest text-[11px] font-bold transition-all ${activeTab === 'login' ? 'bg-purple-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}
+              >
+                Log In
+              </button>
+              <button 
+                type="button"
+                onClick={() => setActiveTab('signup')}
+                className={`flex-1 py-3 rounded-lg uppercase tracking-widest text-[11px] font-bold transition-all ${activeTab === 'signup' ? 'bg-purple-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}
+              >
+                Sign Up
+              </button>
+            </div>
             
-            <TabsContent value="login" className="space-y-6 mt-6">
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div className="space-y-2">
-                  <Input
-                    id="login-email"
-                    type="email"
-                    placeholder="Email"
-                    value={loginEmail}
-                    onChange={(e) => setLoginEmail(e.target.value)}
-                    className="bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-lg p-4 h-auto focus:border-purple-600 outline-none focus:ring-1 focus:ring-purple-600"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Input
-                    id="login-password"
-                    type="password"
-                    placeholder="Password"
-                    value={loginPassword}
-                    onChange={(e) => setLoginPassword(e.target.value)}
-                    className="bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-lg p-4 h-auto focus:border-purple-600 outline-none focus:ring-1 focus:ring-purple-600"
-                    required
-                  />
-                </div>
-                
-                {loginError && (
-                  <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-lg flex items-start gap-2">
-                    <p>{loginError}</p>
+            {activeTab === 'login' && (
+              <div className="space-y-6 mt-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Input
+                      id="login-email"
+                      type="email"
+                      placeholder="Email"
+                      value={loginEmail}
+                      onChange={(e) => setLoginEmail(e.target.value)}
+                      className="bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-lg p-4 h-auto focus:border-purple-600 outline-none focus:ring-1 focus:ring-purple-600"
+                      required
+                    />
                   </div>
-                )}
-                
-                <Button type="submit" disabled={isLoading} className="w-full py-6 mt-4 bg-gradient-to-br from-purple-600 to-purple-500 text-white font-bold rounded-xl text-sm uppercase tracking-wider shadow-md shadow-purple-500/20 hover:opacity-90 border-none">
-                  {isLoading ? 'Logging In...' : 'Log In'}
-                </Button>
-              </form>
-            </TabsContent>
+                  <div className="space-y-2">
+                    <Input
+                      id="login-password"
+                      type="password"
+                      placeholder="Password"
+                      value={loginPassword}
+                      onChange={(e) => setLoginPassword(e.target.value)}
+                      className="bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-lg p-4 h-auto focus:border-purple-600 outline-none focus:ring-1 focus:ring-purple-600"
+                      required
+                    />
+                  </div>
+                  
+                  {loginError && (
+                    <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-lg flex items-start gap-2">
+                      <p>{loginError}</p>
+                    </div>
+                  )}
+                  
+                  <Button type="submit" disabled={isLoading} className="w-full py-6 mt-4 bg-gradient-to-br from-purple-600 to-purple-500 text-white font-bold rounded-xl text-sm uppercase tracking-wider shadow-md shadow-purple-500/20 hover:opacity-90 border-none">
+                    {isLoading ? 'Logging In...' : 'Log In'}
+                  </Button>
+                </form>
+              </div>
+            )}
             
-            <TabsContent value="signup" className="space-y-6 mt-6">
-              <form onSubmit={handleSignup} className="space-y-4">
-                <div className="space-y-2">
-                  <Input
-                    id="signup-email"
-                    type="email"
-                    placeholder="Email"
-                    value={signupEmail}
-                    onChange={(e) => setSignupEmail(e.target.value)}
-                    className="bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-lg p-4 h-auto focus:border-purple-600 outline-none focus:ring-1 focus:ring-purple-600"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Input
-                    id="signup-password"
-                    type="password"
-                    placeholder="Create Password"
-                    value={signupPassword}
-                    onChange={(e) => setSignupPassword(e.target.value)}
-                    className="bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-lg p-4 h-auto focus:border-purple-600 outline-none focus:ring-1 focus:ring-purple-600"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Input
-                    id="signup-confirm-password"
-                    type="password"
-                    placeholder="Confirm Password"
-                    value={signupConfirmPassword}
-                    onChange={(e) => setSignupConfirmPassword(e.target.value)}
-                    className="bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-lg p-4 h-auto focus:border-purple-600 outline-none focus:ring-1 focus:ring-purple-600"
-                    required
-                  />
-                </div>
-                
-                {signupError && (
-                  <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-lg flex items-start gap-2">
-                    <UserPlus className="h-4 w-4 mt-0.5 shrink-0" />
-                    <p>{signupError}</p>
+            {activeTab === 'signup' && (
+              <div className="space-y-6 mt-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <form onSubmit={handleSignup} className="space-y-4">
+                  <div className="space-y-1">
+                    <Input
+                      id="signup-email"
+                      type="email"
+                      placeholder="Email"
+                      value={signupEmail}
+                      onChange={(e) => setSignupEmail(e.target.value)}
+                      className="bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-lg p-4 h-auto focus:border-purple-600 outline-none focus:ring-1 focus:ring-purple-600"
+                      required
+                    />
+                    <p className="text-xs text-purple-600 font-medium px-2 py-1">
+                      * Registration is restricted to @nbxiaoshi.cn email addresses
+                    </p>
                   </div>
-                )}
-                
-                <Button type="submit" disabled={isLoading} className="w-full py-6 mt-4 bg-gradient-to-br from-purple-600 to-purple-500 text-white font-bold rounded-xl text-sm uppercase tracking-wider shadow-md shadow-purple-500/20 hover:opacity-90 border-none">
-                  {isLoading ? 'Creating...' : 'Create Staff Account'}
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
+                  <div className="space-y-2">
+                    <Input
+                      id="signup-password"
+                      type="password"
+                      placeholder="Create Password"
+                      value={signupPassword}
+                      onChange={(e) => setSignupPassword(e.target.value)}
+                      className="bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-lg p-4 h-auto focus:border-purple-600 outline-none focus:ring-1 focus:ring-purple-600"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Input
+                      id="signup-confirm-password"
+                      type="password"
+                      placeholder="Confirm Password"
+                      value={signupConfirmPassword}
+                      onChange={(e) => setSignupConfirmPassword(e.target.value)}
+                      className="bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-lg p-4 h-auto focus:border-purple-600 outline-none focus:ring-1 focus:ring-purple-600"
+                      required
+                    />
+                  </div>
+                  
+                  {signupError && (
+                    <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-lg flex items-start gap-2">
+                      <UserPlus className="h-4 w-4 mt-0.5 shrink-0" />
+                      <p>{signupError}</p>
+                    </div>
+                  )}
+                  
+                  <Button type="submit" disabled={isLoading} className="w-full py-6 mt-4 bg-gradient-to-br from-purple-600 to-purple-500 text-white font-bold rounded-xl text-sm uppercase tracking-wider shadow-md shadow-purple-500/20 hover:opacity-90 border-none">
+                    {isLoading ? 'Creating...' : 'Create Staff Account'}
+                  </Button>
+                </form>
+              </div>
+            )}
+          </div>
         )}
       </DialogContent>
     </Dialog>

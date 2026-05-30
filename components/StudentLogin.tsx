@@ -26,9 +26,9 @@ export function StudentLogin({ onLoginSuccess }: { onLoginSuccess: (user: any) =
 
     try {
       const data = await api.checkIdentifier(identifier);
+      setVerifiedAccessCode(data.accessCode);
+      setVerifiedName(data.name);
       if (data.type === 'signup') {
-        setVerifiedAccessCode(data.accessCode);
-        setVerifiedName(data.name);
         setStep('signup');
       } else {
         setStep('login');
@@ -60,7 +60,7 @@ export function StudentLogin({ onLoginSuccess }: { onLoginSuccess: (user: any) =
       if (step === 'signup') {
         user = await api.studentSignup(verifiedAccessCode, password);
       } else {
-        user = await api.studentLogin(identifier, password);
+        user = await api.studentLogin(verifiedAccessCode, password);
       }
       onLoginSuccess(user);
     } catch (err: any) {
@@ -81,7 +81,7 @@ export function StudentLogin({ onLoginSuccess }: { onLoginSuccess: (user: any) =
           <h2 className="text-2xl font-bold tracking-tight mb-2 relative z-10">Student Access</h2>
           <p className="text-cyan-100 text-sm font-medium relative z-10">
             {step === 'code' ? 'Enter your Name or Access Code to unlock the hub.' : 
-             step === 'login' ? `Welcome back, ${identifier}! Enter your password.` : 
+             step === 'login' ? `Welcome back, ${verifiedName}! Enter your password.` : 
              `Hi ${verifiedName}, create a password to secure your account.`}
           </p>
         </div>

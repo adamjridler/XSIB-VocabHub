@@ -28,7 +28,7 @@ export function StudentAuthModal({ isOpen, onOpenChange, onLoginSuccess }: { isO
         onOpenChange(false);
         onLoginSuccess();
       } catch (signupErr: any) {
-        if (signupErr.message === 'Access code has already been claimed.') {
+        if (signupErr.message === 'User already registered' || signupErr.status === 400) {
           // Log in instead
           try {
             await api.studentLogin(formattedCode, password);

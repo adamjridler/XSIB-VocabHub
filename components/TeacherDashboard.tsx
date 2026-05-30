@@ -84,8 +84,8 @@ export function TeacherDashboard({ onLogout }: { onLogout: () => void }) {
     setEditingWordId(null);
   };
 
-  const submitLogout = () => {
-    api.clearAuthToken();
+  const submitLogout = async () => {
+    await api.logout();
     onLogout();
   };
 

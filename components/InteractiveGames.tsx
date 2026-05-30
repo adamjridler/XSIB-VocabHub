@@ -12,6 +12,7 @@ import { WordSearchGame } from './games/WordSearchGame';
 
 import { FloatingWords, AmbientOrbs } from '@/components/AppBackground';
 import { StudentLeaderboard } from '@/components/StudentLeaderboard';
+import { LeaderboardForGame } from '@/components/LeaderboardForGame';
 
 function WordScrambleCardAnimation() {
   const [letters, setLetters] = useState(['S','C','R','A','M','B','L','E'].map((c, i) => ({ id: i, char: c, rotate: Math.random() * 40 - 20, y: Math.random() * 20 - 10 })));
@@ -144,13 +145,6 @@ export function InteractiveGames({ onBack, backgroundWords }: { onBack: () => vo
   };
 
   const handleGameOver = async (score: number) => {
-    if (score > 0) {
-      try {
-        await api.recordStudentGameSession(score);
-      } catch (e) {
-        console.error("Failed to record score", e);
-      }
-    }
     setGameState('menu');
   };
 
@@ -194,6 +188,16 @@ export function InteractiveGames({ onBack, backgroundWords }: { onBack: () => vo
       </div>
     );
   }
+
+  const getCurrentGameConfigId = () => {
+    if (!selectedGame) return '';
+    if (selectedGame === 'word-scramble') return `WordScramble-${scrambleMode}-${scrambleTimeLimit}`;
+    if (selectedGame === 'word-search') return `WordSearch-${wordSearchTimeLimit}-${wordSearchClueType}`;
+    if (selectedGame === 'fill-blanks') return `FillBlanks-${gameMode}`;
+    if (selectedGame === 'memory-match') return `MemoryMatch-${memoryPreviewTime}-${memoryTimeLimit}`;
+    if (selectedGame === 'word-fall') return `WordFall-${gameMode}-${fallingType}-${wordFallSpeed}${wordFallMultiplayer ? '-MP' : ''}`;
+    return '';
+  };
 
   return (
     <div className="relative h-screen w-screen overflow-hidden flex flex-col bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 text-slate-900 font-sans">
@@ -346,8 +350,9 @@ export function InteractiveGames({ onBack, backgroundWords }: { onBack: () => vo
         )}
 
         {gameState === 'setup' && (
-          <div className="w-full max-w-5xl mx-auto bg-white/80 backdrop-blur-md rounded-3xl shadow-xl shadow-purple-900/5 border border-purple-200/50 p-6 md:p-8">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 mb-6 tracking-tight">Game Settings</h2>
+          <div className="flex flex-col xl:flex-row gap-6 md:gap-8 h-full max-w-7xl mx-auto">
+            <div className="flex-1 bg-white/80 backdrop-blur-md rounded-3xl shadow-xl shadow-purple-900/5 border border-purple-200/50 p-6 md:p-8 overflow-y-auto custom-scrollbar">
+              <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 mb-6 tracking-tight">Game Settings</h2>
             
             <div className="flex flex-col lg:flex-row gap-6 md:gap-8">
               {/* Context / Filters */}
@@ -625,6 +630,11 @@ export function InteractiveGames({ onBack, backgroundWords }: { onBack: () => vo
                   </Button>
                 </div>
               </div>
+            </div>
+            </div>
+
+          <div className="w-full xl:w-80 flex-shrink-0 flex flex-col">
+              <LeaderboardForGame configId={getCurrentGameConfigId()} variant="light" />
             </div>
           </div>
         )}

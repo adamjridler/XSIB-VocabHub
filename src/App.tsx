@@ -17,6 +17,8 @@ import { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
 import { FloatingWords, AmbientOrbs } from '@/components/AppBackground';
 
+import { StudentProfileModal } from '@/components/StudentProfileModal';
+
 export default function App() {
   const [view, setView] = useState<'login' | 'hub' | 'dashboard' | 'word-bank' | 'study' | 'games' | 'onboarding'>('login');
   const [stats, setStats] = useState({ words: 0, subjects: 0, games: 5, contributors: 0, topSubject: 'None', longestWord: 'None', totalSessions: 0, averagePercent: 0 });
@@ -186,10 +188,14 @@ export default function App() {
           <nav className="flex items-center gap-4">
             {api.getUser() ? (
               <div className="flex items-center gap-4">
-                <span className="text-sm font-bold text-purple-700 tracking-wide">
-                  Welcome, {api.getUser()?.name}
-                </span>
-                <Button variant="ghost" className="text-slate-500 hover:text-slate-900" onClick={() => { api.logout(); setView('login'); }}>
+                {api.getUser()?.role === 'student' ? (
+                  <StudentProfileModal user={api.getUser()} />
+                ) : (
+                  <span className="text-sm font-bold text-purple-700 tracking-wide">
+                    Welcome, {api.getUser()?.name}
+                  </span>
+                )}
+                <Button variant="ghost" className="text-slate-500 hover:text-slate-900" onClick={async () => { await api.logout(); setView('login'); }}>
                   Logout
                 </Button>
               </div>

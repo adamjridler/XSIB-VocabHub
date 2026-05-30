@@ -2,13 +2,54 @@ import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import * as dotenv from 'dotenv';
+import { createClient } from "@supabase/supabase-js";
+
 dotenv.config();
+
+const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 async function startServer() {
   const app = express();
   const PORT = 3000;
 
   app.use(express.json());
+
+  app.post('/api/student-signup', async (req, res) => {
+    try {
+      const { accessCode, pseudoEmail, password, studentName } = req.body;
+      
+      // We use the admin API to create the user and bypass email confirmation.
+      // This requires the SUPABASE_SERVICE_ROLE_KEY to be in the env variables.
+      const { data, error } = await supabaseAdmin.auth.admin.createUser({
+        email: pseudoEmail,
+        password: password,
+        email_confirm: true, // Bypass email confirmation
+        user_metadata: { role: 'student', access_code: accessCode }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data.user) {
+        // Create the profile via admin
+        await supabaseAdmin.from('profiles').upsert({
+          id: data.user.id,
+          role: 'student',
+          name: studentName,
+          access_code: accessCode,
+          high_score: 0
+        });
+      }
+
+      res.json({ success: true, user: data.user });
+    } catch (err: any) {
+      console.error("Student signup error:", err);
+      res.status(500).json({ error: err.message || "Failed to sign up student" });
+    }
+  });
 
   // Deepseek definitions
   app.post('/api/define', async (req, res) => {
@@ -91,7 +132,7 @@ async function startServer() {
       
       res.json(JSON.parse(content));
     } catch (err) {
-      console.error(err);
+      console.error('DeepSeek Error:', err);
       res.status(500).json({ error: 'Failed to generate insight' });
     }
   });
@@ -123,7 +164,7 @@ async function startServer() {
       
       res.json(JSON.parse(content));
     } catch (err) {
-      console.error(err);
+      console.error('DeepSeek Error:', err);
       res.status(500).json({ error: 'Failed to check sentence' });
     }
   });
