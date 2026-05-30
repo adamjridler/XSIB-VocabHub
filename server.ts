@@ -42,12 +42,39 @@ async function startServer() {
           access_code: accessCode,
           high_score: 0
         });
+
+        // Mark the access code as claimed
+        await supabaseAdmin.from('access_codes').update({ claimed: true }).eq('code', accessCode);
       }
 
       res.json({ success: true, user: data.user });
     } catch (err: any) {
       console.error("Student signup error:", err);
       res.status(500).json({ error: err.message || "Failed to sign up student" });
+    }
+  });
+
+  app.post('/api/delete-student', async (req, res) => {
+    try {
+      const { uid } = req.body;
+      if (!uid) {
+        res.status(400).json({ error: 'User ID is required' });
+        return;
+      }
+      
+      const { error } = await supabaseAdmin.auth.admin.deleteUser(uid);
+      if (error) {
+        throw error;
+      }
+      
+      // Profiles and sessions should cascade, or we can manually delete them
+      await supabaseAdmin.from('profiles').delete().eq('id', uid);
+      await supabaseAdmin.from('game_sessions').delete().eq('user_id', uid);
+
+      res.json({ success: true });
+    } catch (err: any) {
+      console.error("Student delete error:", err);
+      res.status(500).json({ error: err.message || "Failed to delete student" });
     }
   });
 

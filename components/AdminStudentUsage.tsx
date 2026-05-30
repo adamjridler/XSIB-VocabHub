@@ -173,7 +173,7 @@ export function AdminStudentUsage() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                   <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col items-center justify-center text-center">
                     <Activity className="w-5 h-5 text-purple-500 mb-2" />
-                    <div className="text-2xl font-black text-slate-800">{selectedStudent.gamesPlayed || 0}</div>
+                    <div className="text-2xl font-black text-slate-800">{sessions.length}</div>
                     <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Games Played</div>
                   </div>
                   <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col items-center justify-center text-center">

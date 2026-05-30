@@ -122,7 +122,7 @@ export const api = {
       console.error(error)
       return [];
     }
-    return data;
+    return data.map((w: any) => ({ ...w, createdAt: w.created_at || w.createdAt }));
   },
 
   async clearAllWords() {
@@ -362,16 +362,47 @@ export const api = {
   },
 
   async getAllStudents() {
-    // Stub
-    return [];
+    const { data: profiles, error } = await supabase.from('profiles').select('*').eq('role', 'student');
+    if (error) {
+      console.error(error);
+      return [];
+    }
+    return profiles.map((p: any) => ({
+      id: p.id,
+      name: p.name,
+      accessCode: p.access_code,
+      highScore: p.high_score || 0
+    }));
   },
 
   async getStudentSessions(uid: string) {
-    return [];
+    const { data: sessions, error } = await supabase.from('game_sessions').select('*').eq('user_id', uid).order('created_at', { ascending: false });
+    if (error) {
+      console.error(error);
+      return [];
+    }
+    return sessions.map((s: any) => ({
+      game: s.game,
+      score: s.score,
+      maxScore: s.max_score,
+      createdAt: s.created_at
+    }));
   },
 
   async deleteStudent(uid: string) {
-    return { success: true };
+    try {
+      const res = await fetch('/api/delete-student', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid })
+      });
+      if (!res.ok) {
+        throw new Error('Failed to delete student');
+      }
+      return { success: true };
+    } catch(err: any) {
+      return { success: false, error: err.message };
+    }
   }
 };
 
