@@ -6,7 +6,7 @@ export const api = {
   
   logout: async () => {
     try {
-      await supabase.auth.signOut();
+      await supabase.auth.signOut({ scope: 'local' });
     } catch (e) {
       console.error("Signout error:", e);
     } finally {
@@ -84,11 +84,14 @@ export const api = {
         });
       }
 
+      let finalRole = profile?.role || role;
+      if (role === 'admin') finalRole = 'admin';
+
       const sessionUser = {
         id: data.user.id,
         uid: data.user.id,
         email: data.user.email,
-        role: profile?.role || role,
+        role: finalRole,
         name: profile?.name || (role === 'admin' ? 'Admin' : (role === 'student' ? 'Student' : 'Teacher')),
         access_code: profile?.access_code || undefined,
         high_score: profile?.high_score || 0

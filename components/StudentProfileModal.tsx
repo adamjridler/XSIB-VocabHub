@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { User, Lock, KeyRound } from 'lucide-react';
 
-export function StudentProfileModal({ user, onPasswordChanged }: { user: any, onPasswordChanged?: () => void }) {
+export function StudentProfileModal({ user, onPasswordChanged, onLogout }: { user: any, onPasswordChanged?: () => void, onLogout?: () => void }) {
   const [open, setOpen] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -121,6 +121,21 @@ export function StudentProfileModal({ user, onPasswordChanged }: { user: any, on
               </Button>
             </form>
           </div>
+          
+          {onLogout && (
+            <div className="border-t border-slate-100 pt-4 mt-2">
+              <Button 
+                variant="ghost" 
+                onClick={() => {
+                  setOpen(false);
+                  onLogout();
+                }}
+                className="w-full text-red-600 hover:bg-red-50 hover:text-red-700 font-bold uppercase tracking-widest text-sm"
+              >
+                Sign Out
+              </Button>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

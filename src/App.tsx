@@ -189,7 +189,7 @@ export default function App() {
             {api.getUser() ? (
               <div className="flex items-center gap-4">
                 {api.getUser()?.role === 'student' ? (
-                  <StudentProfileModal user={api.getUser()} />
+                  <StudentProfileModal user={api.getUser()} onLogout={async () => { await api.logout(); setView('login'); }} />
                 ) : (
                   <span className="text-sm font-bold text-purple-700 tracking-wide">
                     Welcome, {api.getUser()?.name}

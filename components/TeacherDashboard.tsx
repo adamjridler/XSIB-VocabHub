@@ -1143,7 +1143,7 @@ export function TeacherDashboard({ onLogout }: { onLogout: () => void }) {
 
                   <div className="pt-2">
                     <Button 
-                      onClick={onLogout}
+                      onClick={submitLogout}
                       variant="ghost" 
                       className="w-full text-red-600 bg-white border border-red-100 hover:bg-red-50 hover:text-red-700 uppercase tracking-widest text-sm font-bold"
                     >
