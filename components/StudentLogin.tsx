@@ -87,13 +87,13 @@ export function StudentLogin({ onLoginSuccess }: { onLoginSuccess: (user: any) =
         </div>
 
         {step === 'code' ? (
-          <form onSubmit={handleCheckCode} className="p-8 space-y-6">
+          <form onSubmit={handleCheckCode} className="p-6 space-y-6">
             <div className="space-y-2">
               <label className="text-xs uppercase tracking-widest font-bold text-slate-500 ml-1">Name / Access Code</label>
               <input
                 type="text"
                 placeholder="e.g. Jimmy Li or XSIB-1234"
-                className="w-full bg-white border border-slate-200 rounded-xl p-4 text-slate-900 text-lg focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all font-medium"
+                className="w-full bg-white border border-slate-200 rounded-xl p-3 text-slate-900 text-base focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all font-medium"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 required
@@ -101,8 +101,8 @@ export function StudentLogin({ onLoginSuccess }: { onLoginSuccess: (user: any) =
             </div>
 
             {error && (
-              <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-medium flex items-center gap-3 border border-red-100">
-                <AlertCircle className="w-5 h-5 shrink-0" />
+              <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm font-medium flex items-center gap-3 border border-red-100">
+                <AlertCircle className="w-4 h-4 shrink-0" />
                 <p>{error}</p>
               </div>
             )}
@@ -110,20 +110,20 @@ export function StudentLogin({ onLoginSuccess }: { onLoginSuccess: (user: any) =
             <Button
               type="submit"
               disabled={loading}
-              className="w-full py-6 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white rounded-xl shadow-lg shadow-cyan-500/25 font-bold uppercase tracking-widest transition-all"
+              className="w-full py-5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white rounded-xl shadow-lg shadow-cyan-500/25 font-bold uppercase tracking-widest transition-all"
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><span className="mr-2">Continue</span> <ArrowRight className="w-5 h-5" /></>}
             </Button>
           </form>
         ) : (
-          <form onSubmit={handleAuth} className="p-8 space-y-6">
-            <div className="space-y-4">
+          <form onSubmit={handleAuth} className="p-6 space-y-6">
+            <div className="space-y-3">
               <div className="space-y-2">
                 <label className="text-xs uppercase tracking-widest font-bold text-slate-500 ml-1">Password</label>
                 <input
                   type="password"
                   placeholder="Enter password"
-                  className="w-full bg-white border border-slate-200 rounded-xl p-4 text-slate-900 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
+                  className="w-full bg-white border border-slate-200 rounded-xl p-3 text-slate-900 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all text-base"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -136,7 +136,7 @@ export function StudentLogin({ onLoginSuccess }: { onLoginSuccess: (user: any) =
                   <input
                     type="password"
                     placeholder="Enter password again"
-                    className="w-full bg-white border border-slate-200 rounded-xl p-4 text-slate-900 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
+                    className="w-full bg-white border border-slate-200 rounded-xl p-3 text-slate-900 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all text-base"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
@@ -146,8 +146,8 @@ export function StudentLogin({ onLoginSuccess }: { onLoginSuccess: (user: any) =
             </div>
 
             {error && (
-              <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-medium flex items-center gap-3 border border-red-100">
-                <AlertCircle className="w-5 h-5 shrink-0" />
+              <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm font-medium flex items-center gap-3 border border-red-100">
+                <AlertCircle className="w-4 h-4 shrink-0" />
                 <p>{error}</p>
               </div>
             )}
@@ -155,7 +155,7 @@ export function StudentLogin({ onLoginSuccess }: { onLoginSuccess: (user: any) =
             <Button
               type="submit"
               disabled={loading}
-              className="w-full py-6 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white rounded-xl shadow-lg shadow-cyan-500/25 font-bold uppercase tracking-widest transition-all"
+              className="w-full py-5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white rounded-xl shadow-lg shadow-cyan-500/25 font-bold uppercase tracking-widest transition-all"
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (step === 'signup' ? 'Create Account' : 'Enter Hub')}
             </Button>

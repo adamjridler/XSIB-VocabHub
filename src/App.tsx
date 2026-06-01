@@ -327,7 +327,7 @@ export default function App() {
         ) : view === "hub" ? (
           <>
             {/* Hero Section */}
-            <section className="flex flex-col items-center text-center max-w-5xl w-full mt-4 mb-10">
+            <section className="flex flex-col items-center text-center max-w-5xl w-full mt-2 mb-4">
               <div className="flex flex-col items-center justify-center">
                 <motion.h1
                   initial={{ opacity: 0, y: 20 }}
@@ -335,38 +335,43 @@ export default function App() {
                   transition={{ duration: 0.5, delay: 0.1 }}
                   className="text-center"
                 >
-                  <span className="block text-xl md:text-2xl font-bold tracking-[0.2em] text-slate-500 mb-2 uppercase">XSIB</span>
-                  <span className="block text-6xl md:text-8xl font-black tracking-tighter text-slate-900">
-                    Vocab<span className="text-transparent bg-clip-text bg-gradient-to-br from-purple-600 to-indigo-600">Hub.</span>
+                  <span className="block text-sm md:text-base font-bold tracking-[0.2em] text-slate-500 mb-0 uppercase">
+                    XSIB
+                  </span>
+                  <span className="block text-5xl md:text-7xl font-black tracking-tighter text-slate-900">
+                    Vocab
+                    <span className="text-transparent bg-clip-text bg-gradient-to-br from-purple-600 to-indigo-600">
+                      Hub.
+                    </span>
                   </span>
                 </motion.h1>
               </div>
             </section>
 
             {/* Features Section */}
-            <section className="w-full max-w-4xl mb-6">
+            <section className="w-full max-w-4xl mb-4">
               <motion.div
                 variants={containerVariants}
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: "-100px" }}
-                className="grid grid-cols-1 md:grid-cols-3 gap-6"
+                className="grid grid-cols-1 md:grid-cols-3 gap-4"
               >
                 <motion.div variants={itemVariants}>
                   <Card
                     className="h-full bg-white/70 backdrop-blur-md border border-purple-200/50 rounded-2xl shadow-lg shadow-purple-500/5 hover:bg-white/90 transition-all hover:shadow-purple-500/10 hover:border-purple-300 duration-300 cursor-pointer"
                     onClick={() => handleStudentAction("word-bank")}
                   >
-                    <CardHeader className="pb-3">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-purple-500 flex items-center justify-center text-white shadow-md mb-4">
-                        <BookOpen className="h-6 w-6" />
+                    <CardHeader className="pb-2 pt-4">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-purple-500 flex items-center justify-center text-white shadow-md mb-2">
+                        <BookOpen className="h-4 w-4" />
                       </div>
-                      <CardTitle className="text-xl text-slate-900 font-bold tracking-tight">
+                      <CardTitle className="text-base text-slate-900 font-bold tracking-tight">
                         View Word Bank
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <CardDescription className="text-sm text-slate-600 font-medium">
+                    <CardContent className="pb-4">
+                      <CardDescription className="text-xs text-slate-600 font-medium">
                         Browse and search through the entire collection of terms
                         curated by your teachers.
                       </CardDescription>
@@ -379,16 +384,16 @@ export default function App() {
                     className="h-full bg-white/70 backdrop-blur-md border border-purple-200/50 rounded-2xl shadow-lg shadow-purple-500/5 hover:bg-white/90 transition-all hover:shadow-purple-500/10 hover:border-purple-300 duration-300 cursor-pointer"
                     onClick={() => handleStudentAction("study")}
                   >
-                    <CardHeader className="pb-3">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-purple-500 flex items-center justify-center text-white shadow-md mb-4">
-                        <Brain className="h-6 w-6" />
+                    <CardHeader className="pb-2 pt-4">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-purple-500 flex items-center justify-center text-white shadow-md mb-2">
+                        <Brain className="h-4 w-4" />
                       </div>
-                      <CardTitle className="text-xl text-slate-900 font-bold tracking-tight">
+                      <CardTitle className="text-base text-slate-900 font-bold tracking-tight">
                         Study Vocab
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <CardDescription className="text-sm text-slate-600 font-medium">
+                    <CardContent className="pb-4">
+                      <CardDescription className="text-xs text-slate-600 font-medium">
                         Review terms, definitions, and example sentences with
                         interactive smart flashcards.
                       </CardDescription>
@@ -401,16 +406,16 @@ export default function App() {
                     className="h-full bg-white/70 backdrop-blur-md border border-purple-200/50 rounded-2xl shadow-lg shadow-purple-500/5 hover:bg-white/90 transition-all hover:shadow-purple-500/10 hover:border-purple-300 duration-300 cursor-pointer"
                     onClick={() => handleStudentAction("games")}
                   >
-                    <CardHeader className="pb-3">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-purple-500 flex items-center justify-center text-white shadow-md mb-4">
-                        <Gamepad2 className="h-6 w-6" />
+                    <CardHeader className="pb-2 pt-4">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-purple-500 flex items-center justify-center text-white shadow-md mb-2">
+                        <Gamepad2 className="h-4 w-4" />
                       </div>
-                      <CardTitle className="text-xl text-slate-900 font-bold tracking-tight">
+                      <CardTitle className="text-base text-slate-900 font-bold tracking-tight">
                         Interactive Games
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <CardDescription className="text-sm text-slate-600 font-medium">
+                    <CardContent className="pb-4">
+                      <CardDescription className="text-xs text-slate-600 font-medium">
                         Test your knowledge with exciting mini-games and
                         quizzes. Learning shouldn't be boring.
                       </CardDescription>
@@ -421,10 +426,10 @@ export default function App() {
             </section>
 
             {/* Analytics Highlights Section */}
-            <section className="w-full max-w-4xl mb-12">
-              <div className="flex items-center gap-3 mb-4">
-                <Trophy className="h-6 w-6 text-purple-600" />
-                <h2 className="text-xl font-bold tracking-tight text-slate-900">
+            <section className="w-full max-w-4xl mb-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Trophy className="h-4 w-4 text-purple-600" />
+                <h2 className="text-base font-bold tracking-tight text-slate-900">
                   Global Stats
                 </h2>
               </div>
@@ -434,21 +439,21 @@ export default function App() {
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: "-100px" }}
-                className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                className="grid grid-cols-1 md:grid-cols-3 gap-2"
               >
                 <motion.div
                   variants={itemVariants}
-                  className="bg-white/80 backdrop-blur-md border border-purple-200/50 rounded-2xl p-4 shadow-sm"
+                  className="bg-white/80 backdrop-blur-md border border-purple-200/50 rounded-xl p-3 shadow-sm"
                 >
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="p-1.5 bg-orange-100 text-orange-600 rounded-lg">
-                      <Flame className="h-4 w-4" />
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="p-1 bg-orange-100 text-orange-600 rounded">
+                      <Flame className="h-3 w-3" />
                     </div>
                     <h3 className="text-[10px] uppercase tracking-widest font-bold text-slate-500">
                       Total Words
                     </h3>
                   </div>
-                  <p className="text-2xl font-[800] text-slate-900">
+                  <p className="text-xl font-[800] text-slate-900">
                     {stats.words}
                     <span className="text-sm font-bold text-slate-400 ml-1">
                       words
@@ -458,17 +463,17 @@ export default function App() {
 
                 <motion.div
                   variants={itemVariants}
-                  className="bg-white/80 backdrop-blur-md border border-purple-200/50 rounded-2xl p-4 shadow-sm"
+                  className="bg-white/80 backdrop-blur-md border border-purple-200/50 rounded-xl p-3 shadow-sm"
                 >
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="p-1.5 bg-blue-100 text-blue-600 rounded-lg">
-                      <BookOpen className="h-4 w-4" />
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="p-1 bg-blue-100 text-blue-600 rounded">
+                      <BookOpen className="h-3 w-3" />
                     </div>
                     <h3 className="text-[10px] uppercase tracking-widest font-bold text-slate-500">
                       Active Subjects
                     </h3>
                   </div>
-                  <p className="text-2xl font-[800] text-slate-900">
+                  <p className="text-xl font-[800] text-slate-900">
                     {stats.subjects}
                     <span className="text-sm font-bold text-slate-400 ml-1">
                       subjects
@@ -478,17 +483,17 @@ export default function App() {
 
                 <motion.div
                   variants={itemVariants}
-                  className="bg-white/80 backdrop-blur-md border border-purple-200/50 rounded-2xl p-4 shadow-sm"
+                  className="bg-white/80 backdrop-blur-md border border-purple-200/50 rounded-xl p-3 shadow-sm"
                 >
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="p-1.5 bg-green-100 text-green-600 rounded-lg">
-                      <Gamepad2 className="h-4 w-4" />
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="p-1 bg-green-100 text-green-600 rounded">
+                      <Gamepad2 className="h-3 w-3" />
                     </div>
                     <h3 className="text-[10px] uppercase tracking-widest font-bold text-slate-500">
                       Sessions Played
                     </h3>
                   </div>
-                  <p className="text-2xl font-[800] text-slate-900">
+                  <p className="text-xl font-[800] text-slate-900">
                     {stats.totalSessions}
                     <span className="text-sm font-bold text-slate-400 ml-1">
                       games
@@ -504,7 +509,7 @@ export default function App() {
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true }}
-                  className="mt-6 flex overflow-hidden bg-slate-900 text-white rounded-full py-3 px-4 shadow-lg border border-slate-700 w-full relative"
+                  className="mt-4 flex overflow-hidden bg-slate-900 text-white rounded-full py-2 px-4 shadow-lg border border-slate-700 w-full relative"
                 >
                   <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-slate-900 to-transparent z-10"></div>
                   <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-slate-900 to-transparent z-10"></div>
