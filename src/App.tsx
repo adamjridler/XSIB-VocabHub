@@ -182,7 +182,7 @@ export default function App() {
       <header className="w-full border-b border-purple-200/50 bg-white/70 backdrop-blur-md flex-none shadow-sm z-10 relative">
         <div className="container mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/vocabhubicon(small).png" alt="VocabHub Icon" className="w-8 h-8 rounded-full" />
+            <img src="/vocabhubicon-small.png" alt="VocabHub Icon" className="w-8 h-8 rounded-full" />
             <span className="text-sm font-bold tracking-[0.1em] uppercase opacity-90 text-slate-900">XSIB VocabHub</span>
           </div>
           <nav className="flex items-center gap-4">
