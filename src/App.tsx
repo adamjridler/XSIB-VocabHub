@@ -327,15 +327,20 @@ export default function App() {
         ) : view === "hub" ? (
           <>
             {/* Hero Section */}
-            <section className="flex flex-col items-center text-center max-w-5xl w-full mb-6">
-              <motion.h1
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-                className="text-5xl md:text-7xl font-[800] leading-tight tracking-[-0.04em] uppercase text-slate-900 mb-8"
-              >
-                XSIB <span className="text-purple-600">VocabHub.</span>
-              </motion.h1>
+            <section className="flex flex-col items-center text-center max-w-5xl w-full mt-4 mb-10">
+              <div className="flex flex-col items-center justify-center">
+                <motion.h1
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.1 }}
+                  className="text-center"
+                >
+                  <span className="block text-xl md:text-2xl font-bold tracking-[0.2em] text-slate-500 mb-2 uppercase">XSIB</span>
+                  <span className="block text-6xl md:text-8xl font-black tracking-tighter text-slate-900">
+                    Vocab<span className="text-transparent bg-clip-text bg-gradient-to-br from-purple-600 to-indigo-600">Hub.</span>
+                  </span>
+                </motion.h1>
+              </div>
             </section>
 
             {/* Features Section */}
