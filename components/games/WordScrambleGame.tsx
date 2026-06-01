@@ -5,6 +5,7 @@ import { Timer, Trophy, Heart, Target } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { api } from '@/lib/api';
 import { LeaderboardForGame } from '@/components/LeaderboardForGame';
+import { playSound } from '@/lib/audio';
 
 interface WordScrambleGameProps {
   words: any[];
@@ -111,7 +112,15 @@ export function WordScrambleGame({ words, timeLimit, mode, onGameOver }: WordScr
     if (isCorrect) {
       statsRef.current.correct += 1;
       setFeedback('correct');
-      setScore(s => s + 100 + timeLeft * 10);
+      let multiplier = 1;
+      if (timeLimit === 10) multiplier = 2;
+      else if (timeLimit === 20) multiplier = 1.5;
+      
+      if (mode === 'definition') multiplier *= 1.5;
+      
+      const points = Math.round((100 + Math.max(0, timeLeft) * 10) * multiplier);
+      setScore(s => s + points);
+      playSound('correct');
       confetti({
         particleCount: 50,
         spread: 60,
@@ -142,6 +151,7 @@ export function WordScrambleGame({ words, timeLimit, mode, onGameOver }: WordScr
 
   useEffect(() => {
     if (gameOver) {
+      playSound('level-complete');
       const storedHighScore = parseInt(localStorage.getItem('wordScrambleHighScore') || '0', 10);
       if (score > storedHighScore) {
         localStorage.setItem('wordScrambleHighScore', score.toString());

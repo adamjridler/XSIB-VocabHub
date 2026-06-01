@@ -208,6 +208,53 @@ async function startServer() {
     }
   });
 
+  app.post('/api/generate-blanks', async (req, res) => {
+    try {
+      const { words } = req.body;
+      if (!words || !Array.isArray(words)) {
+        res.status(400).json({ error: 'Words array is required' });
+        return;
+      }
+
+      const limitedWords = words.slice(0, 5);
+      const prompt = `Write an engaging paragraph appropriate for high school students that uses EXACTLY the following ${limitedWords.length} vocabulary words: ${limitedWords.join(', ')}. 
+      STRICT REQUIREMENT: Provide enough context and descriptive clues around each word so that a student can logically deduce the correct vocabulary word from the surrounding text. The paragraph can be as long as needed to provide good context, typically 3 to 6 sentences.
+      Replace the occurrences of those specific words in the text with <blank:0>, <blank:1>, <blank:2>, etc., making sure the numbering starts at 0.
+      Only return JSON in this exact format, with no other text or explanation:
+      {
+        "text": "The paragraph with <blank:0> and <blank:1> replacements...",
+        "answers": [
+          "first_vocab_word_for_blank_0",
+          "second_vocab_word_for_blank_1"
+        ]
+      }`;
+
+      const response = await fetch('https://api.deepseek.com/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: 'deepseek-chat',
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+
+      if (!response.ok) throw new Error('DeepSeek API Error');
+      const data = await response.json();
+      let content = data.choices[0].message.content.trim();
+      if (content.startsWith('```json')) content = content.replace(/^```json/, '').replace(/```$/, '').trim();
+      else if (content.startsWith('```')) content = content.replace(/^```/, '').replace(/```$/, '').trim();
+      
+      const parsed = JSON.parse(content);
+      res.json({ success: true, ...parsed });
+    } catch (err) {
+      console.error('DeepSeek Error:', err);
+      res.status(500).json({ error: 'Failed to generate blanks' });
+    }
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({

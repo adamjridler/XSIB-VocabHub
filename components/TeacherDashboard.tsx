@@ -268,7 +268,7 @@ export function TeacherDashboard({ onLogout }: { onLogout: () => void }) {
       {/* Sidebar */}
       <div className="w-64 border-r border-slate-200 bg-white/90 flex flex-col pt-6 pb-4 flex-none  shadow-lg relative z-10">
         <div className="px-6 flex items-center gap-3 mb-10">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-purple-500 flex items-center justify-center text-white font-bold">X</div>
+          <img src="/vocabhubicon(small).png" alt="VocabHub Icon" className="w-8 h-8 rounded-full" />
           <span className="text-xs font-bold tracking-[0.2em] uppercase opacity-80">XSIB Staff</span>
         </div>
 

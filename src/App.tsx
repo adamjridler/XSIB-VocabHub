@@ -182,8 +182,8 @@ export default function App() {
       <header className="w-full border-b border-purple-200/50 bg-white/70 backdrop-blur-md flex-none shadow-sm z-10 relative">
         <div className="container mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-purple-500 flex items-center justify-center text-white font-bold">X</div>
-            <span className="text-xs font-bold tracking-[0.2em] uppercase opacity-80 text-slate-900">XSIB Educational Network</span>
+            <img src="/vocabhubicon(small).png" alt="VocabHub Icon" className="w-8 h-8 rounded-full" />
+            <span className="text-sm font-bold tracking-[0.1em] uppercase opacity-90 text-slate-900">XSIB VocabHub</span>
           </div>
           <nav className="flex items-center gap-4">
             {api.getUser() ? (

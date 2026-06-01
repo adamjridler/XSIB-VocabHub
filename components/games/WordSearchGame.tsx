@@ -5,6 +5,7 @@ import { Trophy, Timer, Search, Clock, Target, CheckCircle2 } from 'lucide-react
 import confetti from 'canvas-confetti';
 import { api } from '@/lib/api';
 import { LeaderboardForGame } from '@/components/LeaderboardForGame';
+import { playSound } from '@/lib/audio';
 
 interface WordSearchGameProps {
   words: any[];
@@ -151,6 +152,7 @@ export function WordSearchGame({ words, timeLimit = 120, clueType = 'translation
 
   useEffect(() => {
     if (gameOver) {
+      playSound('level-complete');
       const storedHighScore = parseInt(localStorage.getItem('wordSearchHighScore') || '0');
       if (score > storedHighScore) {
         localStorage.setItem('wordSearchHighScore', score.toString());
@@ -245,7 +247,16 @@ export function WordSearchGame({ words, timeLimit = 120, clueType = 'translation
         ...prev,
         [wordFound]: { ...prev[wordFound], found: true }
       }));
-      setScore(s => s + 100);
+      let multiplier = 1;
+      if (timeLimit === 60) multiplier *= 2;
+      else if (timeLimit === 120) multiplier *= 1.5;
+      else if (timeLimit === 0) multiplier *= 0.5;
+
+      if (clueType === 'definition') multiplier *= 1.5;
+      
+      const points = Math.round(100 * multiplier);
+      setScore(s => s + points);
+      playSound('correct');
       
       // Celebration
       confetti({

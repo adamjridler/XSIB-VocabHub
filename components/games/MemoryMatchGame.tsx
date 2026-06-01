@@ -6,6 +6,7 @@ import { Trophy, Clock, MousePointerClick, Target } from 'lucide-react';
 import { AutoTextFit } from '@/components/ui/AutoTextFit';
 import { api } from '@/lib/api';
 import { LeaderboardForGame } from '@/components/LeaderboardForGame';
+import { playSound } from '@/lib/audio';
 
 interface Word {
   id: string;
@@ -124,6 +125,7 @@ export function MemoryMatchGame({ words, previewTime = 0, timeLimit = 0, onGameO
 
   useEffect(() => {
     if (roundEnd) {
+      playSound('level-complete');
       const storedHighScore = parseInt(localStorage.getItem('memoryMatchHighScore') || '0', 10);
       if (score > storedHighScore) {
         localStorage.setItem('memoryMatchHighScore', score.toString());
@@ -172,7 +174,16 @@ export function MemoryMatchGame({ words, previewTime = 0, timeLimit = 0, onGameO
         });
         setTimeout(() => {
           setMatchedIds(prev => [...prev, card1.matchId]);
-          setScore(s => s + 100 + Math.max(0, 50 - currentMoves * 2));
+          let multiplier = 1;
+          if (timeLimit === 60) multiplier *= 2;
+          else if (timeLimit === 120) multiplier *= 1.5;
+          
+          if (previewTime === 0) multiplier *= 1.5;
+          else if (previewTime === 3) multiplier *= 1.2;
+
+          const basePoints = 100 + Math.max(0, 50 - currentMoves * 2);
+          setScore(s => s + Math.round(basePoints * multiplier));
+          playSound('correct');
           setFlippedIds([]);
         }, 500);
       } else {

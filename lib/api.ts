@@ -147,7 +147,18 @@ export const api = {
   },
 
   async generateBlanks(words: string[]) {
-    return { success: false, msg: "AI functionality removed.", text: "", answers: [] as any[] };
+    try {
+      const response = await fetch('/api/generate-blanks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ words })
+      });
+      if (!response.ok) throw new Error('Network error');
+      return await response.json();
+    } catch (e) {
+      console.error(e);
+      return { success: false, msg: "Failed to generate.", text: "", answers: [] as any[] };
+    }
   },
 
   lastRecorded: null as { timestamp: number, score: number, game: string } | null,

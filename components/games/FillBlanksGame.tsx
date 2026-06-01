@@ -4,6 +4,7 @@ import { Heart, RefreshCw, AlertTriangle, CheckCircle2, XCircle, Trophy, Target,
 import { motion, AnimatePresence } from 'motion/react';
 import { api } from '@/lib/api';
 import { LeaderboardForGame } from '@/components/LeaderboardForGame';
+import { playSound } from '@/lib/audio';
 
 interface FillBlanksGameProps {
   words: any[];
@@ -83,7 +84,7 @@ export function FillBlanksGame({ words, mode, onGameOver }: FillBlanksGameProps)
       const userAnswer = (userAnswers[i] || '').trim().toLowerCase();
       if (userAnswer === ans.toLowerCase()) {
         newFeedback[i] = 'correct';
-        newScore += 50;
+        newScore += (mode === 'typing' ? 100 : 50);
         newCorrectStats++;
       } else {
         newFeedback[i] = 'wrong';
@@ -95,6 +96,10 @@ export function FillBlanksGame({ words, mode, onGameOver }: FillBlanksGameProps)
 
     statsRef.current.blanksFilledCorrectly += newCorrectStats;
     statsRef.current.blanksFilledWrong += newWrongStats;
+
+    if (newCorrectStats > 0) {
+      playSound('correct');
+    }
 
     setFeedback(newFeedback);
     setScore(newScore);
@@ -175,6 +180,7 @@ export function FillBlanksGame({ words, mode, onGameOver }: FillBlanksGameProps)
 
   useEffect(() => {
     if (roundEnd) {
+      playSound('level-complete');
       const storedHighScore = parseInt(localStorage.getItem('fillBlanksHighScore') || '0', 10);
       if (score > storedHighScore) {
         localStorage.setItem('fillBlanksHighScore', score.toString());
@@ -299,15 +305,16 @@ export function FillBlanksGame({ words, mode, onGameOver }: FillBlanksGameProps)
       </div>
 
       {/* Game Area */}
-      <div className="flex-1 overflow-y-auto p-6 md:p-12 flex flex-col justify-center items-center relative z-10 w-full">
+      <div className="flex-1 overflow-y-auto w-full relative z-10">
+        <div className="min-h-full p-6 md:p-12 flex flex-col items-center">
         {loading ? (
-          <div className="flex flex-col items-center justify-center text-blue-300">
+          <div className="mt-32 flex flex-col items-center justify-center text-blue-300">
             <RefreshCw className="w-16 h-16 animate-spin mb-6 text-blue-400 drop-shadow-[0_0_10px_rgba(96,165,250,0.5)]" />
             <p className="font-bold tracking-widest uppercase text-lg">Generating paragraph...</p>
           </div>
         ) : (
-          <div className="w-full max-w-5xl bg-slate-900/40 backdrop-blur-xl p-8 md:p-12 rounded-[2.5rem] border border-white/10 shadow-2xl">
-            <div className="text-2xl md:text-3xl text-slate-100 leading-[2.5] font-medium">
+          <div className="mt-8 md:mt-16 w-full max-w-5xl bg-slate-900/40 backdrop-blur-xl p-8 md:p-12 rounded-[2.5rem] border border-white/10 shadow-2xl">
+            <div className="text-2xl md:text-3xl text-slate-100 leading-[2.5] font-medium break-words whitespace-pre-wrap">
               {formatParagraph()}
             </div>
 
@@ -334,6 +341,7 @@ export function FillBlanksGame({ words, mode, onGameOver }: FillBlanksGameProps)
             )}
           </div>
         )}
+        </div>
       </div>
     </div>
   );

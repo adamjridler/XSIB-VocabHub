@@ -1,89 +1,29 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Heart, RefreshCw, AlertTriangle, CheckCircle2, XCircle, Trophy, Flame, Target, BarChart3, Activity, Users } from 'lucide-react';
+import { Heart, RefreshCw, AlertTriangle, CheckCircle2, XCircle, Trophy, Flame, Target, BarChart3, Activity } from 'lucide-react';
 import { AutoTextFit } from '@/components/ui/AutoTextFit';
 import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
 import { api } from '@/lib/api';
-import { io, Socket } from 'socket.io-client';
 import { LeaderboardForGame } from '@/components/LeaderboardForGame';
+import { playSound } from '@/lib/audio';
 
 interface WordFallGameProps {
   words: any[];
   mode: 'typing' | 'multiple-choice';
   fallingType: 'translation' | 'definition';
   speed?: 'slow' | 'normal' | 'fast';
-  isMultiplayer?: boolean;
-  roomId?: string;
-  playerName?: string;
   onGameOver: (score: number) => void;
 }
 
-export function WordFallGame({ words, mode, fallingType, speed = 'normal', isMultiplayer, roomId, playerName, onGameOver }: WordFallGameProps) {
+export function WordFallGame({ words, mode, fallingType, speed = 'normal', onGameOver }: WordFallGameProps) {
   const [lives, setLives] = useState(3);
   const [score, setScore] = useState(0);
   const [activeDrops, setActiveDrops] = useState<any[]>([]); // falling words
   const [input, setInput] = useState('');
   const [roundEnd, setRoundEnd] = useState(false);
-  
-  // Multiplayer state
-  const [roomData, setRoomData] = useState<any>(null);
-  const [isGameStarted, setIsGameStarted] = useState(!isMultiplayer);
-  const [notifications, setNotifications] = useState<{id: string, text: string}[]>([]);
-  const socketRef = useRef<Socket | null>(null);
 
-  useEffect(() => {
-    if (isMultiplayer && roomId && playerName) {
-      const socket = io({
-        path: '/socket.io',
-      });
-      socketRef.current = socket;
-
-      socket.on('connect', () => {
-        socket.emit('join_room', { roomId, playerName });
-      });
-
-      socket.on('room_update', (data) => {
-        setRoomData(data);
-      });
-
-      socket.on('game_started', () => {
-        setIsGameStarted(true);
-      });
-      
-      socket.on('opponent_word_eaten', (data) => {
-        // data has playerId and word
-        setRoomData((prevRooms: any) => {
-          if (!prevRooms) return prevRooms;
-          const player = prevRooms.players.find((p: any) => p.id === data.playerId);
-          if (player) {
-            const notif = { id: Math.random().toString(), text: `${player.name} got "${data.word}"!` };
-            setNotifications(prev => [...prev, notif]);
-            setTimeout(() => {
-              setNotifications(prev => prev.filter(n => n.id !== notif.id));
-            }, 3000);
-          }
-          return prevRooms;
-        });
-      });
-
-      socket.on('error', (err) => {
-        alert(err);
-        onGameOver(score);
-      });
-
-      return () => {
-        socket.disconnect();
-      };
-    }
-  }, [isMultiplayer, roomId, playerName, onGameOver]);
-
-  const handleStartMultiplayer = () => {
-    if (socketRef.current) {
-      socketRef.current.emit('start_game', roomId);
-    }
-  };
-
+  const isGameStarted = true;
   const containerRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<number>();
   
@@ -116,14 +56,10 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', isMul
   useEffect(() => {
     livesRef.current = lives;
     
-    if (isMultiplayer && roomId && socketRef.current) {
-      socketRef.current.emit('update_score', { roomId, score, lives });
-    }
-
     if (lives <= 0) {
       setRoundEnd(true);
     }
-  }, [lives, score, isMultiplayer, roomId]);
+  }, [lives, score]);
 
   useEffect(() => {
     if (roundEnd || !isGameStarted) return; // Don't run game loops if round is over
@@ -265,16 +201,20 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', isMul
       // Hit!
       const copy = [...drops];
       const dropY = copy[matchedIndex].y || 0;
-      const points = 10 + Math.round((1 - Math.min(1, dropY / 85)) * 9) * 10;
+      let multiplier = 1;
+      if (mode === 'typing') multiplier *= 1.5;
+      if (speed === 'fast') multiplier *= 1.5;
+      if (speed === 'slow') multiplier *= 0.8;
+      if (fallingType === 'definition') multiplier *= 1.5;
+      
+      const basePoints = 10 + Math.round((1 - Math.min(1, dropY / 85)) * 9) * 10;
+      const points = Math.round(basePoints * multiplier);
       setScore(s => s + points);
+      playSound('correct');
       copy[matchedIndex] = { ...copy[matchedIndex], status: 'correct', statusTimer: 0, pointsEaten: points };
       activeDropsRef.current = copy;
       setActiveDrops(copy);
       setInput('');
-      
-      if (isMultiplayer && roomId && socketRef.current) {
-        socketRef.current.emit("word_eaten", { roomId, word: drops[matchedIndex].wordRef.word });
-      }
 
       const dropEl = document.getElementById(`drop-${copy[matchedIndex].id}`);
       let originX = 0.5;
@@ -321,15 +261,19 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', isMul
     if (drops[dropIndex].wordRef.word === selectedWordString) {
       const copy = [...drops];
       const dropY = copy[dropIndex].y || 0;
-      const points = 10 + Math.round((1 - Math.min(1, dropY / 85)) * 9) * 10;
+      let multiplier = 1;
+      if (mode === 'typing') multiplier *= 1.5;
+      if (speed === 'fast') multiplier *= 1.5;
+      if (speed === 'slow') multiplier *= 0.8;
+      if (fallingType === 'definition') multiplier *= 1.5;
+
+      const basePoints = 10 + Math.round((1 - Math.min(1, dropY / 85)) * 9) * 10;
+      const points = Math.round(basePoints * multiplier);
       setScore(s => s + points);
+      playSound('correct');
       copy[dropIndex] = { ...copy[dropIndex], status: 'correct', statusTimer: 0, pointsEaten: points };
       activeDropsRef.current = copy;
       setActiveDrops(copy);
-      
-      if (isMultiplayer && roomId && socketRef.current) {
-        socketRef.current.emit("word_eaten", { roomId, word: drops[dropIndex].wordRef.word });
-      }
 
       const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
       const originX = (rect.left + rect.width / 2) / window.innerWidth;
@@ -370,6 +314,7 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', isMul
 
   useEffect(() => {
     if (roundEnd) {
+      playSound('level-complete');
       const storedHighScore = parseInt(localStorage.getItem('wordFallHighScore') || '0', 10);
       if (score > storedHighScore) {
         localStorage.setItem('wordFallHighScore', score.toString());
@@ -379,7 +324,7 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', isMul
       }
       
       const maxPossibleScore = Math.max(1, (statsRef.current.correct + statsRef.current.missed) * 100);
-      const configId = `WordFall-${mode}-${fallingType}-${speed}${isMultiplayer ? '-MP' : ''}`;
+      const configId = `WordFall-${mode}-${fallingType}-${speed}`;
       api.recordGameSession('Word Fall', score, maxPossibleScore, configId);
     }
   }, [roundEnd, score]);
@@ -474,43 +419,10 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', isMul
               )}
             </div>
             
-            <LeaderboardForGame configId={`WordFall-${mode}-${fallingType}-${speed}${isMultiplayer ? '-MP' : ''}`} />
+            <LeaderboardForGame configId={`WordFall-${mode}-${fallingType}-${speed}`} />
           </div>
         </div>
       </motion.div>
-    );
-  }
-
-  if (!isGameStarted && isMultiplayer) {
-    return (
-      <div className="flex-1 w-full h-full flex flex-col items-center justify-center relative p-8">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="bg-slate-900 border border-white/10 rounded-3xl p-8 max-w-md w-full text-center shadow-2xl relative overflow-hidden"
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-blue-500/10"></div>
-          <Users className="w-20 h-20 mx-auto text-indigo-400 mb-6 drop-shadow-[0_0_15px_rgba(129,140,248,0.5)]" />
-          <h2 className="text-3xl font-extrabold text-white mb-2">Room: {roomId}</h2>
-          <p className="text-slate-400 mb-8">Waiting for players to join in...</p>
-
-          <div className="flex flex-col gap-3 mb-8">
-            {roomData?.players.map((p: any) => (
-              <div key={p.id} className="bg-slate-800/50 rounded-2xl p-4 border border-white/5 flex items-center gap-3">
-                <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)]"></div>
-                <span className="font-bold text-slate-200">{p.name} {p.id === socketRef.current?.id ? "(You)" : ""}</span>
-              </div>
-            ))}
-          </div>
-          
-          <Button 
-            onClick={handleStartMultiplayer}
-            className="w-full py-6 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white rounded-xl font-bold text-lg border-none hover:scale-105 transition-transform"
-          >
-            Start Game
-          </Button>
-        </motion.div>
-      </div>
     );
   }
 
@@ -532,37 +444,6 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', isMul
         <div className="flex flex-col items-end gap-3 pointer-events-auto">
           <div className="bg-slate-900/50 backdrop-blur-md px-6 py-3 text-purple-300 font-bold text-3xl font-mono rounded-2xl border border-white/5 shadow-[0_0_15px_rgba(168,85,247,0.2)] text-right">
             {score.toString().padStart(5, '0')}
-          </div>
-          {isMultiplayer && roomData && (
-            <div className="bg-slate-900/50 backdrop-blur-md p-4 rounded-2xl border border-white/5 flex flex-col gap-2 w-48 shadow-lg">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1 flex items-center gap-2">
-                <Users className="w-3 h-3" /> Live Standings
-              </h3>
-              <div className="max-h-40 overflow-y-auto pr-1 space-y-1">
-                {roomData.players.sort((a: any, b: any) => b.score - a.score).map((p: any) => (
-                  <div key={p.id} className="flex items-center justify-between gap-4 text-xs font-bold bg-slate-800/80 px-2 py-1.5 rounded-md">
-                    <span className={`truncate ${p.id === socketRef.current?.id ? 'text-indigo-400' : 'text-slate-300'}`}>{p.name}</span>
-                    <span className="text-white font-mono">{p.score}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          {/* Notifications */}
-          <div className="flex flex-col gap-2 items-end mt-4">
-            <AnimatePresence>
-              {notifications.map(n => (
-                <motion.div 
-                  key={n.id}
-                  initial={{ opacity: 0, x: 50, scale: 0.9 }}
-                  animate={{ opacity: 1, x: 0, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
-                  className="bg-indigo-600/90 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border border-indigo-400"
-                >
-                  {n.text}
-                </motion.div>
-              ))}
-            </AnimatePresence>
           </div>
         </div>
       </div>
