@@ -233,8 +233,30 @@ export const api = {
   },
 
   async getGameStats() {
-    // Stub
-    return { totalSessions: 0, averagePercent: 0 };
+    const { count } = await supabase.from('game_sessions').select('*', { count: 'exact', head: true });
+    
+    const { data: recentSessions, error } = await supabase
+      .from('game_sessions')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(5);
+
+    let recentScores: any[] = [];
+    if (!error && recentSessions && recentSessions.length > 0) {
+      const userIds = [...new Set(recentSessions.map((s: any) => s.user_id).filter(Boolean))];
+      const { data: profilesData } = await supabase.from('profiles').select('id, name').in('id', userIds);
+      const profilesMap: Record<string, string> = {};
+      if (profilesData) {
+        profilesData.forEach((p: any) => profilesMap[p.id] = p.name);
+      }
+      recentScores = recentSessions.map(s => ({
+        game: s.game,
+        score: s.score,
+        studentName: profilesMap[s.user_id] || 'Anonymous'
+      }));
+    }
+
+    return { totalSessions: count || 0, recentScores };
   },
 
   async getAccessCodes() {

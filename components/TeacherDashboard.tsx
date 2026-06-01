@@ -692,9 +692,9 @@ export function TeacherDashboard({ onLogout }: { onLogout: () => void }) {
               ) : (
                 <>
                   <header>
-                    <h1 className="text-3xl font-bold uppercase tracking-widest text-slate-900 mb-2">Weekly Upload</h1>
+                    <h1 className="text-3xl font-bold uppercase tracking-widest text-slate-900 mb-2">Add Words</h1>
                     <p className="text-slate-500 font-light text-sm">
-                      Enter target vocabulary for your classes. The system will automatically fetch definitions and example sentences from a free online dictionary.
+                      Enter target vocabulary for your classes. The system will automatically fetch definitions and example sentences using AI.
                     </p>
                   </header>
 
