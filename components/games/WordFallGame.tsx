@@ -314,7 +314,7 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', onGam
 
   useEffect(() => {
     if (roundEnd) {
-      playSound('level-complete');
+      playSound('game-over');
       const storedHighScore = parseInt(localStorage.getItem('wordFallHighScore') || '0', 10);
       if (score > storedHighScore) {
         localStorage.setItem('wordFallHighScore', score.toString());

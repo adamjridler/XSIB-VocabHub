@@ -180,7 +180,7 @@ export function FillBlanksGame({ words, mode, onGameOver }: FillBlanksGameProps)
 
   useEffect(() => {
     if (roundEnd) {
-      playSound('level-complete');
+      playSound('game-over');
       const storedHighScore = parseInt(localStorage.getItem('fillBlanksHighScore') || '0', 10);
       if (score > storedHighScore) {
         localStorage.setItem('fillBlanksHighScore', score.toString());

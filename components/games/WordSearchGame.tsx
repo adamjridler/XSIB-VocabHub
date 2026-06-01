@@ -152,7 +152,8 @@ export function WordSearchGame({ words, timeLimit = 120, clueType = 'translation
 
   useEffect(() => {
     if (gameOver) {
-      playSound('level-complete');
+      const isSuccess = Object.values(wordsToFind).every((w: any) => w.found) && Object.keys(wordsToFind).length > 0;
+      playSound(isSuccess ? 'level-complete' : 'game-over');
       const storedHighScore = parseInt(localStorage.getItem('wordSearchHighScore') || '0');
       if (score > storedHighScore) {
         localStorage.setItem('wordSearchHighScore', score.toString());

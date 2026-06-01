@@ -151,7 +151,7 @@ export function WordScrambleGame({ words, timeLimit, mode, onGameOver }: WordScr
 
   useEffect(() => {
     if (gameOver) {
-      playSound('level-complete');
+      playSound(isSuccess ? 'level-complete' : 'game-over');
       const storedHighScore = parseInt(localStorage.getItem('wordScrambleHighScore') || '0', 10);
       if (score > storedHighScore) {
         localStorage.setItem('wordScrambleHighScore', score.toString());

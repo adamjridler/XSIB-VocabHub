@@ -125,7 +125,8 @@ export function MemoryMatchGame({ words, previewTime = 0, timeLimit = 0, onGameO
 
   useEffect(() => {
     if (roundEnd) {
-      playSound('level-complete');
+      const isSuccess = matchedIds.length >= words.length;
+      playSound(isSuccess ? 'level-complete' : 'game-over');
       const storedHighScore = parseInt(localStorage.getItem('memoryMatchHighScore') || '0', 10);
       if (score > storedHighScore) {
         localStorage.setItem('memoryMatchHighScore', score.toString());
@@ -136,7 +137,6 @@ export function MemoryMatchGame({ words, previewTime = 0, timeLimit = 0, onGameO
       const configId = `MemoryMatch-${previewTime}-${timeLimit}`;
       api.recordGameSession('Memory Match', score, words.length * 150, configId);
       
-      const isSuccess = matchedIds.length >= words.length;
       if (isSuccess) {
         confetti({
           particleCount: 150,

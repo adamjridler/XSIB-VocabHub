@@ -1,4 +1,4 @@
-export const playSound = (sound: 'correct' | 'level-complete') => {
+export const playSound = (sound: 'correct' | 'level-complete' | 'game-over') => {
   if (typeof window === 'undefined') return;
   try {
     const audio = new Audio(`/${sound}.wav`);
