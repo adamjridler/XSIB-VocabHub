@@ -4,6 +4,7 @@ import confetti from 'canvas-confetti';
 import { Button } from '@/components/ui/button';
 import { Trophy, Clock, MousePointerClick, Target } from 'lucide-react';
 import { AutoTextFit } from '@/components/ui/AutoTextFit';
+import { SoundToggle } from '@/components/ui/SoundToggle';
 import { api } from '@/lib/api';
 import { LeaderboardForGame } from '@/components/LeaderboardForGame';
 import { playSound } from '@/lib/audio';
@@ -287,10 +288,12 @@ export function MemoryMatchGame({ words, previewTime = 0, timeLimit = 0, onGameO
             <span className="text-2xl font-black text-white tracking-tight">{moves}</span>
           </div>
         </div>
-        <div className={`flex items-center gap-2 bg-slate-800/80 px-4 py-2 rounded-xl font-mono font-bold ${timeLimit > 0 && timeLeft <= 10 ? 'text-red-400 animate-pulse' : 'text-rose-300'}`}>
-          <Clock className="w-5 h-5" />
-          <span>
-            {timeLimit > 0 ? (
+        <div className="flex items-center gap-4">
+          <SoundToggle />
+          <div className={`flex items-center gap-2 bg-slate-800/80 px-4 py-2 rounded-xl font-mono font-bold ${timeLimit > 0 && timeLeft <= 10 ? 'text-red-400 animate-pulse' : 'text-rose-300'}`}>
+            <Clock className="w-5 h-5" />
+            <span>
+              {timeLimit > 0 ? (
               <>
                 {Math.floor(timeLeft / 60).toString().padStart(2, '0')}:
                 {(timeLeft % 60).toString().padStart(2, '0')}
@@ -302,6 +305,7 @@ export function MemoryMatchGame({ words, previewTime = 0, timeLimit = 0, onGameO
               </>
             )}
           </span>
+        </div>
         </div>
       </div>
 

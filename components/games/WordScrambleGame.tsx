@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, Reorder } from 'motion/react';
 import { Button } from '@/components/ui/button';
 import { Timer, Trophy, Heart, Target } from 'lucide-react';
+import { SoundToggle } from '@/components/ui/SoundToggle';
 import confetti from 'canvas-confetti';
 import { api } from '@/lib/api';
 import { LeaderboardForGame } from '@/components/LeaderboardForGame';
@@ -266,10 +267,13 @@ export function WordScrambleGame({ words, timeLimit, mode, onGameOver }: WordScr
         </div>
         <div className="flex items-center gap-3">
           <span className="text-slate-400 text-xs sm:text-sm xl:text-base font-medium hidden sm:inline-block">Word {currentWordIndex + 1} / {gameWordsRef.current.length}</span>
-          <div className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-2xl border flex items-center gap-2 font-bold sm:text-lg transition-colors shrink-0
-            ${timeLeft <= 5 ? 'bg-red-500/20 text-red-400 border-red-500/30 animate-pulse' : 'bg-blue-500/20 text-blue-400 border-blue-500/30'}`}>
-            <Timer className="w-4 h-4 sm:w-5 sm:h-5" />
-            {timeLeft}s
+          <div className="flex items-center gap-2">
+            <SoundToggle />
+            <div className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-2xl border flex items-center gap-2 font-bold sm:text-lg transition-colors shrink-0
+              ${timeLeft <= 5 ? 'bg-red-500/20 text-red-400 border-red-500/30 animate-pulse' : 'bg-blue-500/20 text-blue-400 border-blue-500/30'}`}>
+              <Timer className="w-4 h-4 sm:w-5 sm:h-5" />
+              {timeLeft}s
+            </div>
           </div>
         </div>
       </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '@/components/ui/button';
 import { Trophy, Timer, Search, Clock, Target, CheckCircle2 } from 'lucide-react';
+import { SoundToggle } from '@/components/ui/SoundToggle';
 import confetti from 'canvas-confetti';
 import { api } from '@/lib/api';
 import { LeaderboardForGame } from '@/components/LeaderboardForGame';
@@ -376,6 +377,10 @@ export function WordSearchGame({ words, timeLimit = 120, clueType = 'translation
                <span className="text-sm font-black">-30 pts</span>
             </div>
           </Button>
+
+          <div className="flex items-center ml-2">
+            <SoundToggle />
+          </div>
         </div>
 
         {timeLimit > 0 && (

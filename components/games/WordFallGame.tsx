@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Heart, RefreshCw, AlertTriangle, CheckCircle2, XCircle, Trophy, Flame, Target, BarChart3, Activity } from 'lucide-react';
 import { AutoTextFit } from '@/components/ui/AutoTextFit';
+import { SoundToggle } from '@/components/ui/SoundToggle';
 import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
 import { api } from '@/lib/api';
@@ -441,7 +442,8 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', onGam
             <Heart key={i} className={`w-8 h-8 ${i < lives ? 'text-rose-500 fill-rose-500 drop-shadow-[0_0_8px_rgba(244,63,94,0.8)]' : 'text-slate-700'}`} />
           ))}
         </div>
-        <div className="flex flex-col items-end gap-3 pointer-events-auto">
+        <div className="flex items-start gap-3 pointer-events-auto">
+          <SoundToggle />
           <div className="bg-slate-900/50 backdrop-blur-md px-6 py-3 text-purple-300 font-bold text-3xl font-mono rounded-2xl border border-white/5 shadow-[0_0_15px_rgba(168,85,247,0.2)] text-right">
             {score.toString().padStart(5, '0')}
           </div>

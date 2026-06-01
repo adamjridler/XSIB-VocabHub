@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Heart, RefreshCw, AlertTriangle, CheckCircle2, XCircle, Trophy, Target, BookOpen, Clock } from 'lucide-react';
+import { SoundToggle } from '@/components/ui/SoundToggle';
 import { motion, AnimatePresence } from 'motion/react';
 import { api } from '@/lib/api';
 import { LeaderboardForGame } from '@/components/LeaderboardForGame';
@@ -299,8 +300,11 @@ export function FillBlanksGame({ words, mode, onGameOver }: FillBlanksGameProps)
         <div className="text-slate-100 font-bold text-2xl font-mono bg-slate-900/50 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/5 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
           Time: <span className={timeLeft <= 30 ? 'text-rose-400 animate-pulse' : 'text-blue-300'}>{formatTime(timeLeft)}</span>
         </div>
-        <div className="text-emerald-300 font-bold text-3xl font-mono bg-slate-900/50 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/5 shadow-[0_0_15px_rgba(16,185,129,0.2)] min-w-[120px] text-center">
-          {score.toString().padStart(5, '0')}
+        <div className="flex items-center gap-3">
+          <SoundToggle />
+          <div className="text-emerald-300 font-bold text-3xl font-mono bg-slate-900/50 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/5 shadow-[0_0_15px_rgba(16,185,129,0.2)] min-w-[120px] text-center">
+            {score.toString().padStart(5, '0')}
+          </div>
         </div>
       </div>
 
