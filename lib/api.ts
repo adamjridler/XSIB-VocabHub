@@ -422,11 +422,26 @@ export const api = {
   },
 
   async getStudentLeaderboard() {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+    // Fetch the sessions for the current month
+    const { data: sessions, error: sessionsError } = await supabase
+      .from('game_sessions')
+      .select('user_id, score')
+      .gte('created_at', startOfMonth);
+
+    const userScores = new Map<string, number>();
+    if (sessions) {
+      for (const s of sessions) {
+        userScores.set(s.user_id, (userScores.get(s.user_id) || 0) + (s.score || 0));
+      }
+    }
+
     const { data: profiles, error } = await supabase
       .from('profiles')
       .select('id, name, high_score, access_code')
-      .eq('role', 'student')
-      .order('high_score', { ascending: false });
+      .eq('role', 'student');
       
     if (error || !profiles) return [];
 
@@ -434,12 +449,14 @@ export const api = {
     
     const codeToGrade = new Map((codes || []).map(c => [c.code, c.grade_level]));
     
-    return profiles.map((profile: any) => ({
+    const results = profiles.map((profile: any) => ({
       id: profile.id,
       name: profile.name,
-      highScore: profile.high_score || 0,
+      highScore: userScores.get(profile.id) || 0, // Used as monthly score
       gradeLevel: profile.access_code ? (codeToGrade.get(profile.access_code) || 'Unknown') : 'Unknown'
     }));
+
+    return results.sort((a, b) => b.highScore - a.highScore);
   },
 
   async getAllStudents() {

@@ -421,11 +421,34 @@ export function StudyVocab({ onBack }: { onBack: () => void }) {
 
                                         {activeInsight.type === 'usage' && activeInsight.data && (
                                             <div className="space-y-6">
+                                                {activeInsight.data.partOfSpeech && (
+                                                    <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                                                        <h4 className="text-xs font-bold uppercase tracking-widest text-emerald-500 mb-2">Part of Speech</h4>
+                                                        <p className="text-slate-800 text-sm font-semibold capitalize">{activeInsight.data.partOfSpeech}</p>
+                                                    </div>
+                                                )}
+                                                
+                                                {activeInsight.data.notes && (
+                                                    <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                                                        <h4 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Usage Context</h4>
+                                                        <p className="text-slate-700 text-sm leading-relaxed">{activeInsight.data.notes}</p>
+                                                    </div>
+                                                )}
+
                                                 {(activeInsight.data.collocations?.length > 0) && (
                                                     <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
                                                         <h4 className="text-xs font-bold uppercase tracking-widest text-blue-500 mb-3">Common Collocations</h4>
                                                         <div className="flex flex-wrap gap-2">
                                                             {activeInsight.data.collocations.map((c: string) => <span key={c} className="px-3 py-1 bg-blue-50 text-blue-700 text-sm font-semibold rounded-lg">{c}</span>)}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                
+                                                {(activeInsight.data.forms?.length > 0) && (
+                                                    <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                                                        <h4 className="text-xs font-bold uppercase tracking-widest text-purple-500 mb-3">Different Forms</h4>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {activeInsight.data.forms.map((f: string) => <span key={f} className="px-3 py-1 bg-purple-50 text-purple-700 text-sm font-semibold rounded-lg">{f}</span>)}
                                                         </div>
                                                     </div>
                                                 )}

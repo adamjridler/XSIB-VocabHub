@@ -107,7 +107,7 @@ export function WordSearchGame({ words, timeLimit = 120, clueType = 'translation
 
   useEffect(() => {
     if (words.length > 0) {
-      gameWordsRef.current = [...words].sort(() => Math.random() - 0.5).slice(0, 8);
+      gameWordsRef.current = [...words].sort(() => Math.random() - 0.5);
       const { grid, wordsMap } = generateGrid(gameWordsRef.current);
       setGrid(grid);
       setWordsToFind(wordsMap);

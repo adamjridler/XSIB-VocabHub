@@ -11,6 +11,7 @@ import {
   Sparkles,
   ArrowRight,
   Trophy,
+  Globe,
   Flame,
   Target,
   Zap,
@@ -67,6 +68,7 @@ export default function App() {
   });
   const [studentStats, setStudentStats] = useState<{
     highScore: number;
+    monthlyScore: number;
     gamesPlayed: number;
     lastPlayed: string;
     averageScore: number;
@@ -184,12 +186,20 @@ export default function App() {
         let topScore = 0;
         let totalScore = 0;
         let totalMaxScore = 0;
+        let monthlyScore = 0;
         let lastPlayed = new Date(sessions[0].createdAt).toLocaleDateString();
+
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
 
         sessions.forEach((s: any) => {
           topScore = Math.max(topScore, s.score || 0);
           totalScore += (s.score || 0);
           totalMaxScore += (s.maxScore || s.score || 0);
+          
+          if (new Date(s.createdAt).getTime() >= startOfMonth) {
+            monthlyScore += (s.score || 0);
+          }
         });
 
         let streak = 0;
@@ -206,7 +216,8 @@ export default function App() {
         }
 
         setStudentStats({
-          highScore: studentUser.high_score || topScore,
+          highScore: totalScore,
+          monthlyScore,
           gamesPlayed,
           lastPlayed,
           averageScore: Math.round(totalScore / gamesPlayed),
@@ -216,6 +227,7 @@ export default function App() {
       } else {
         setStudentStats({
           highScore: studentUser.high_score || 0,
+          monthlyScore: 0,
           gamesPlayed: 0,
           lastPlayed: "Never",
           averageScore: 0,
@@ -229,11 +241,21 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (view === "hub") {
+    if (view === "hub" || view === "games") {
       const user = api.getUser();
       if (user && user.role === "student") {
         loadStudentStats(user);
       }
+
+      api.getGameStats()
+        .then((gameStats) => {
+          setStats((prev) => ({
+            ...prev,
+            totalSessions: gameStats.totalSessions,
+            recentScores: gameStats.recentScores || [],
+          }));
+        })
+        .catch((err) => console.error("Failed to fetch game stats", err));
     }
   }, [view]);
 
@@ -269,6 +291,19 @@ export default function App() {
       <InteractiveGames
         onBack={() => setView("hub")}
         backgroundWords={backgroundWords}
+        onGameComplete={() => {
+          const user = api.getUser();
+          if (user && user.role === "student") {
+            loadStudentStats(user);
+          }
+          api.getGameStats().then((gameStats) => {
+            setStats((prev) => ({
+              ...prev,
+              totalSessions: gameStats.totalSessions,
+              recentScores: gameStats.recentScores || [],
+            }));
+          }).catch((err) => console.error(err));
+        }}
       />
     );
   }
@@ -416,8 +451,8 @@ export default function App() {
               </div>
             </section>
 
-            <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4 lg:gap-6 items-start w-full">
-              <div className="flex flex-col items-start text-left w-full">
+            <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4 lg:gap-6 items-stretch w-full">
+              <div className="flex flex-col items-start text-left w-full h-full">
                 {/* Features Section */}
               <section className="w-full mb-3">
                 <motion.div
@@ -523,9 +558,9 @@ export default function App() {
             </section>
 
             {/* Analytics Highlights Section */}
-            <section className="w-full max-w-4xl mb-2">
+            <section className="w-full max-w-4xl mb-2 flex flex-col flex-grow">
               <div className="flex items-center gap-2 mb-2">
-                <Trophy className="h-4 w-4 text-purple-600" />
+                <Globe className="h-4 w-4 text-purple-600" />
                 <h2 className="text-base font-bold tracking-tight text-slate-900">
                   Global Stats
                 </h2>
@@ -601,41 +636,47 @@ export default function App() {
 
               {/* Rolling Info Bar for Recent High Scores */}
               {stats.recentScores && stats.recentScores.length > 0 && (
-                <motion.div
-                  variants={itemVariants}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                  className="mt-4 flex overflow-hidden bg-slate-900 text-white rounded-full py-2 px-4 shadow-lg border border-slate-700 w-full relative"
-                >
-                  <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-slate-900 to-transparent z-10"></div>
-                  <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-slate-900 to-transparent z-10"></div>
+                <div className="mt-auto pt-3 w-full flex flex-col items-center justify-end pb-0">
+                  <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <Trophy className="w-4 h-4 text-purple-500" />
+                    Latest Top Scores
+                  </h3>
+                  <motion.div
+                    variants={itemVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    className="flex overflow-hidden bg-slate-900 text-white rounded-full py-2 px-4 shadow-lg border border-slate-700 w-full relative"
+                  >
+                    <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-slate-900 to-transparent z-10"></div>
+                    <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-slate-900 to-transparent z-10"></div>
 
-                  <div className="flex items-center gap-4 animate-[scroll_40s_linear_infinite] whitespace-nowrap min-w-max">
-                    {/* Double the array for seamless scrolling */}
-                    {[...stats.recentScores, ...stats.recentScores].map(
-                      (scoreObj, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-center gap-2 text-sm"
-                        >
-                          <Trophy className="w-4 h-4 text-yellow-400" />
-                          <span className="font-bold text-purple-300">
-                            {scoreObj.game}
-                          </span>
-                          <span className="text-slate-400">•</span>
-                          <span className="font-semibold">
-                            {scoreObj.studentName}
-                          </span>
-                          <span className="text-emerald-400 font-mono font-bold bg-emerald-400/20 px-2 py-0.5 rounded-md">
-                            {scoreObj.score}
-                          </span>
-                          <span className="text-slate-600 mx-4">|</span>
-                        </div>
-                      ),
-                    )}
-                  </div>
-                </motion.div>
+                    <div className="flex items-center gap-4 animate-[scroll_40s_linear_infinite] whitespace-nowrap min-w-max">
+                      {/* Double the array for seamless scrolling */}
+                      {[...stats.recentScores, ...stats.recentScores].map(
+                        (scoreObj, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-center gap-2 text-sm"
+                          >
+                            <Trophy className="w-4 h-4 text-yellow-400" />
+                            <span className="font-bold text-purple-300">
+                              {scoreObj.game}
+                            </span>
+                            <span className="text-slate-400">•</span>
+                            <span className="font-semibold">
+                              {scoreObj.studentName}
+                            </span>
+                            <span className="text-emerald-400 font-mono font-bold bg-emerald-400/20 px-2 py-0.5 rounded-md">
+                              {scoreObj.score}
+                            </span>
+                            <span className="text-slate-600 mx-4">|</span>
+                          </div>
+                        ),
+                      )}
+                    </div>
+                  </motion.div>
+                </div>
               )}
             </section>
             </div>
@@ -659,23 +700,37 @@ export default function App() {
                 <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 rounded-full bg-purple-600/20 blur-3xl pointer-events-none"></div>
                 <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-48 h-48 rounded-full bg-blue-600/20 blur-3xl pointer-events-none"></div>
 
-                <CardHeader className="relative z-10 border-b border-slate-800/80 pb-4">
+                <CardHeader className="relative z-10 border-b border-slate-800/80 pb-3">
                   <CardTitle className="text-lg text-white font-bold flex items-center gap-2">
                     <Target className="w-5 h-5 text-purple-400" />
                     My Progress
                   </CardTitle>
                   <CardDescription className="text-slate-400">Your personal learning statistics</CardDescription>
                 </CardHeader>
-                <CardContent className="relative z-10 pt-6">
+                <CardContent className="relative z-10 pt-3">
                   <div className="space-y-4">
-                    <div className="bg-gradient-to-br from-purple-500/10 to-indigo-500/10 rounded-xl p-4 border border-purple-500/20 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-purple-500/20 text-purple-300 rounded-lg">
-                          <Trophy className="w-5 h-5" />
+                    <div className="bg-gradient-to-br from-purple-500/10 to-indigo-500/10 rounded-xl p-4 border border-purple-500/20 flex flex-col gap-4">
+                      <div className="flex items-center justify-between border-b border-purple-500/20 pb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-purple-500/20 text-purple-300 rounded-lg">
+                            <Trophy className="w-5 h-5" />
+                          </div>
+                          <span className="font-semibold text-purple-100">Overall Score</span>
                         </div>
-                        <span className="font-semibold text-purple-100">High Score</span>
+                        <span className="text-3xl font-black text-white">{studentStats?.highScore || 0}</span>
                       </div>
-                      <span className="text-3xl font-black text-white">{studentStats?.highScore || 0}</span>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-blue-500/20 text-blue-300 rounded-lg">
+                            <Target className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <span className="font-semibold text-blue-100 block">Monthly Score</span>
+                            <span className="text-[10px] text-blue-300/70 uppercase tracking-widest">{new Date().toLocaleString('default', { month: 'short' })}</span>
+                          </div>
+                        </div>
+                        <span className="text-2xl font-bold text-blue-100">{studentStats?.monthlyScore || 0}</span>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">

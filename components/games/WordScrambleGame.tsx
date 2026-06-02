@@ -32,7 +32,7 @@ export function WordScrambleGame({ words, timeLimit, mode, onGameOver }: WordScr
 
   useEffect(() => {
     if (words.length > 0) {
-      gameWordsRef.current = [...words].sort(() => Math.random() - 0.5).slice(0, 10);
+      gameWordsRef.current = [...words].sort(() => Math.random() - 0.5);
       setupWord(0);
     } else {
       setGameOver(true);

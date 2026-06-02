@@ -142,7 +142,7 @@ async function startServer() {
       if (type === 'examples') {
         prompt = `Give me 3 practical example sentences for the word "${word}". Return ONLY a JSON list of strings, e.g. ["sentence 1", "sentence 2", "sentence 3"]`;
       } else if (type === 'usage') {
-        prompt = `Explain the usage notes, common collocations, and nuances of the word "${word}". Return ONLY JSON in this format: {"notes": "...", "collocations": ["...", "..."]}`;
+        prompt = `For the word "${word}", provide its part of speech, usage context, common collocations, and a list of different forms of the word (e.g. noun, verb, adjective). Return ONLY JSON in this format: {"partOfSpeech": "...", "notes": "...", "collocations": ["...", "..."], "forms": ["...", "..."]}`;
       } else {
         res.status(400).json({ error: 'Invalid insight type' });
         return;

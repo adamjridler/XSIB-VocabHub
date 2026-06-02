@@ -85,7 +85,7 @@ function WordSearchCardAnimation() {
   );
 }
 
-export function InteractiveGames({ onBack, backgroundWords }: { onBack: () => void; backgroundWords?: string[] }) {
+export function InteractiveGames({ onBack, backgroundWords, onGameComplete }: { onBack: () => void; backgroundWords?: string[], onGameComplete?: () => void }) {
   const [selectedGame, setSelectedGame] = useState<'word-fall' | 'fill-blanks' | 'memory-match' | 'word-scramble' | 'word-search' | null>(null);
   const [gameState, setGameState] = useState<'menu' | 'setup' | 'playing'>('menu');
   const [allWords, setAllWords] = useState<any[]>([]);
@@ -127,9 +127,27 @@ export function InteractiveGames({ onBack, backgroundWords }: { onBack: () => vo
     return sMatch && lMatch;
   });
 
-  // Limit to 10 random words from the filtered list
+  // Limit words based on the game type to prevent repetition but keep within game limits
   const getGameWordsArray = () => {
-    return [...filteredWords].sort(() => Math.random() - 0.5).slice(0, 10);
+    const shuffled = [...filteredWords].sort(() => Math.random() - 0.5);
+    
+    switch (selectedGame) {
+      case 'word-fall':
+        // Word fall can handle a huge list of words natively
+        return shuffled;
+      case 'memory-match':
+        // Memory match gets too crowded with more than ~8-12 words (16-24 cards)
+        return shuffled.slice(0, 10);
+      case 'word-search':
+        // Word search generates a grid based on words, 10-15 is typically a good limit
+        return shuffled.slice(0, 15);
+      case 'fill-blanks':
+      case 'word-scramble':
+        // These can handle a decent amount to cycle through
+        return shuffled.slice(0, 30);
+      default:
+        return shuffled.slice(0, 10);
+    }
   };
 
   const handleStartGame = () => {
@@ -139,6 +157,9 @@ export function InteractiveGames({ onBack, backgroundWords }: { onBack: () => vo
 
   const handleGameOver = async (score: number) => {
     setGameState('menu');
+    if (onGameComplete) {
+      onGameComplete();
+    }
   };
 
   if (gameState === 'playing' && selectedGame) {
