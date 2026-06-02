@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
-import { Search, Info, ArrowLeft, RefreshCw } from "lucide-react";
+import { Search, Info, ArrowLeft, RefreshCw, ZoomIn, ZoomOut, Download, CheckSquare, Square } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AutoTextFit } from "@/components/ui/AutoTextFit";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -13,6 +13,10 @@ export function StudentWordBank({ onBack }: { onBack: () => void }) {
   const [subjectFilters, setSubjectFilters] = useState<string[]>([]);
   const [levelFilters, setLevelFilters] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  const [tileSize, setTileSize] = useState<'small' | 'medium' | 'large'>('medium');
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedWords, setSelectedWords] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     async function loadWords() {
@@ -45,6 +49,61 @@ export function StudentWordBank({ onBack }: { onBack: () => void }) {
   const toggleSubject = (s: string) => setSubjectFilters(prev => prev.includes(s) ? prev.filter(p => p !== s) : [...prev, s]);
   const toggleLevel = (l: string) => setLevelFilters(prev => prev.includes(l) ? prev.filter(p => p !== l) : [...prev, l]);
 
+  const toggleWordSelection = (id: string) => {
+    setSelectedWords(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const selectAllFiltered = () => {
+    const allFilteredIds = filteredWords.map(w => w.id);
+    setSelectedWords(new Set(allFilteredIds));
+  };
+  
+  const clearSelection = () => {
+    setSelectedWords(new Set());
+  };
+
+  const exportSelection = () => {
+    const selected = words.filter(w => selectedWords.has(w.id));
+    if (selected.length === 0) return;
+    
+    let csv = "Word,Subject,Level,Definition,Translation,Example\n";
+    selected.forEach(w => {
+      const escape = (str: string) => str ? str.replace(/"/g, '""') : '';
+      csv += `"${w.word}","${w.subject}","${w.level}","${escape(w.definition)}","${escape(w.translation)}","${escape(w.example)}"\n`;
+    });
+    
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = "vocab_export.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const getGridClass = () => {
+    switch (tileSize) {
+      case 'small': return "grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-3 sm:gap-4";
+      case 'large': return "grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 sm:gap-8";
+      default: return "grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 md:gap-6";
+    }
+  };
+
+  const getHeadingSize = () => {
+    switch (tileSize) {
+      case 'small': return "text-[8px] sm:text-[9px]";
+      case 'large': return "text-[12px] sm:text-[14px]";
+      default: return "text-[9px] sm:text-[10px]";
+    }
+  };
+
   return (
     <div className="relative h-screen w-screen overflow-hidden flex flex-col bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 text-slate-900 font-sans selection:bg-purple-200 selection:text-slate-900">
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
@@ -70,15 +129,53 @@ export function StudentWordBank({ onBack }: { onBack: () => void }) {
         />
       </div>
 
-      <header className="relative w-full border-b border-purple-200/50 bg-white/70 backdrop-blur-md flex-none z-10 px-6 py-4">
+      <header className="relative w-full border-b border-purple-200/50 bg-white/70 backdrop-blur-md flex-none z-10 px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={onBack} className="text-slate-500 hover:text-slate-900">
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
             <h1 className="text-xl font-bold uppercase tracking-widest text-slate-900">Word Bank</h1>
-            <p className="text-xs text-slate-500 font-medium">Browse and study your vocabulary</p>
+            <p className="text-xs text-slate-500 font-medium">Browse and export your vocabulary</p>
           </div>
+        </div>
+        
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0">
+          <div className="flex items-center bg-slate-100 rounded-full p-1 mr-2 flex-shrink-0">
+            <button onClick={() => setTileSize('small')} className={`p-1.5 rounded-full transition-colors ${tileSize === 'small' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}>
+              <ZoomOut className="w-4 h-4" />
+            </button>
+            <button onClick={() => setTileSize('medium')} className={`p-1.5 px-3 rounded-full text-xs font-bold transition-colors ${tileSize === 'medium' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}>
+              M
+            </button>
+            <button onClick={() => setTileSize('large')} className={`p-1.5 rounded-full transition-colors ${tileSize === 'large' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}>
+              <ZoomIn className="w-4 h-4" />
+            </button>
+          </div>
+          
+          <Button 
+            variant={selectionMode ? "default" : "outline"}
+            className={`rounded-full shrink-0 ${selectionMode ? 'bg-purple-600 hover:bg-purple-700' : ''}`}
+            size="sm"
+            onClick={() => {
+              setSelectionMode(!selectionMode);
+              if (selectionMode) clearSelection();
+            }}
+          >
+            {selectionMode ? 'Cancel Select' : 'Select Words'}
+          </Button>
+          
+          {selectionMode && (
+            <>
+              <Button size="sm" variant="outline" onClick={selectedWords.size > 0 ? clearSelection : selectAllFiltered} className="rounded-full shrink-0">
+                {selectedWords.size > 0 ? 'Clear' : 'Select All'}
+              </Button>
+              <Button size="sm" className="rounded-full gap-2 shrink-0 bg-blue-600 hover:bg-blue-700 text-white" disabled={selectedWords.size === 0} onClick={exportSelection}>
+                <Download className="w-4 h-4" />
+                Export ({selectedWords.size})
+              </Button>
+            </>
+          )}
         </div>
       </header>
 
@@ -152,18 +249,30 @@ export function StudentWordBank({ onBack }: { onBack: () => void }) {
                 <p className="text-sm">Try adjusting your filters or search term.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 md:gap-6 pb-20">
+              <div className={`grid ${getGridClass()} pb-20`}>
                 {filteredWords.map((word, i) => (
                   <motion.div 
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: i * 0.03 < 0.5 ? i * 0.03 : 0 }}
+                    transition={{ delay: i * 0.01 < 0.5 ? i * 0.01 : 0 }}
                     key={word.id}
                   >
-                    <Dialog>
-                      <DialogTrigger render={<button className="group relative cursor-pointer text-left rounded-[2rem] border-2 border-purple-200/50 bg-white/60 backdrop-blur-sm overflow-hidden shadow-sm hover:shadow-md hover:border-purple-300 transition-all flex flex-col aspect-[4/3] w-full" />}>
-                          <div className="bg-purple-100/50 py-2 px-2 border-b-2 border-purple-200/50 flex-none w-full flex flex-col items-center justify-center min-h-[48px] gap-0.5">
-                            <p className="text-center text-[#5c3e84] font-bold text-[9px] sm:text-[10px] tracking-wider uppercase w-full line-clamp-2 leading-tight">
+                    {selectionMode ? (
+                      <button 
+                        onClick={() => toggleWordSelection(word.id)}
+                        className={`group relative cursor-pointer text-left rounded-[2rem] border-2 bg-white/60 backdrop-blur-sm overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col aspect-[4/3] w-full
+                          ${selectedWords.has(word.id) ? 'border-blue-500 ring-2 ring-blue-500/50' : 'border-purple-200/50 hover:border-purple-300'}
+                        `}
+                      >
+                         <div className="absolute top-2 left-2 z-10 w-6 h-6 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm border border-slate-200">
+                           {selectedWords.has(word.id) ? (
+                             <CheckSquare className="w-4 h-4 text-blue-600" />
+                           ) : (
+                             <Square className="w-4 h-4 text-slate-300" />
+                           )}
+                         </div>
+                         <div className="bg-purple-100/50 py-2 px-2 border-b-2 border-purple-200/50 flex-none w-full flex flex-col items-center justify-center min-h-[48px] gap-0.5">
+                            <p className={`text-center text-[#5c3e84] font-bold ${getHeadingSize()} tracking-wider uppercase w-full line-clamp-2 leading-tight`}>
                               {word.subject}
                             </p>
                             <p className="text-center text-[#5c3e84]/70 font-semibold text-[8px] sm:text-[9px] tracking-widest uppercase truncate w-full mt-0.5">
@@ -174,41 +283,64 @@ export function StudentWordBank({ onBack }: { onBack: () => void }) {
                             <h3 className="w-full text-center h-full flex items-center justify-center">
                               <AutoTextFit 
                                 text={word.word} 
-                                minFontSize={12} 
-                                maxFontSize={32} 
+                                minFontSize={10} 
+                                maxFontSize={tileSize === 'small' ? 24 : 36} 
                                 className="font-bold tracking-tight text-black flex-1" 
                               />
                             </h3>
                           </div>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-md rounded-3xl">
-                        <DialogHeader>
-                          <DialogTitle className="text-3xl font-bold pt-4">{word.word}</DialogTitle>
-                          <div className="flex gap-2 pb-2">
-                            <span className="text-[10px] uppercase font-bold tracking-widest bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">{word.subject}</span>
-                            <span className="text-[10px] uppercase font-bold tracking-widest bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{word.level}</span>
-                          </div>
-                        </DialogHeader>
-                        <div className="space-y-4 pt-2">
-                          <div>
-                            <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 block mb-1">Definition</span>
-                            <p className="text-slate-900 leading-relaxed font-medium">{word.definition}</p>
-                          </div>
-                          {word.translation && (
+                      </button>
+                    ) : (
+                      <Dialog>
+                        <DialogTrigger render={<button className="group relative cursor-pointer text-left rounded-[2rem] border-2 border-purple-200/50 bg-white/60 backdrop-blur-sm overflow-hidden shadow-sm hover:shadow-md hover:border-purple-300 transition-all flex flex-col aspect-[4/3] w-full" />}>
+                            <div className="bg-purple-100/50 py-2 px-2 border-b-2 border-purple-200/50 flex-none w-full flex flex-col items-center justify-center min-h-[48px] gap-0.5">
+                              <p className={`text-center text-[#5c3e84] font-bold ${getHeadingSize()} tracking-wider uppercase w-full line-clamp-2 leading-tight`}>
+                                {word.subject}
+                              </p>
+                              <p className="text-center text-[#5c3e84]/70 font-semibold text-[8px] sm:text-[9px] tracking-widest uppercase truncate w-full mt-0.5">
+                                {word.level}
+                              </p>
+                            </div>
+                            <div className="flex-1 flex items-center justify-center p-3 w-full min-h-0 overflow-hidden">
+                              <h3 className="w-full text-center h-full flex items-center justify-center">
+                                <AutoTextFit 
+                                  text={word.word} 
+                                  minFontSize={10} 
+                                  maxFontSize={tileSize === 'small' ? 24 : 36} 
+                                  className="font-bold tracking-tight text-black flex-1" 
+                                />
+                              </h3>
+                            </div>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-md rounded-3xl">
+                          <DialogHeader>
+                            <DialogTitle className="text-3xl font-bold pt-4">{word.word}</DialogTitle>
+                            <div className="flex gap-2 pb-2">
+                              <span className="text-[10px] uppercase font-bold tracking-widest bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">{word.subject}</span>
+                              <span className="text-[10px] uppercase font-bold tracking-widest bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{word.level}</span>
+                            </div>
+                          </DialogHeader>
+                          <div className="space-y-4 pt-2">
                             <div>
-                              <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 block mb-1">Translation (Simplified Chinese)</span>
-                              <p className="text-slate-900 leading-relaxed font-medium">{word.translation}</p>
+                              <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 block mb-1">Definition</span>
+                              <p className="text-slate-900 leading-relaxed font-medium">{word.definition}</p>
                             </div>
-                          )}
-                          {word.example && word.example !== 'No example available.' && (
-                            <div className="p-4 bg-purple-50 rounded-xl border border-purple-100">
-                              <span className="text-[10px] uppercase tracking-widest font-bold text-purple-400 block mb-1">Example</span>
-                              <p className="text-purple-900 italic">"{word.example}"</p>
-                            </div>
-                          )}
-                        </div>
-                      </DialogContent>
-                    </Dialog>
+                            {word.translation && (
+                              <div>
+                                <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 block mb-1">Translation (Simplified Chinese)</span>
+                                <p className="text-slate-900 leading-relaxed font-medium">{word.translation}</p>
+                              </div>
+                            )}
+                            {word.example && word.example !== 'No example available.' && (
+                              <div className="p-4 bg-purple-50 rounded-xl border border-purple-100">
+                                <span className="text-[10px] uppercase tracking-widest font-bold text-purple-400 block mb-1">Example</span>
+                                <p className="text-purple-900 italic">"{word.example}"</p>
+                              </div>
+                            )}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    )}
                   </motion.div>
                 ))}
               </div>
@@ -219,3 +351,4 @@ export function StudentWordBank({ onBack }: { onBack: () => void }) {
     </div>
   );
 }
+

@@ -396,17 +396,17 @@ export default function App() {
         ) : view === "hub" ? (
           <div className="w-full max-w-7xl flex flex-col pb-8">
             {/* Hero Section */}
-            <section className="flex flex-col items-start text-left w-full mt-2 mb-8">
+            <section className="flex flex-col items-start text-left w-full mt-2 mb-4">
               <div className="flex flex-col items-start justify-center">
                 <motion.h1
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.1 }}
                 >
-                  <span className="block text-sm md:text-base font-bold tracking-[0.2em] text-slate-500 mb-0 uppercase">
+                  <span className="block text-sm font-bold tracking-[0.2em] text-slate-500 mb-0 uppercase">
                     XSIB
                   </span>
-                  <span className="block text-5xl md:text-7xl font-black tracking-tighter text-slate-900">
+                  <span className="block text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-slate-900">
                     Vocab
                     <span className="text-transparent bg-clip-text bg-gradient-to-br from-purple-600 to-indigo-600">
                       Hub.
@@ -416,10 +416,10 @@ export default function App() {
               </div>
             </section>
 
-            <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8 items-start w-full">
+            <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4 lg:gap-6 items-start w-full">
               <div className="flex flex-col items-start text-left w-full">
                 {/* Features Section */}
-              <section className="w-full mb-4">
+              <section className="w-full mb-3">
                 <motion.div
                 variants={containerVariants}
                 initial="hidden"
@@ -433,13 +433,13 @@ export default function App() {
                     onClick={() => handleStudentAction("word-bank")}
                   >
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                      <BookOpen className="w-24 h-24 text-purple-600 -rotate-12 translate-x-4 -translate-y-4" />
+                      <BookOpen className="w-20 h-20 text-purple-600 -rotate-12 translate-x-4 -translate-y-4" />
                     </div>
-                    <CardHeader className="pb-2 pt-5 relative z-10">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md mb-3 transform group-hover:scale-110 transition-transform duration-300">
-                        <BookOpen className="h-5 w-5" />
+                    <CardHeader className="pb-1 pt-4 relative z-10">
+                      <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md mb-2 transform group-hover:scale-110 transition-transform duration-300">
+                        <BookOpen className="h-4 w-4" />
                       </div>
-                      <CardTitle className="text-lg text-slate-900 font-bold tracking-tight">
+                      <CardTitle className="text-base text-slate-900 font-bold tracking-tight">
                         View Word Bank
                       </CardTitle>
                     </CardHeader>
@@ -464,13 +464,13 @@ export default function App() {
                     onClick={() => handleStudentAction("study")}
                   >
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                      <Brain className="w-24 h-24 text-purple-600 -rotate-12 translate-x-4 -translate-y-4" />
+                      <Brain className="w-20 h-20 text-purple-600 -rotate-12 translate-x-4 -translate-y-4" />
                     </div>
-                    <CardHeader className="pb-2 pt-5 relative z-10">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md mb-3 transform group-hover:scale-110 transition-transform duration-300">
-                        <Brain className="h-5 w-5" />
+                    <CardHeader className="pb-1 pt-4 relative z-10">
+                      <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md mb-2 transform group-hover:scale-110 transition-transform duration-300">
+                        <Brain className="h-4 w-4" />
                       </div>
-                      <CardTitle className="text-lg text-slate-900 font-bold tracking-tight">
+                      <CardTitle className="text-base text-slate-900 font-bold tracking-tight">
                         Study Vocab
                       </CardTitle>
                     </CardHeader>
@@ -495,13 +495,13 @@ export default function App() {
                     onClick={() => handleStudentAction("games")}
                   >
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                      <Gamepad2 className="w-24 h-24 text-purple-600 -rotate-12 translate-x-4 -translate-y-4" />
+                      <Gamepad2 className="w-20 h-20 text-purple-600 -rotate-12 translate-x-4 -translate-y-4" />
                     </div>
-                    <CardHeader className="pb-2 pt-5 relative z-10">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md mb-3 transform group-hover:scale-110 transition-transform duration-300">
-                        <Gamepad2 className="h-5 w-5" />
+                    <CardHeader className="pb-1 pt-4 relative z-10">
+                      <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md mb-2 transform group-hover:scale-110 transition-transform duration-300">
+                        <Gamepad2 className="h-4 w-4" />
                       </div>
-                      <CardTitle className="text-lg text-slate-900 font-bold tracking-tight">
+                      <CardTitle className="text-base text-slate-900 font-bold tracking-tight">
                         Interactive Games
                       </CardTitle>
                     </CardHeader>
@@ -523,7 +523,7 @@ export default function App() {
             </section>
 
             {/* Analytics Highlights Section */}
-            <section className="w-full max-w-4xl mb-4">
+            <section className="w-full max-w-4xl mb-2">
               <div className="flex items-center gap-2 mb-2">
                 <Trophy className="h-4 w-4 text-purple-600" />
                 <h2 className="text-base font-bold tracking-tight text-slate-900">
@@ -550,7 +550,7 @@ export default function App() {
                       Total Words
                     </h3>
                   </div>
-                  <p className="text-xl font-[800] text-slate-900">
+                  <p className="text-lg font-[800] text-slate-900">
                     {stats.words}
                     <span className="text-sm font-bold text-slate-400 ml-1">
                       words
@@ -570,7 +570,7 @@ export default function App() {
                       Active Subjects
                     </h3>
                   </div>
-                  <p className="text-xl font-[800] text-slate-900">
+                  <p className="text-lg font-[800] text-slate-900">
                     {stats.subjects}
                     <span className="text-sm font-bold text-slate-400 ml-1">
                       subjects
@@ -590,7 +590,7 @@ export default function App() {
                       Sessions Played
                     </h3>
                   </div>
-                  <p className="text-xl font-[800] text-slate-900">
+                  <p className="text-lg font-[800] text-slate-900">
                     {stats.totalSessions}
                     <span className="text-sm font-bold text-slate-400 ml-1">
                       games
