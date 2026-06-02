@@ -324,7 +324,13 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', onGam
         setHighScore(storedHighScore);
       }
       
-      const maxPossibleScore = Math.max(1, (statsRef.current.correct + statsRef.current.missed) * 100);
+      let expectedMultiplier = 1;
+      if (mode === 'typing') expectedMultiplier *= 1.5;
+      if (speed === 'fast') expectedMultiplier *= 1.5;
+      if (speed === 'slow') expectedMultiplier *= 0.8;
+      if (fallingType === 'definition') expectedMultiplier *= 1.5;
+      const trueMaxPerWord = Math.round(100 * expectedMultiplier);
+      const maxPossibleScore = Math.max(1, (statsRef.current.correct + statsRef.current.missed) * trueMaxPerWord);
       const configId = `WordFall-${mode}-${fallingType}-${speed}`;
       api.recordGameSession('Word Fall', score, maxPossibleScore, configId);
     }

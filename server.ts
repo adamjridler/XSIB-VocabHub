@@ -37,7 +37,7 @@ async function startServer() {
         email: pseudoEmail,
         password: password,
         email_confirm: true, // Bypass email confirmation
-        user_metadata: { role: 'student', access_code: accessCode }
+        user_metadata: { role: 'student', access_code: accessCode, name: studentName }
       });
 
       if (error) {
@@ -53,9 +53,6 @@ async function startServer() {
           access_code: accessCode,
           high_score: 0
         });
-
-        // Mark the access code as claimed
-        await admin.from('access_codes').update({ claimed: true }).eq('code', accessCode);
       }
 
       res.json({ success: true, user: data.user });

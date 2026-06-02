@@ -73,15 +73,23 @@ export const api = {
         role = 'student';
       }
       
-      const { data: profile } = await supabase.from('profiles').select('*').eq('id', data.user.id).maybeSingle();
+      let { data: profile } = await supabase.from('profiles').select('*').eq('id', data.user.id).maybeSingle();
 
       if (!profile) {
+        const metadata = data.user.user_metadata || {};
+        const profileName = metadata.name || (role === 'admin' ? 'Admin' : (role === 'student' ? 'Student' : 'Teacher'));
+        
         await supabase.from('profiles').insert({
           id: data.user.id,
           role: role,
-          name: role === 'admin' ? 'Admin' : (role === 'student' ? 'Student' : 'Teacher'),
+          name: profileName,
+          access_code: metadata.access_code || null,
           high_score: 0
         });
+
+        // re-fetch to ensure we have the fully inserted object
+        const { data: newProfile } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
+        profile = newProfile;
       }
 
       let finalRole = profile?.role || role;
@@ -260,8 +268,16 @@ export const api = {
   },
 
   async getAccessCodes() {
-    const { data, error } = await supabase.from('access_codes').select('*');
-    return data || [];
+    const { data: codes, error } = await supabase.from('access_codes').select('*');
+    if (error || !codes) return [];
+
+    const { data: profiles } = await supabase.from('profiles').select('access_code');
+    const claimedCodes = new Set((profiles || []).map(p => p.access_code).filter(Boolean));
+
+    return codes.map(c => ({
+      ...c,
+      claimed: claimedCodes.has(c.code)
+    }));
   },
 
   async createAccessCode(code: string, name: string, gradeLevel: string) {
@@ -273,6 +289,23 @@ export const api = {
   },
 
   async deleteAccessCode(id: string) {
+    const { data: codeData } = await supabase.from('access_codes').select('code').eq('id', id).maybeSingle();
+    
+    if (codeData && codeData.code) {
+      const { data: profile } = await supabase.from('profiles').select('id').eq('access_code', codeData.code).maybeSingle();
+      if (profile && profile.id) {
+        try {
+          await fetch('/api/delete-student', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ uid: profile.id })
+          });
+        } catch (err) {
+          console.error("Failed to delete user via admin API", err);
+        }
+      }
+    }
+
     const { error } = await supabase.from('access_codes').delete().eq('id', id);
     if (error) throw error;
     return { success: true };
@@ -389,20 +422,23 @@ export const api = {
   },
 
   async getStudentLeaderboard() {
-    const { data, error } = await supabase
+    const { data: profiles, error } = await supabase
       .from('profiles')
-      .select('id, name, high_score')
+      .select('id, name, high_score, access_code')
       .eq('role', 'student')
-      .order('high_score', { ascending: false })
-      .limit(10);
+      .order('high_score', { ascending: false });
       
-    if (error) return [];
+    if (error || !profiles) return [];
+
+    const { data: codes } = await supabase.from('access_codes').select('code, grade_level');
     
-    return data.map((profile: any) => ({
+    const codeToGrade = new Map((codes || []).map(c => [c.code, c.grade_level]));
+    
+    return profiles.map((profile: any) => ({
       id: profile.id,
       name: profile.name,
       highScore: profile.high_score || 0,
-      gradeLevel: 'Student'
+      gradeLevel: profile.access_code ? (codeToGrade.get(profile.access_code) || 'Unknown') : 'Unknown'
     }));
   },
 

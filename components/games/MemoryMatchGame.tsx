@@ -135,8 +135,15 @@ export function MemoryMatchGame({ words, previewTime = 0, timeLimit = 0, onGameO
       } else {
         setHighScore(storedHighScore);
       }
+      let expectedMultiplier = 1;
+      if (timeLimit === 60) expectedMultiplier *= 2;
+      else if (timeLimit === 120) expectedMultiplier *= 1.5;
+      
+      if (previewTime === 0) expectedMultiplier *= 1.5;
+      else if (previewTime === 3) expectedMultiplier *= 1.2;
+      const trueMaxScore = words.length * Math.round(150 * expectedMultiplier);
       const configId = `MemoryMatch-${previewTime}-${timeLimit}`;
-      api.recordGameSession('Memory Match', score, words.length * 150, configId);
+      api.recordGameSession('Memory Match', score, trueMaxScore || 1, configId);
       
       if (isSuccess) {
         confetti({

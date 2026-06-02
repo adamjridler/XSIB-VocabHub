@@ -65,6 +65,14 @@ export default function App() {
     totalSessions: 0,
     recentScores: [],
   });
+  const [studentStats, setStudentStats] = useState<{
+    highScore: number;
+    gamesPlayed: number;
+    lastPlayed: string;
+    averageScore: number;
+    accuracy: number;
+    streak: number;
+  } | null>(null);
   const [backgroundWords, setBackgroundWords] = useState<string[]>([]);
 
   const [pendingAction, setPendingAction] = useState<
@@ -167,6 +175,67 @@ export default function App() {
     }
     checkAuthAndStats();
   }, []);
+
+  const loadStudentStats = async (studentUser: any) => {
+    try {
+      const sessions = await api.getStudentSessions(studentUser.id);
+      if (sessions && sessions.length > 0) {
+        const gamesPlayed = sessions.length;
+        let topScore = 0;
+        let totalScore = 0;
+        let totalMaxScore = 0;
+        let lastPlayed = new Date(sessions[0].createdAt).toLocaleDateString();
+
+        sessions.forEach((s: any) => {
+          topScore = Math.max(topScore, s.score || 0);
+          totalScore += (s.score || 0);
+          totalMaxScore += (s.maxScore || s.score || 0);
+        });
+
+        let streak = 0;
+        const playedDates = new Set(sessions.map((s: any) => new Date(s.createdAt).toLocaleDateString()));
+        let checkingDate = new Date();
+        
+        if (!playedDates.has(checkingDate.toLocaleDateString())) {
+           checkingDate.setDate(checkingDate.getDate() - 1);
+        }
+        
+        while (playedDates.has(checkingDate.toLocaleDateString())) {
+           streak++;
+           checkingDate.setDate(checkingDate.getDate() - 1);
+        }
+
+        setStudentStats({
+          highScore: studentUser.high_score || topScore,
+          gamesPlayed,
+          lastPlayed,
+          averageScore: Math.round(totalScore / gamesPlayed),
+          accuracy: totalMaxScore > 0 ? Math.round((totalScore / totalMaxScore) * 100) : 0,
+          streak,
+        });
+      } else {
+        setStudentStats({
+          highScore: studentUser.high_score || 0,
+          gamesPlayed: 0,
+          lastPlayed: "Never",
+          averageScore: 0,
+          accuracy: 0,
+          streak: 0,
+        });
+      }
+    } catch (err) {
+      console.error("Failed to load student stats", err);
+    }
+  };
+
+  useEffect(() => {
+    if (view === "hub") {
+      const user = api.getUser();
+      if (user && user.role === "student") {
+        loadStudentStats(user);
+      }
+    }
+  }, [view]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -325,15 +394,14 @@ export default function App() {
             }}
           />
         ) : view === "hub" ? (
-          <>
+          <div className="w-full max-w-7xl flex flex-col pb-8">
             {/* Hero Section */}
-            <section className="flex flex-col items-center text-center max-w-5xl w-full mt-2 mb-4">
-              <div className="flex flex-col items-center justify-center">
+            <section className="flex flex-col items-start text-left w-full mt-2 mb-8">
+              <div className="flex flex-col items-start justify-center">
                 <motion.h1
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.1 }}
-                  className="text-center"
                 >
                   <span className="block text-sm md:text-base font-bold tracking-[0.2em] text-slate-500 mb-0 uppercase">
                     XSIB
@@ -348,78 +416,107 @@ export default function App() {
               </div>
             </section>
 
-            {/* Features Section */}
-            <section className="w-full max-w-4xl mb-4">
-              <motion.div
+            <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8 items-start w-full">
+              <div className="flex flex-col items-start text-left w-full">
+                {/* Features Section */}
+              <section className="w-full mb-4">
+                <motion.div
                 variants={containerVariants}
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: "-100px" }}
                 className="grid grid-cols-1 md:grid-cols-3 gap-4"
               >
-                <motion.div variants={itemVariants}>
+                <motion.div variants={itemVariants} className="h-full">
                   <Card
-                    className="h-full bg-white/70 backdrop-blur-md border border-purple-200/50 rounded-2xl shadow-lg shadow-purple-500/5 hover:bg-white/90 transition-all hover:shadow-purple-500/10 hover:border-purple-300 duration-300 cursor-pointer"
+                    className="h-full flex flex-col bg-white/70 backdrop-blur-md border border-purple-200/50 rounded-2xl shadow-lg shadow-purple-500/5 hover:bg-white/90 transition-all hover:-translate-y-1 hover:shadow-purple-500/20 hover:border-purple-400 duration-300 cursor-pointer overflow-hidden group relative"
                     onClick={() => handleStudentAction("word-bank")}
                   >
-                    <CardHeader className="pb-2 pt-4">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-purple-500 flex items-center justify-center text-white shadow-md mb-2">
-                        <BookOpen className="h-4 w-4" />
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                      <BookOpen className="w-24 h-24 text-purple-600 -rotate-12 translate-x-4 -translate-y-4" />
+                    </div>
+                    <CardHeader className="pb-2 pt-5 relative z-10">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md mb-3 transform group-hover:scale-110 transition-transform duration-300">
+                        <BookOpen className="h-5 w-5" />
                       </div>
-                      <CardTitle className="text-base text-slate-900 font-bold tracking-tight">
+                      <CardTitle className="text-lg text-slate-900 font-bold tracking-tight">
                         View Word Bank
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="pb-4">
-                      <CardDescription className="text-xs text-slate-600 font-medium">
+                    <CardContent className="pb-4 relative z-10 flex-grow">
+                      <CardDescription className="text-sm text-slate-600 font-medium">
                         Browse and search through the entire collection of terms
                         curated by your teachers.
                       </CardDescription>
                     </CardContent>
+                    <div className="px-6 pb-5 pt-2 mt-auto relative z-10 border-t border-purple-100/50 flex justify-between items-center bg-white/50">
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Learn</span>
+                        <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                            <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                        </div>
+                    </div>
                   </Card>
                 </motion.div>
 
-                <motion.div variants={itemVariants}>
+                <motion.div variants={itemVariants} className="h-full">
                   <Card
-                    className="h-full bg-white/70 backdrop-blur-md border border-purple-200/50 rounded-2xl shadow-lg shadow-purple-500/5 hover:bg-white/90 transition-all hover:shadow-purple-500/10 hover:border-purple-300 duration-300 cursor-pointer"
+                    className="h-full flex flex-col bg-white/70 backdrop-blur-md border border-purple-200/50 rounded-2xl shadow-lg shadow-purple-500/5 hover:bg-white/90 transition-all hover:-translate-y-1 hover:shadow-purple-500/20 hover:border-purple-400 duration-300 cursor-pointer overflow-hidden group relative"
                     onClick={() => handleStudentAction("study")}
                   >
-                    <CardHeader className="pb-2 pt-4">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-purple-500 flex items-center justify-center text-white shadow-md mb-2">
-                        <Brain className="h-4 w-4" />
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                      <Brain className="w-24 h-24 text-purple-600 -rotate-12 translate-x-4 -translate-y-4" />
+                    </div>
+                    <CardHeader className="pb-2 pt-5 relative z-10">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md mb-3 transform group-hover:scale-110 transition-transform duration-300">
+                        <Brain className="h-5 w-5" />
                       </div>
-                      <CardTitle className="text-base text-slate-900 font-bold tracking-tight">
+                      <CardTitle className="text-lg text-slate-900 font-bold tracking-tight">
                         Study Vocab
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="pb-4">
-                      <CardDescription className="text-xs text-slate-600 font-medium">
+                    <CardContent className="pb-4 relative z-10 flex-grow">
+                      <CardDescription className="text-sm text-slate-600 font-medium">
                         Review terms, definitions, and example sentences with
                         interactive smart flashcards.
                       </CardDescription>
                     </CardContent>
+                    <div className="px-6 pb-5 pt-2 mt-auto relative z-10 border-t border-purple-100/50 flex justify-between items-center bg-white/50">
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Practice</span>
+                        <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                            <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                        </div>
+                    </div>
                   </Card>
                 </motion.div>
 
-                <motion.div variants={itemVariants}>
+                <motion.div variants={itemVariants} className="h-full">
                   <Card
-                    className="h-full bg-white/70 backdrop-blur-md border border-purple-200/50 rounded-2xl shadow-lg shadow-purple-500/5 hover:bg-white/90 transition-all hover:shadow-purple-500/10 hover:border-purple-300 duration-300 cursor-pointer"
+                    className="h-full flex flex-col bg-white/70 backdrop-blur-md border border-purple-200/50 rounded-2xl shadow-lg shadow-purple-500/5 hover:bg-white/90 transition-all hover:-translate-y-1 hover:shadow-purple-500/20 hover:border-purple-400 duration-300 cursor-pointer overflow-hidden group relative"
                     onClick={() => handleStudentAction("games")}
                   >
-                    <CardHeader className="pb-2 pt-4">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-purple-500 flex items-center justify-center text-white shadow-md mb-2">
-                        <Gamepad2 className="h-4 w-4" />
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                      <Gamepad2 className="w-24 h-24 text-purple-600 -rotate-12 translate-x-4 -translate-y-4" />
+                    </div>
+                    <CardHeader className="pb-2 pt-5 relative z-10">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md mb-3 transform group-hover:scale-110 transition-transform duration-300">
+                        <Gamepad2 className="h-5 w-5" />
                       </div>
-                      <CardTitle className="text-base text-slate-900 font-bold tracking-tight">
+                      <CardTitle className="text-lg text-slate-900 font-bold tracking-tight">
                         Interactive Games
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="pb-4">
-                      <CardDescription className="text-xs text-slate-600 font-medium">
+                    <CardContent className="pb-4 relative z-10 flex-grow">
+                      <CardDescription className="text-sm text-slate-600 font-medium">
                         Test your knowledge with exciting mini-games and
                         quizzes. Learning shouldn't be boring.
                       </CardDescription>
                     </CardContent>
+                    <div className="px-6 pb-5 pt-2 mt-auto relative z-10 border-t border-purple-100/50 flex justify-between items-center bg-white/50">
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Play</span>
+                        <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                            <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                        </div>
+                    </div>
                   </Card>
                 </motion.div>
               </motion.div>
@@ -541,7 +638,74 @@ export default function App() {
                 </motion.div>
               )}
             </section>
-          </>
+            </div>
+
+            {/* Right Column: Individual Stats Dashboard */}
+            <div className="w-full mt-4 lg:mt-0 sticky top-24">
+              {studentStats && studentStats.streak > 0 && (
+                <div className="bg-gradient-to-r from-orange-500/20 to-rose-500/20 border border-orange-500/30 rounded-xl p-3 mb-4 flex items-center justify-between z-20 shadow-sm backdrop-blur-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-gradient-to-br from-orange-400 to-rose-500 text-white rounded-lg shadow-inner">
+                      <Flame className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-orange-600 uppercase tracking-widest leading-tight">On Fire!</p>
+                      <p className="text-sm font-semibold text-slate-700">You're on a {studentStats.streak} day streak</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <Card className="bg-slate-900 border-slate-800 text-white shadow-xl shadow-purple-900/20 overflow-hidden relative">
+                <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 rounded-full bg-purple-600/20 blur-3xl pointer-events-none"></div>
+                <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-48 h-48 rounded-full bg-blue-600/20 blur-3xl pointer-events-none"></div>
+
+                <CardHeader className="relative z-10 border-b border-slate-800/80 pb-4">
+                  <CardTitle className="text-lg text-white font-bold flex items-center gap-2">
+                    <Target className="w-5 h-5 text-purple-400" />
+                    My Progress
+                  </CardTitle>
+                  <CardDescription className="text-slate-400">Your personal learning statistics</CardDescription>
+                </CardHeader>
+                <CardContent className="relative z-10 pt-6">
+                  <div className="space-y-4">
+                    <div className="bg-gradient-to-br from-purple-500/10 to-indigo-500/10 rounded-xl p-4 border border-purple-500/20 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-purple-500/20 text-purple-300 rounded-lg">
+                          <Trophy className="w-5 h-5" />
+                        </div>
+                        <span className="font-semibold text-purple-100">High Score</span>
+                      </div>
+                      <span className="text-3xl font-black text-white">{studentStats?.highScore || 0}</span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-slate-800/40 rounded-xl p-3 border border-slate-700/50 flex flex-col justify-center">
+                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
+                          <Gamepad2 className="w-3 h-3"/> Played
+                        </span>
+                        <span className="text-xl font-bold text-slate-100">{studentStats?.gamesPlayed || 0}</span>
+                      </div>
+                      <div className="bg-slate-800/40 rounded-xl p-3 border border-slate-700/50 flex flex-col justify-center">
+                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
+                          <Target className="w-3 h-3"/> Accuracy
+                        </span>
+                        <span className="text-xl font-bold text-emerald-400">{studentStats?.accuracy || 0}%</span>
+                      </div>
+                      <div className="bg-slate-800/40 rounded-xl p-3 border border-slate-700/50 flex flex-col justify-center col-span-2 sm:col-span-1 lg:col-span-2 xl:col-span-1">
+                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Avg Score</span>
+                        <span className="text-xl font-bold text-slate-100">{studentStats?.averageScore || 0}</span>
+                      </div>
+                      <div className="bg-slate-800/40 rounded-xl p-3 border border-slate-700/50 flex flex-col justify-center col-span-2 sm:col-span-1 lg:col-span-2 xl:col-span-1">
+                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Last Played</span>
+                        <span className="text-sm font-bold text-slate-100 mt-1">{studentStats?.lastPlayed || "Never"}</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+          </div>
         ) : null}
       </main>
     </div>

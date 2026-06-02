@@ -162,8 +162,13 @@ export function WordScrambleGame({ words, timeLimit, mode, onGameOver }: WordScr
       }
       
       const wordsCount = gameWordsRef.current.length || 1;
+      let expectedMultiplier = 1;
+      if (timeLimit === 10) expectedMultiplier = 2;
+      else if (timeLimit === 20) expectedMultiplier = 1.5;
+      if (mode === 'definition') expectedMultiplier *= 1.5;
+      const maxPtsPerWord = Math.round((100 + timeLimit * 10) * expectedMultiplier);
       const configId = `WordScramble-${mode}-${timeLimit}`;
-      api.recordGameSession('Word Scramble', score, wordsCount * 100, configId);
+      api.recordGameSession('Word Scramble', score, wordsCount * maxPtsPerWord, configId);
 
       if (isSuccess) {
         confetti({

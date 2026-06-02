@@ -190,7 +190,7 @@ export function FillBlanksGame({ words, mode, onGameOver }: FillBlanksGameProps)
         setHighScore(storedHighScore);
       }
       
-      const maxPossibleScore = (statsRef.current.blanksFilledCorrectly + statsRef.current.blanksFilledWrong) * 50 || 1;
+      const maxPossibleScore = (statsRef.current.blanksFilledCorrectly + statsRef.current.blanksFilledWrong) * (mode === 'typing' ? 100 : 50) || 1;
       const configId = `FillBlanks-${mode}`;
       api.recordGameSession('Fill in the Blanks', score, maxPossibleScore, configId);
     }

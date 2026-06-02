@@ -170,8 +170,14 @@ export function WordSearchGame({ words, timeLimit = 120, clueType = 'translation
       }
       
       const wordsCount = Object.keys(wordsToFind).length;
+      let expectedMultiplier = 1;
+      if (timeLimit === 60) expectedMultiplier *= 2;
+      else if (timeLimit === 120) expectedMultiplier *= 1.5;
+      else if (timeLimit === 0) expectedMultiplier *= 0.5;
+      if (clueType === 'definition') expectedMultiplier *= 1.5;
+      const trueMaxScore = wordsCount * Math.round(100 * expectedMultiplier);
       const configId = `WordSearch-${timeLimit}-${clueType}`;
-      api.recordGameSession('Word Search', score, wordsCount * 100 || 1, configId);
+      api.recordGameSession('Word Search', score, trueMaxScore || 1, configId);
     }
   }, [gameOver, score]);
 
