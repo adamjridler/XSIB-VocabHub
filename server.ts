@@ -87,6 +87,30 @@ async function startServer() {
     }
   });
 
+  app.post('/api/reset-student-password', async (req, res) => {
+    try {
+      const { uid, newPassword } = req.body;
+      if (!uid || !newPassword) {
+        res.status(400).json({ error: 'UID and new password are required' });
+        return;
+      }
+      
+      const admin = getSupabaseAdmin();
+      const { data, error } = await admin.auth.admin.updateUserById(uid, {
+        password: newPassword
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      res.json({ success: true });
+    } catch (err: any) {
+      console.error("Student password reset error:", err);
+      res.status(500).json({ error: err.message || "Failed to reset student password" });
+    }
+  });
+
   // Deepseek definitions
   app.post('/api/define', async (req, res) => {
     try {

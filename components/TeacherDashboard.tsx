@@ -10,7 +10,7 @@ import {
   CheckCircle2,
   AlertCircle,
   Edit2,
-  Trash2, BarChart3, Search, SortAsc, Users, Maximize2, Loader2
+  Trash2, BarChart3, Search, SortAsc, Users, Maximize2, Loader2, Trophy
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -20,6 +20,7 @@ import { api } from '@/lib/api';
 
 import { AdminAccessCodes } from '@/components/AdminAccessCodes';
 import { AdminStudentUsage } from '@/components/AdminStudentUsage';
+import { HallOfFame } from '@/components/HallOfFame';
 
 const SUBJECTS = [
   'Chinese A', 'English B', 'Geography', 'Business Management', 
@@ -45,7 +46,7 @@ export function TeacherDashboard({ onLogout }: { onLogout: () => void }) {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [user, setUser] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'analytics' | 'upload' | 'bank' | 'settings' | 'access_codes' | 'student_usage'>('analytics');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'upload' | 'bank' | 'settings' | 'access_codes' | 'student_usage' | 'hall_of_fame'>('analytics');
   const [allWords, setAllWords] = useState<any[]>([]);
   const [editingWordId, setEditingWordId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -304,6 +305,14 @@ export function TeacherDashboard({ onLogout }: { onLogout: () => void }) {
           >
             <Settings className="h-4 w-4" />
             Settings
+          </button>
+          
+          <button 
+            onClick={() => setActiveTab('hall_of_fame')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium uppercase tracking-widest transition-colors ${activeTab === 'hall_of_fame' ? 'bg-purple-100 text-purple-600' : 'text-slate-500 hover:bg-white hover:text-slate-900'}`}
+          >
+            <Trophy className="h-4 w-4" />
+            Hall of Fame
           </button>
           
           {user?.role === 'admin' && (
@@ -593,6 +602,8 @@ export function TeacherDashboard({ onLogout }: { onLogout: () => void }) {
               <AdminStudentUsage />
             ) : activeTab === 'access_codes' && user?.role === 'admin' ? (
               <AdminAccessCodes />
+            ) : activeTab === 'hall_of_fame' ? (
+              <HallOfFame />
             ) : activeTab === 'upload' ? (
             <>
               {stagingWords ? (

@@ -33,9 +33,21 @@ export function TeacherAuthModal({ onLoginSuccess }: TeacherAuthModalProps) {
   const [isVerifying, setIsVerifying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Reset Password State
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetPassword, setResetPassword] = useState('');
+  const [isResetting, setIsResetting] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
+  
   useEffect(() => {
+    // Check if we are in password recovery mode
+    if (window.location.hash.includes('type=recovery') || window.location.search.includes('reset-password')) {
+      setIsOpen(true);
+      setActiveTab('reset_password');
+    }
+    
     const checkUser = async () => {
-      if (isOpen) {
+      if (isOpen && activeTab !== 'reset_password') {
         try {
           const user = await api.me();
           if (user) {
@@ -104,6 +116,47 @@ export function TeacherAuthModal({ onLoginSuccess }: TeacherAuthModalProps) {
       } else {
         setSignupError(err.message || 'Failed to create account');
       }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError('');
+    if (!resetEmail) {
+      setLoginError('Please enter your email address to reset password.');
+      return;
+    }
+    setIsResetting(true);
+    try {
+      await api.resetTeacherPasswordForEmail(resetEmail);
+      setResetSuccess(true);
+    } catch (err: any) {
+      setLoginError(err.message || 'Failed to send reset email');
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
+  const handleConfirmResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSignupError('');
+    if (resetPassword.length < 6) {
+      setSignupError('Password must be at least 6 characters.');
+      return;
+    }
+    setIsLoading(true);
+    try {
+      await api.confirmPasswordReset(resetPassword);
+      setResetSuccess(true);
+      setTimeout(() => {
+        setIsOpen(false);
+        // clean up URL hash
+        window.history.replaceState(null, '', window.location.pathname);
+      }, 2000);
+    } catch (err: any) {
+      setSignupError(err.message || 'Failed to update password');
     } finally {
       setIsLoading(false);
     }
@@ -234,6 +287,10 @@ export function TeacherAuthModal({ onLoginSuccess }: TeacherAuthModalProps) {
                     />
                   </div>
                   
+                  <div className="flex justify-end">
+                    <button type="button" onClick={() => { setActiveTab('forgot_password'); setResetSuccess(false); setLoginError(''); }} className="text-xs font-medium text-purple-600 hover:text-purple-700">Forgot your password?</button>
+                  </div>
+                  
                   {loginError && (
                     <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-lg flex items-start gap-2">
                       <p>{loginError}</p>
@@ -247,6 +304,75 @@ export function TeacherAuthModal({ onLoginSuccess }: TeacherAuthModalProps) {
               </div>
             )}
             
+            {activeTab === 'reset_password' && (
+              <div className="space-y-6 mt-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                {resetSuccess ? (
+                  <div className="text-center p-6 bg-emerald-50 border border-emerald-200 rounded-xl">
+                    <p className="text-emerald-600 font-bold mb-2">Password updated successfully!</p>
+                    <p className="text-sm text-emerald-700/80">You can now log in with your new password.</p>
+                  </div>
+                ) : (
+                  <form onSubmit={handleConfirmResetPassword} className="space-y-4">
+                    <div className="space-y-2">
+                      <Input
+                        id="reset-password"
+                        type="password"
+                        placeholder="Enter your new password"
+                        value={resetPassword}
+                        onChange={(e) => setResetPassword(e.target.value)}
+                        className="bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-lg p-4 h-auto focus:border-purple-600 outline-none focus:ring-1 focus:ring-purple-600"
+                        required
+                      />
+                    </div>
+                    {signupError && (
+                      <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-lg flex items-start gap-2">
+                        <p>{signupError}</p>
+                      </div>
+                    )}
+                    <Button type="submit" disabled={isLoading} className="w-full py-6 mt-4 bg-gradient-to-br from-emerald-500 to-emerald-400 text-white font-bold rounded-xl text-sm uppercase tracking-wider shadow-md shadow-emerald-500/20 hover:opacity-90 border-none">
+                      {isLoading ? 'Saving...' : 'Save New Password'}
+                    </Button>
+                  </form>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'forgot_password' && (
+              <div className="space-y-6 mt-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                {resetSuccess ? (
+                  <div className="text-center p-6 bg-purple-50 border border-purple-200 rounded-xl">
+                    <p className="text-purple-600 font-bold mb-2">Check your email!</p>
+                    <p className="text-sm text-purple-700/80">If an account exists with this email, we've sent a password reset link.</p>
+                  </div>
+                ) : (
+                  <form onSubmit={handleForgotPassword} className="space-y-4">
+                    <div className="space-y-2">
+                      <Input
+                        id="forgot-email"
+                        type="email"
+                        placeholder="Enter your email address"
+                        value={resetEmail}
+                        onChange={(e) => setResetEmail(e.target.value)}
+                        className="bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-lg p-4 h-auto focus:border-purple-600 outline-none focus:ring-1 focus:ring-purple-600"
+                        required
+                      />
+                    </div>
+                    {loginError && (
+                      <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-lg flex items-start gap-2">
+                        <p>{loginError}</p>
+                      </div>
+                    )}
+                    <Button type="submit" disabled={isResetting} className="w-full py-6 mt-4 bg-gradient-to-br from-purple-600 to-purple-500 text-white font-bold rounded-xl text-sm uppercase tracking-wider shadow-md shadow-purple-500/20 hover:opacity-90 border-none">
+                      {isResetting ? 'Sending...' : 'Send Reset Link'}
+                    </Button>
+                  </form>
+                )}
+                <Button type="button" variant="ghost" onClick={() => { setActiveTab('login'); setResetSuccess(false); setLoginError(''); }} className="w-full text-slate-500 hover:text-slate-700">
+                  Back to Login
+                </Button>
+              </div>
+            )}
+
             {activeTab === 'signup' && (
               <div className="space-y-6 mt-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <form onSubmit={handleSignup} className="space-y-4">

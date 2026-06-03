@@ -85,7 +85,7 @@ function WordSearchCardAnimation() {
   );
 }
 
-export function InteractiveGames({ onBack, backgroundWords, onGameComplete }: { onBack: () => void; backgroundWords?: string[], onGameComplete?: () => void }) {
+export function InteractiveGames({ onBack, backgroundWords, onGameComplete, initialGameData }: { onBack: () => void; backgroundWords?: string[], onGameComplete?: () => void, initialGameData?: { game: string, configId: string | null } | null }) {
   const [selectedGame, setSelectedGame] = useState<'word-fall' | 'fill-blanks' | 'memory-match' | 'word-scramble' | 'word-search' | null>(null);
   const [gameState, setGameState] = useState<'menu' | 'setup' | 'playing'>('menu');
   const [allWords, setAllWords] = useState<any[]>([]);
@@ -108,6 +108,62 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete }: { 
   const [memoryTimeLimit, setMemoryTimeLimit] = useState<number>(0);
   const [wordSearchTimeLimit, setWordSearchTimeLimit] = useState<number>(120);
   const [wordSearchClueType, setWordSearchClueType] = useState<'translation' | 'definition'>('translation');
+
+  useEffect(() => {
+    if (initialGameData) {
+      let sg: any = null;
+      if (initialGameData.game === 'Word Scramble') sg = 'word-scramble';
+      if (initialGameData.game === 'Word Search') sg = 'word-search';
+      if (initialGameData.game === 'Fill in the Blanks') sg = 'fill-blanks';
+      if (initialGameData.game === 'Memory Match') sg = 'memory-match';
+      if (initialGameData.game === 'Word Fall') sg = 'word-fall';
+      
+      if (sg) {
+        setSelectedGame(sg);
+        setGameState('setup');
+        if (initialGameData.configId) {
+          const cId = initialGameData.configId;
+          const parts = cId.split('-');
+          if (sg === 'word-scramble') {
+            // WordScramble-${scrambleMode}-${scrambleTimeLimit}
+            if (parts.length >= 3) {
+              setScrambleMode(parts[1] as any);
+              setScrambleTimeLimit(Number(parts[2]));
+            }
+          } else if (sg === 'word-search') {
+            // WordSearch-${wordSearchTimeLimit}-${wordSearchClueType}
+            if (parts.length >= 3) {
+              setWordSearchTimeLimit(Number(parts[1]));
+              setWordSearchClueType(parts[2] as any);
+            }
+          } else if (sg === 'fill-blanks') {
+            // FillBlanks-${gameMode}
+            // gameMode could be "multiple-choice", so we should reconstruct it if there are multiple parts
+            const modeStr = cId.replace('FillBlanks-', '');
+            setGameMode(modeStr as any);
+          } else if (sg === 'memory-match') {
+            // MemoryMatch-${memoryPreviewTime}-${memoryTimeLimit}
+            if (parts.length >= 3) {
+              setMemoryPreviewTime(Number(parts[1]));
+              setMemoryTimeLimit(Number(parts[2]));
+            }
+          } else if (sg === 'word-fall') {
+            const match = cId.match(/^WordFall-(multiple-choice|typing|english-to-spanish|spanish-to-english)-(.*)$/);
+            if (match) {
+              let m = match[1];
+              if (m === 'english-to-spanish' || m === 'spanish-to-english') m = 'typing';
+              setGameMode(m as any);
+              const rParts = match[2].split('-');
+              if (rParts.length >= 2) {
+                setFallingType(rParts[0] as any);
+                setWordFallSpeed(rParts[1] as any);
+              }
+            }
+          }
+        }
+      }
+    }
+  }, [initialGameData]);
 
   useEffect(() => {
     api.getWords().then(words => {

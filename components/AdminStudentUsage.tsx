@@ -99,6 +99,7 @@ export function AdminStudentUsage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
       <header>
         <h1 className="text-3xl font-bold uppercase tracking-widest text-slate-900 mb-2">Student Usage</h1>
         <p className="text-slate-500 font-light text-sm">
@@ -164,9 +165,11 @@ export function AdminStudentUsage() {
                     <h2 className="text-2xl font-black text-slate-900">{selectedStudent.name || 'Unknown'}</h2>
                     <span className="text-sm font-semibold uppercase tracking-widest text-purple-600">{selectedStudent.accessCode}</span>
                   </div>
-                  <div className="text-right">
-                    <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total Score</div>
-                    <div className="text-3xl font-black text-emerald-500">{selectedStudent.highScore || 0}</div>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right border-slate-200 pl-4">
+                      <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total Score</div>
+                      <div className="text-3xl font-black text-emerald-500">{selectedStudent.highScore || 0}</div>
+                    </div>
                   </div>
                 </div>
 

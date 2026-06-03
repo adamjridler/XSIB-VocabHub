@@ -260,7 +260,8 @@ export const api = {
       recentScores = recentSessions.map(s => ({
         game: s.game,
         score: s.score,
-        studentName: profilesMap[s.user_id] || 'Anonymous'
+        studentName: profilesMap[s.user_id] || 'Anonymous',
+        configId: s.config_id || null
       }));
     }
 
@@ -268,15 +269,16 @@ export const api = {
   },
 
   async getAccessCodes() {
-    const { data: codes, error } = await supabase.from('access_codes').select('*');
+    const { data: codes, error } = await supabase.from('access_codes').select('*').order('created_at', { ascending: false });
     if (error || !codes) return [];
 
-    const { data: profiles } = await supabase.from('profiles').select('access_code');
-    const claimedCodes = new Set((profiles || []).map(p => p.access_code).filter(Boolean));
+    const { data: profiles } = await supabase.from('profiles').select('id, access_code');
+    const claimedMap = new Map((profiles || []).filter(p => p.access_code).map(p => [p.access_code, p.id]));
 
     return codes.map(c => ({
       ...c,
-      claimed: claimedCodes.has(c.code)
+      claimed: claimedMap.has(c.code),
+      userId: claimedMap.get(c.code) || null
     }));
   },
 
@@ -391,6 +393,34 @@ export const api = {
     return { success: true };
   },
 
+  async resetStudentPassword(uid: string, newPassword: string) {
+    const res = await fetch('/api/reset-student-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid, newPassword })
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || 'Failed to reset student password');
+    }
+    return true;
+  },
+
+  async resetTeacherPasswordForEmail(email: string) {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + window.location.pathname + '?mode=reset-password',
+    });
+    if (error) throw error;
+    return true;
+  },
+
+  async confirmPasswordReset(newPassword: string) {
+    // Assuming the user is returned via supabase auth callback in URL hash
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) throw error;
+    return true;
+  },
+
   async resendVerification(email: string, _password?: string) {
     const { error } = await supabase.auth.resend({
       type: 'signup',
@@ -419,6 +449,53 @@ export const api = {
     const user = { id: data.user?.id, role: 'student', access_code: identifier, name: studentName, high_score: 0 };
     this.setUser(user);
     return user;
+  },
+
+  async getHallOfFameData() {
+    const { data: sessions, error } = await supabase.from('game_sessions').select('user_id, score, created_at');
+    const { data: profiles } = await supabase.from('profiles').select('id, name, access_code').eq('role', 'student');
+    const { data: codes } = await supabase.from('access_codes').select('code, grade_level');
+
+    if (!sessions || !profiles) return {};
+
+    const codeToGrade = new Map((codes || []).map(c => [c.code, c.grade_level]));
+    const profileMap = new Map(profiles.map(p => [p.id, { name: p.name, gradeLevel: p.access_code ? (codeToGrade.get(p.access_code) || 'Unknown') : 'Unknown' }]));
+
+    const monthUserScores = new Map<string, Map<string, number>>(); 
+
+    for (const s of sessions) {
+      if (!s.created_at || s.score == null) continue;
+      const date = new Date(s.created_at);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      
+      if (!monthUserScores.has(monthKey)) monthUserScores.set(monthKey, new Map());
+      const userMap = monthUserScores.get(monthKey)!;
+      userMap.set(s.user_id, (userMap.get(s.user_id) || 0) + s.score);
+    }
+
+    const hallOfFame: Record<string, Record<string, any[]>> = {}; 
+
+    for (const [monthKey, userMap] of monthUserScores.entries()) {
+      hallOfFame[monthKey] = {};
+      
+      const students = Array.from(userMap.entries()).map(([userId, score]) => {
+        const p = profileMap.get(userId) || { name: 'Unknown', gradeLevel: 'Unknown' };
+        return { id: userId, name: p.name, gradeLevel: p.gradeLevel, score };
+      });
+
+      const byGrade: Record<string, any[]> = {};
+      for (const st of students) {
+         if (!byGrade[st.gradeLevel]) byGrade[st.gradeLevel] = [];
+         byGrade[st.gradeLevel].push(st);
+      }
+
+      for (const grade in byGrade) {
+        byGrade[grade].sort((a, b) => b.score - a.score);
+        hallOfFame[monthKey][grade] = byGrade[grade].slice(0, 3);
+      }
+    }
+
+    return hallOfFame;
   },
 
   async getStudentLeaderboard() {

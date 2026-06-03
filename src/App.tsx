@@ -18,6 +18,7 @@ import {
   PartyPopper,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Card,
   CardContent,
@@ -31,7 +32,7 @@ import { StudentWordBank } from "@/components/StudentWordBank";
 import { StudyVocab } from "@/components/StudyVocab";
 import { InteractiveGames } from "@/components/InteractiveGames";
 import { StudentLogin } from "@/components/StudentLogin";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import { api } from "@/lib/api";
 import { FloatingWords, AmbientOrbs } from "@/components/AppBackground";
 
@@ -76,6 +77,8 @@ export default function App() {
     streak: number;
   } | null>(null);
   const [backgroundWords, setBackgroundWords] = useState<string[]>([]);
+  
+  const [initialGameData, setInitialGameData] = useState<{game: string, configId: string | null} | null>(null);
 
   const [pendingAction, setPendingAction] = useState<
     "word-bank" | "study" | "games" | null
@@ -99,7 +102,7 @@ export default function App() {
           api.getWords().catch(() => []),
           api
             .getGameStats()
-            .catch(() => ({ totalSessions: 0, averagePercent: 0 })),
+            .catch(() => ({ totalSessions: 0, recentScores: [] })),
         ]);
 
         const subjects = new Set(
@@ -289,8 +292,9 @@ export default function App() {
   if (view === "games") {
     return (
       <InteractiveGames
-        onBack={() => setView("hub")}
+        onBack={() => { setView("hub"); setInitialGameData(null); }}
         backgroundWords={backgroundWords}
+        initialGameData={initialGameData}
         onGameComplete={() => {
           const user = api.getUser();
           if (user && user.role === "student") {
@@ -651,30 +655,44 @@ export default function App() {
                     <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-slate-900 to-transparent z-10"></div>
                     <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-slate-900 to-transparent z-10"></div>
 
-                    <div className="flex items-center gap-4 animate-[scroll_40s_linear_infinite] whitespace-nowrap min-w-max">
-                      {/* Double the array for seamless scrolling */}
-                      {[...stats.recentScores, ...stats.recentScores].map(
-                        (scoreObj, idx) => (
-                          <div
-                            key={idx}
-                            className="flex items-center gap-2 text-sm"
-                          >
-                            <Trophy className="w-4 h-4 text-yellow-400" />
-                            <span className="font-bold text-purple-300">
-                              {scoreObj.game}
-                            </span>
-                            <span className="text-slate-400">•</span>
-                            <span className="font-semibold">
-                              {scoreObj.studentName}
-                            </span>
-                            <span className="text-emerald-400 font-mono font-bold bg-emerald-400/20 px-2 py-0.5 rounded-md">
-                              {scoreObj.score}
-                            </span>
-                            <span className="text-slate-600 mx-4">|</span>
-                          </div>
+                    <TooltipProvider>
+                      <div className="flex items-center gap-4 animate-[scroll_40s_linear_infinite] hover:[animation-play-state:paused] whitespace-nowrap min-w-max">
+                        {/* Double the array for seamless scrolling */}
+                        {[...stats.recentScores, ...stats.recentScores].map(
+                          (scoreObj, idx) => (
+                            <Fragment key={idx}>
+                              <Tooltip delay={300}>
+                                <TooltipTrigger
+                                  className="group relative flex items-center gap-2 text-sm cursor-pointer hover:bg-slate-800 rounded-md px-3 py-2 transition-colors"
+                                onClick={() => {
+                                  if (scoreObj.configId) {
+                                    setInitialGameData({ game: scoreObj.game, configId: scoreObj.configId });
+                                    setView('games');
+                                  }
+                                }}
+                              >
+                                <Trophy className="w-4 h-4 text-yellow-400 group-hover:scale-110 transition-transform" />
+                                <span className="font-bold text-purple-300">
+                                  {scoreObj.game}
+                                </span>
+                                <span className="text-slate-400">•</span>
+                                <span className="font-semibold text-slate-100">
+                                  {scoreObj.studentName}
+                                </span>
+                                <span className="text-emerald-400 font-mono font-bold bg-emerald-400/20 px-2 py-0.5 rounded-md group-hover:bg-emerald-400/30 transition-colors">
+                                  {scoreObj.score}
+                                </span>
+                                <span className="text-slate-600 ml-4 mr-0">|</span>
+                              </TooltipTrigger>
+                              <TooltipContent className="bg-slate-800 text-white font-medium border-slate-700 shadow-xl">
+                                <p>Click to apply this game setup and play!</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </Fragment>
                         ),
-                      )}
-                    </div>
+                        )}
+                      </div>
+                    </TooltipProvider>
                   </motion.div>
                 </div>
               )}

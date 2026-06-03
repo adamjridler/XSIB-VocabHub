@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Trash2, Key, CheckCircle2, AlertCircle, Copy } from 'lucide-react';
+import { PlusCircle, Trash2, Key, CheckCircle2, AlertCircle, Copy, Lock } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { motion } from 'motion/react';
 
 export function AdminAccessCodes() {
@@ -13,6 +15,10 @@ export function AdminAccessCodes() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  
+  const [resetPasswordForCode, setResetPasswordForCode] = useState<any>(null);
+  const [newStudentPassword, setNewStudentPassword] = useState('');
+  const [isResetting, setIsResetting] = useState(false);
 
   const fetchCodes = async () => {
     setLoading(true);
@@ -62,8 +68,57 @@ export function AdminAccessCodes() {
     }
   };
 
+  const handleResetStudentPassword = async () => {
+    if (!resetPasswordForCode || !newStudentPassword) return;
+    setIsResetting(true);
+    try {
+      await api.resetStudentPassword(resetPasswordForCode.userId, newStudentPassword);
+      setResetPasswordForCode(null);
+      setNewStudentPassword('');
+      alert('Password reset successfully.');
+    } catch (err: any) {
+      console.error("Failed to reset student password", err);
+      alert('Failed to reset password: ' + err.message);
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full overflow-hidden animate-in fade-in duration-500 pb-6">
+      <Dialog open={!!resetPasswordForCode} onOpenChange={(open) => {
+        if (!open) {
+          setResetPasswordForCode(null);
+          setNewStudentPassword('');
+        }
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reset Student Password</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <p className="text-sm text-slate-600">
+              Reset password for <strong>{resetPasswordForCode?.name || 'this student'}</strong>
+            </p>
+            <div>
+              <label className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1 block">New Password</label>
+              <Input 
+                type="password" 
+                value={newStudentPassword} 
+                onChange={e => setNewStudentPassword(e.target.value)} 
+                placeholder="Enter new password"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setResetPasswordForCode(null); setNewStudentPassword(''); }}>Cancel</Button>
+            <Button onClick={handleResetStudentPassword} disabled={isResetting || !newStudentPassword}>
+              {isResetting ? 'Saving...' : 'Save Password'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <header className="mb-4 flex-none">
         <h1 className="text-3xl font-bold uppercase tracking-widest text-slate-900 mb-1">Access Codes</h1>
         <p className="text-slate-500 font-light text-sm">
@@ -113,7 +168,7 @@ export function AdminAccessCodes() {
                 <tr key={c.id} className="border-b border-slate-100 hover:bg-slate-50">
                   <td className="px-6 py-4 font-mono font-bold text-slate-900">{c.code}</td>
                   <td className="px-6 py-4">{c.name}</td>
-                  <td className="px-6 py-4">{c.gradeLevel}</td>
+                  <td className="px-6 py-4">{c.grade_level || c.gradeLevel}</td>
                   <td className="px-6 py-4">
                     {c.claimed ? (
                       <span className="text-green-600 text-xs font-bold uppercase tracking-widest bg-green-100 py-1 px-2 rounded">Claimed</span>
@@ -122,9 +177,16 @@ export function AdminAccessCodes() {
                     )}
                   </td>
                   <td className="px-6 py-4">
-                    <button onClick={() => deleteCode(c.id)} className="text-slate-400 hover:text-red-600" title="Delete">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-3">
+                      {c.claimed && c.userId && (
+                        <button onClick={() => setResetPasswordForCode(c)} className="text-purple-600 hover:text-purple-800" title="Reset Student Password">
+                          <Lock className="w-4 h-4" />
+                        </button>
+                      )}
+                      <button onClick={() => deleteCode(c.id)} className="text-slate-400 hover:text-red-600" title="Delete">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
