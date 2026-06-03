@@ -14,15 +14,33 @@ interface WordFallGameProps {
   mode: 'typing' | 'multiple-choice';
   fallingType: 'translation' | 'definition';
   speed?: 'slow' | 'normal' | 'fast';
+  timeLimit?: number;
   onGameOver: (score: number) => void;
 }
 
-export function WordFallGame({ words, mode, fallingType, speed = 'normal', onGameOver }: WordFallGameProps) {
+export function WordFallGame({ words, mode, fallingType, speed = 'normal', timeLimit = 0, onGameOver }: WordFallGameProps) {
   const [lives, setLives] = useState(3);
   const [score, setScore] = useState(0);
   const [activeDrops, setActiveDrops] = useState<any[]>([]); // falling words
   const [input, setInput] = useState('');
   const [roundEnd, setRoundEnd] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(timeLimit);
+
+  useEffect(() => {
+    if (timeLimit > 0 && !roundEnd) {
+      const timer = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            setRoundEnd(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [timeLimit, roundEnd]);
 
   const isGameStarted = true;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -331,7 +349,7 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', onGam
       if (fallingType === 'definition') expectedMultiplier *= 1.5;
       const trueMaxPerWord = Math.round(100 * expectedMultiplier);
       const maxPossibleScore = Math.max(1, (statsRef.current.correct + statsRef.current.missed) * trueMaxPerWord);
-      const configId = `WordFall-${mode}-${fallingType}-${speed}`;
+      const configId = `WordFall-${mode}-${fallingType}-${speed}-${timeLimit}`;
       api.recordGameSession('Word Fall', score, maxPossibleScore, configId);
     }
   }, [roundEnd, score]);
@@ -368,7 +386,7 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', onGam
             <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-transparent via-rose-500 to-transparent opacity-60"></div>
             
             <h2 className="text-4xl md:text-6xl font-black text-rose-500 uppercase tracking-widest mb-6 drop-shadow-[0_0_15px_rgba(244,63,94,0.5)]">
-              Game Over
+              {(timeLimit > 0 && timeLeft <= 0) ? "Time's Up!" : "Game Over"}
             </h2>
             
             <p className="text-sm md:text-base font-semibold text-slate-400 uppercase tracking-[0.2em] mb-2">Final Score</p>
@@ -426,7 +444,7 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', onGam
               )}
             </div>
             
-            <LeaderboardForGame configId={`WordFall-${mode}-${fallingType}-${speed}`} />
+            <LeaderboardForGame configId={`WordFall-${mode}-${fallingType}-${speed}-${timeLimit}`} />
           </div>
         </div>
       </motion.div>
@@ -447,6 +465,11 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', onGam
           {[...Array(3)].map((_, i) => (
             <Heart key={i} className={`w-8 h-8 ${i < lives ? 'text-rose-500 fill-rose-500 drop-shadow-[0_0_8px_rgba(244,63,94,0.8)]' : 'text-slate-700'}`} />
           ))}
+          {timeLimit > 0 && (
+            <div className="ml-4 flex items-center justify-center font-mono text-xl font-bold text-slate-100 min-w-[3rem]">
+              {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+            </div>
+          )}
         </div>
         <div className="flex items-start gap-3 pointer-events-auto">
           <SoundToggle />

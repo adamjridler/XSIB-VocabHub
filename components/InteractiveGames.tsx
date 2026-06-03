@@ -102,6 +102,7 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
   const [scrambleMode, setScrambleMode] = useState<'translation' | 'definition'>('definition');
   const [scrambleTimeLimit, setScrambleTimeLimit] = useState<number>(30);
   const [wordFallSpeed, setWordFallSpeed] = useState<'slow' | 'normal' | 'fast'>('normal');
+  const [wordFallTimeLimit, setWordFallTimeLimit] = useState<number>(0);
   const [roomId, setRoomId] = useState('');
   const [playerName, setPlayerName] = useState(api.getUser()?.name || '');
   const [memoryPreviewTime, setMemoryPreviewTime] = useState<number>(0);
@@ -157,6 +158,9 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
               if (rParts.length >= 2) {
                 setFallingType(rParts[0] as any);
                 setWordFallSpeed(rParts[1] as any);
+              }
+              if (rParts.length >= 3) {
+                  setWordFallTimeLimit(Number(rParts[2]));
               }
             }
           }
@@ -246,7 +250,7 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
           {selectedGame === 'word-scramble' ? (
             <WordScrambleGame words={gameWords} timeLimit={scrambleTimeLimit} mode={scrambleMode} onGameOver={handleGameOver} />
           ) : selectedGame === 'word-fall' ? (
-            <WordFallGame words={gameWords} mode={gameMode} fallingType={fallingType} speed={wordFallSpeed} onGameOver={handleGameOver} />
+            <WordFallGame words={gameWords} mode={gameMode} fallingType={fallingType} speed={wordFallSpeed} timeLimit={wordFallTimeLimit} onGameOver={handleGameOver} />
           ) : selectedGame === 'fill-blanks' ? (
             <FillBlanksGame words={gameWords} mode={gameMode} onGameOver={handleGameOver} />
           ) : selectedGame === 'word-search' ? (
@@ -265,7 +269,7 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
     if (selectedGame === 'word-search') return `WordSearch-${wordSearchTimeLimit}-${wordSearchClueType}`;
     if (selectedGame === 'fill-blanks') return `FillBlanks-${gameMode}`;
     if (selectedGame === 'memory-match') return `MemoryMatch-${memoryPreviewTime}-${memoryTimeLimit}`;
-    if (selectedGame === 'word-fall') return `WordFall-${gameMode}-${fallingType}-${wordFallSpeed}`;
+    if (selectedGame === 'word-fall') return `WordFall-${gameMode}-${fallingType}-${wordFallSpeed}-${wordFallTimeLimit}`;
     return '';
   };
 
@@ -541,6 +545,25 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
                         ))}
                       </div>
                     </div>
+                    <div>
+                      <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 bg-slate-100/50 inline-block px-2 py-1 rounded-md">5. Time Limit</h3>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
+                        {[
+                          { label: 'Unlimited', value: 0 },
+                          { label: '1 Minute', value: 60 },
+                          { label: '2 Minutes', value: 120 },
+                          { label: '3 Minutes', value: 180 }
+                        ].map(t => (
+                          <div 
+                            key={t.value}
+                            onClick={() => setWordFallTimeLimit(t.value)}
+                            className={`cursor-pointer p-2 rounded-xl border-2 shadow-sm transition-all text-center font-bold text-xs md:text-sm ${wordFallTimeLimit === t.value ? 'border-rose-500 bg-rose-50/80 text-rose-700 shadow-rose-500/20' : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 text-slate-600'}`}
+                          >
+                            {t.label}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 )}
                 {selectedGame === 'word-scramble' && (
@@ -657,7 +680,7 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
                     </h3>
                     <p className="text-xs text-slate-600 leading-snug font-medium space-y-1">
                       {selectedGame === 'word-fall' && 'Catch the falling words! Use multiple choice or type translations before they drop. Limit escapes! Typing mode, faster speeds, and focusing on definitions will increase your score multiplier.'}
-                      {selectedGame === 'fill-blanks' && 'Read the AI-generated paragraph and figure out which of your vocabulary words belongs in the blank space. Typing mode yields higher score multipliers than multiple choice.'}
+                      {selectedGame === 'fill-blanks' && 'Read the AI-generated paragraph and figure out which of your vocabulary words belongs in the blank space. Typing mode yields higher score multipliers than multiple choice. You only have 2 minutes to complete the game!'}
                       {selectedGame === 'memory-match' && 'Flip the cards to reveal words and their meanings. Match all pairs as quickly as possible. Less preview time and stricter time limits will increase your score multiplier.'}
                       {selectedGame === 'word-scramble' && 'Unscramble the letters to reveal the correct word based on the clues before the time runs out. Shorter time limits and definition clues yield higher score multipliers!'}
                       {selectedGame === 'word-search' && 'Search the grid for hidden vocabulary. Stricter time limits and definition clues yield higher score multipliers!'}
