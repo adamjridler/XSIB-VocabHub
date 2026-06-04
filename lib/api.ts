@@ -479,7 +479,7 @@ export const api = {
       hallOfFame[monthKey] = {};
       
       const students = Array.from(userMap.entries()).map(([userId, score]) => {
-        const p = profileMap.get(userId) || { name: 'Unknown', gradeLevel: 'Unknown' };
+        const p: any = profileMap.get(userId) || { name: 'Unknown', gradeLevel: 'Unknown' };
         return { id: userId, name: p.name, gradeLevel: p.gradeLevel, score };
       });
 

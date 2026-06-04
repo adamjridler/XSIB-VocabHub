@@ -641,12 +641,12 @@ export default function App() {
               {/* Rolling Info Bar for Recent High Scores */}
               {stats.recentScores && stats.recentScores.length > 0 && (
                 <div className="mt-auto pt-3 w-full flex flex-col items-center justify-end pb-0">
-                  <div className="mb-2 text-center flex flex-col items-center">
-                    <h3 className="text-sm font-bold text-purple-600 uppercase tracking-widest flex items-center gap-2">
-                      <Trophy className="w-4 h-4 text-amber-500" />
+                  <div className="mb-2 w-full flex items-center justify-between px-2">
+                    <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                      <Trophy className="w-4 h-4 text-purple-500" />
                       Latest Top Scores
                     </h3>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                       Can you beat these scores?
                     </p>
                   </div>
@@ -666,7 +666,7 @@ export default function App() {
                         {[...stats.recentScores, ...stats.recentScores].map(
                           (scoreObj, idx) => (
                             <Fragment key={idx}>
-                              <Tooltip delay={300}>
+                              <Tooltip>
                                 <TooltipTrigger
                                   className="group relative flex items-center gap-2 text-sm cursor-pointer hover:bg-slate-800 rounded-md px-3 py-2 transition-colors"
                                 onClick={() => {
