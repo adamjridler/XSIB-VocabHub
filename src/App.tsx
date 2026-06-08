@@ -434,11 +434,11 @@ export default function App() {
             }}
           />
         ) : view === "hub" ? (
-          <div className="w-full max-w-7xl flex flex-col pb-8">
-            <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4 lg:gap-6 items-start w-full">
+          <div className="w-full max-w-7xl flex flex-col pb-2">
+            <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4 items-start w-full">
               <div className="flex flex-col items-start text-left w-full h-full">
                 {/* Hero Section */}
-                <section className="flex flex-col items-start text-left w-full mt-2 mb-4">
+                <section className="flex flex-col items-start text-left w-full mt-0 mb-3">
                   <div className="flex flex-col items-start justify-center">
                     <motion.h1
                       initial={{ opacity: 0, y: 20 }}
@@ -448,7 +448,7 @@ export default function App() {
                       <span className="block text-sm font-bold tracking-[0.2em] text-slate-500 mb-0 uppercase">
                         XSIB
                       </span>
-                      <span className="block text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-slate-900">
+                      <span className="block text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter text-slate-900">
                         Vocab
                         <span className="text-transparent bg-clip-text bg-gradient-to-br from-purple-600 to-indigo-600">
                           Hub.
@@ -473,9 +473,9 @@ export default function App() {
                     onClick={() => handleStudentAction("word-bank")}
                   >
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                      <BookOpen className="w-20 h-20 text-purple-600 -rotate-12 translate-x-4 -translate-y-4" />
+                      <BookOpen className="w-16 h-16 text-purple-600 -rotate-12 translate-x-4 -translate-y-4" />
                     </div>
-                    <CardHeader className="pb-1 pt-4 relative z-10">
+                    <CardHeader className="pb-1 pt-3 relative z-10">
                       <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md mb-2 transform group-hover:scale-110 transition-transform duration-300">
                         <BookOpen className="h-4 w-4" />
                       </div>
@@ -483,13 +483,13 @@ export default function App() {
                         View Word Bank
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="pb-4 relative z-10 flex-grow">
-                      <CardDescription className="text-sm text-slate-600 font-medium">
+                    <CardContent className="pb-2 relative z-10 flex-grow">
+                      <CardDescription className="text-sm text-slate-600 font-medium leading-snug">
                         Browse and search through the entire collection of terms
                         curated by your teachers.
                       </CardDescription>
                     </CardContent>
-                    <div className="px-6 pb-5 pt-2 mt-auto relative z-10 border-t border-purple-100/50 flex justify-between items-center bg-white/50">
+                    <div className="px-4 pb-3 pt-2 mt-auto relative z-10 border-t border-purple-100/50 flex justify-between items-center bg-white/50">
                         <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Learn</span>
                         <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
                             <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
@@ -504,9 +504,9 @@ export default function App() {
                     onClick={() => handleStudentAction("study")}
                   >
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                      <Brain className="w-20 h-20 text-purple-600 -rotate-12 translate-x-4 -translate-y-4" />
+                      <Brain className="w-16 h-16 text-purple-600 -rotate-12 translate-x-4 -translate-y-4" />
                     </div>
-                    <CardHeader className="pb-1 pt-4 relative z-10">
+                    <CardHeader className="pb-1 pt-3 relative z-10">
                       <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md mb-2 transform group-hover:scale-110 transition-transform duration-300">
                         <Brain className="h-4 w-4" />
                       </div>
@@ -514,13 +514,13 @@ export default function App() {
                         Study Vocab
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="pb-4 relative z-10 flex-grow">
-                      <CardDescription className="text-sm text-slate-600 font-medium">
+                    <CardContent className="pb-2 relative z-10 flex-grow">
+                      <CardDescription className="text-sm text-slate-600 font-medium leading-snug">
                         Review terms, definitions, and example sentences with
                         interactive smart flashcards.
                       </CardDescription>
                     </CardContent>
-                    <div className="px-6 pb-5 pt-2 mt-auto relative z-10 border-t border-purple-100/50 flex justify-between items-center bg-white/50">
+                    <div className="px-4 pb-3 pt-2 mt-auto relative z-10 border-t border-purple-100/50 flex justify-between items-center bg-white/50">
                         <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Practice</span>
                         <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
                             <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
@@ -535,9 +535,9 @@ export default function App() {
                     onClick={() => handleStudentAction("games")}
                   >
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                      <Gamepad2 className="w-20 h-20 text-purple-600 -rotate-12 translate-x-4 -translate-y-4" />
+                      <Gamepad2 className="w-16 h-16 text-purple-600 -rotate-12 translate-x-4 -translate-y-4" />
                     </div>
-                    <CardHeader className="pb-1 pt-4 relative z-10">
+                    <CardHeader className="pb-1 pt-3 relative z-10">
                       <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md mb-2 transform group-hover:scale-110 transition-transform duration-300">
                         <Gamepad2 className="h-4 w-4" />
                       </div>
@@ -545,13 +545,13 @@ export default function App() {
                         Interactive Games
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="pb-4 relative z-10 flex-grow">
-                      <CardDescription className="text-sm text-slate-600 font-medium">
+                    <CardContent className="pb-2 relative z-10 flex-grow">
+                      <CardDescription className="text-sm text-slate-600 font-medium leading-snug">
                         Test your knowledge with exciting mini-games and
                         quizzes. Learning shouldn't be boring.
                       </CardDescription>
                     </CardContent>
-                    <div className="px-6 pb-5 pt-2 mt-auto relative z-10 border-t border-purple-100/50 flex justify-between items-center bg-white/50">
+                    <div className="px-4 pb-3 pt-2 mt-auto relative z-10 border-t border-purple-100/50 flex justify-between items-center bg-white/50">
                         <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Play</span>
                         <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
                             <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
@@ -706,20 +706,9 @@ export default function App() {
             </div>
 
             {/* Right Column: Individual Stats Dashboard */}
-            <div className="w-full mt-2 lg:mt-2 sticky top-24">
-              {/* Test Phase Notice */}
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4 flex items-start gap-3 shadow-sm relative overflow-hidden z-20">
-                 <div className="p-1.5 bg-blue-100 text-blue-600 rounded flex-shrink-0 mt-0.5">
-                    <Info className="w-4 h-4" />
-                 </div>
-                 <div>
-                    <h4 className="text-sm font-bold text-blue-800">Test Phase</h4>
-                    <p className="text-xs font-medium text-blue-600/80 leading-snug">The website is currently in a test phase. Features and content are still being evaluated.</p>
-                 </div>
-              </div>
-
+            <div className="w-full mt-2 lg:mt-0 sticky top-20">
               {studentStats && studentStats.streak > 0 && (
-                <div className="bg-gradient-to-r from-orange-500/20 to-rose-500/20 border border-orange-500/30 rounded-xl p-3 mb-4 flex items-center justify-between z-20 shadow-sm backdrop-blur-sm">
+                <div className="bg-gradient-to-r from-orange-500/20 to-rose-500/20 border border-orange-500/30 rounded-xl p-2 mb-2 flex items-center justify-between z-20 shadow-sm backdrop-blur-sm">
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-gradient-to-br from-orange-400 to-rose-500 text-white rounded-lg shadow-inner">
                       <Flame className="w-4 h-4" />
@@ -745,8 +734,8 @@ export default function App() {
                 </CardHeader>
                 <CardContent className="relative z-10 pt-3">
                   <div className="space-y-4">
-                    <div className="bg-gradient-to-br from-purple-500/10 to-indigo-500/10 rounded-xl p-4 border border-purple-500/20 flex flex-col gap-4">
-                      <div className="flex items-center justify-between border-b border-purple-500/20 pb-4">
+                    <div className="bg-gradient-to-br from-purple-500/10 to-indigo-500/10 rounded-xl p-3 border border-purple-500/20 flex flex-col gap-2">
+                      <div className="flex items-center justify-between border-b border-purple-500/20 pb-2">
                         <div className="flex items-center gap-3">
                           <div className="p-2 bg-purple-500/20 text-purple-300 rounded-lg">
                             <Trophy className="w-5 h-5" />
@@ -769,24 +758,24 @@ export default function App() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="bg-slate-800/40 rounded-xl p-3 border border-slate-700/50 flex flex-col justify-center">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="bg-slate-800/40 rounded-xl p-2 border border-slate-700/50 flex flex-col justify-center">
                         <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
                           <Gamepad2 className="w-3 h-3"/> Played
                         </span>
                         <span className="text-xl font-bold text-slate-100">{studentStats?.gamesPlayed || 0}</span>
                       </div>
-                      <div className="bg-slate-800/40 rounded-xl p-3 border border-slate-700/50 flex flex-col justify-center">
+                      <div className="bg-slate-800/40 rounded-xl p-2 border border-slate-700/50 flex flex-col justify-center">
                         <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
                           <Target className="w-3 h-3"/> Accuracy
                         </span>
                         <span className="text-xl font-bold text-emerald-400">{studentStats?.accuracy || 0}%</span>
                       </div>
-                      <div className="bg-slate-800/40 rounded-xl p-3 border border-slate-700/50 flex flex-col justify-center col-span-2 sm:col-span-1 lg:col-span-2 xl:col-span-1">
+                      <div className="bg-slate-800/40 rounded-xl p-2 border border-slate-700/50 flex flex-col justify-center col-span-2 sm:col-span-1 lg:col-span-2 xl:col-span-1">
                         <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Avg Score</span>
                         <span className="text-xl font-bold text-slate-100">{studentStats?.averageScore || 0}</span>
                       </div>
-                      <div className="bg-slate-800/40 rounded-xl p-3 border border-slate-700/50 flex flex-col justify-center col-span-2 sm:col-span-1 lg:col-span-2 xl:col-span-1">
+                      <div className="bg-slate-800/40 rounded-xl p-2 border border-slate-700/50 flex flex-col justify-center col-span-2 sm:col-span-1 lg:col-span-2 xl:col-span-1">
                         <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Last Played</span>
                         <span className="text-sm font-bold text-slate-100 mt-1">{studentStats?.lastPlayed || "Never"}</span>
                       </div>

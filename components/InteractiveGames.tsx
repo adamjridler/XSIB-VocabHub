@@ -90,7 +90,7 @@ function MiniCrosswordCardAnimation() {
   const [letters, setLetters] = useState<{ id: number; char: string; x: number; y: number; delay: number }[]>([]);
 
   useEffect(() => {
-    // Generate a static "crossword" layout with random letters that fade in
+    // Generate a static "crossword" layout
     const newLetters = [];
     const words = [
       { text: "WORDS", x: 1, y: 1, dir: 'H' },
@@ -104,7 +104,7 @@ function MiniCrosswordCardAnimation() {
           char: w.text[i],
           x: w.dir === 'H' ? w.x + i : w.x,
           y: w.dir === 'H' ? w.y : w.y + i,
-          delay: Math.random() * 0.8
+          delay: Math.random() * 0.4
         });
       }
     });
@@ -112,19 +112,21 @@ function MiniCrosswordCardAnimation() {
   }, []);
 
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none p-2 flex justify-center items-center opacity-30 group-hover:opacity-50 transition-opacity">
+    <div className="absolute inset-0 overflow-hidden pointer-events-none p-2 flex justify-center items-center opacity-40 group-hover:opacity-80 transition-opacity duration-500">
       <div className="relative w-[120px] h-[120px] transform rotate-12 group-hover:scale-110 transition-transform duration-500">
         {letters.map(l => (
-          <motion.div
+          <div
             key={l.id}
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: l.delay, duration: 0.5 }}
-            className="absolute bg-white rounded-sm w-[22px] h-[22px] flex items-center justify-center font-black text-amber-600 text-xs shadow-sm"
+            className="absolute bg-white/40 group-hover:bg-white rounded-sm w-[22px] h-[22px] flex items-center justify-center font-black text-amber-600 text-xs shadow-sm shadow-black/5 transition-colors duration-300"
             style={{ left: `${l.x * 24}px`, top: `${l.y * 24}px` }}
           >
-            {l.char}
-          </motion.div>
+            <span 
+              className="opacity-0 group-hover:opacity-100 scale-50 group-hover:scale-100 transition-all duration-300 ease-out"
+              style={{ transitionDelay: `${l.delay}s` }}
+            >
+              {l.char}
+            </span>
+          </div>
         ))}
       </div>
     </div>
