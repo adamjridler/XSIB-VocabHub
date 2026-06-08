@@ -136,6 +136,7 @@ export function WordSearchGame({ words, timeLimit = 120, clueType = 'translation
   };
 
   const handleClue = () => {
+    if (score <= 0) return;
     const unfoundWords = Object.values(wordsToFind).filter((w: any) => !w.found);
     if (unfoundWords.length > 0) {
       const word = unfoundWords[Math.floor(Math.random() * unfoundWords.length)] as any;
@@ -175,7 +176,7 @@ export function WordSearchGame({ words, timeLimit = 120, clueType = 'translation
       else if (timeLimit === 120) expectedMultiplier *= 1.5;
       else if (timeLimit === 0) expectedMultiplier *= 0.5;
       if (clueType === 'definition') expectedMultiplier *= 1.5;
-      const trueMaxScore = wordsCount * Math.round(100 * expectedMultiplier);
+      const trueMaxScore = wordsCount * Math.round(300 * expectedMultiplier);
       const configId = `WordSearch-${timeLimit}-${clueType}`;
       api.recordGameSession('Word Search', score, trueMaxScore || 1, configId);
     }
@@ -262,7 +263,7 @@ export function WordSearchGame({ words, timeLimit = 120, clueType = 'translation
 
       if (clueType === 'definition') multiplier *= 1.5;
       
-      const points = Math.round(100 * multiplier);
+      const points = Math.round(300 * multiplier);
       setScore(s => s + points);
       playSound('correct');
       
@@ -376,7 +377,8 @@ export function WordSearchGame({ words, timeLimit = 120, clueType = 'translation
           
           <Button 
             onClick={handleClue}
-            className="bg-purple-500/20 hover:bg-purple-500/40 text-purple-300 border border-purple-500/50 rounded-2xl h-auto py-3 px-6"
+            disabled={score <= 0}
+            className="bg-purple-500/20 hover:bg-purple-500/40 text-purple-300 border border-purple-500/50 rounded-2xl h-auto py-3 px-6 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <div className="flex flex-col items-center">
                <span className="text-xs uppercase font-bold tracking-widest text-purple-400">Clue</span>

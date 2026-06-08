@@ -16,6 +16,7 @@ import {
   Target,
   Zap,
   PartyPopper,
+  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -434,29 +435,29 @@ export default function App() {
           />
         ) : view === "hub" ? (
           <div className="w-full max-w-7xl flex flex-col pb-8">
-            {/* Hero Section */}
-            <section className="flex flex-col items-start text-left w-full mt-2 mb-4">
-              <div className="flex flex-col items-start justify-center">
-                <motion.h1
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.1 }}
-                >
-                  <span className="block text-sm font-bold tracking-[0.2em] text-slate-500 mb-0 uppercase">
-                    XSIB
-                  </span>
-                  <span className="block text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-slate-900">
-                    Vocab
-                    <span className="text-transparent bg-clip-text bg-gradient-to-br from-purple-600 to-indigo-600">
-                      Hub.
-                    </span>
-                  </span>
-                </motion.h1>
-              </div>
-            </section>
-
-            <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4 lg:gap-6 items-stretch w-full">
+            <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4 lg:gap-6 items-start w-full">
               <div className="flex flex-col items-start text-left w-full h-full">
+                {/* Hero Section */}
+                <section className="flex flex-col items-start text-left w-full mt-2 mb-4">
+                  <div className="flex flex-col items-start justify-center">
+                    <motion.h1
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.1 }}
+                    >
+                      <span className="block text-sm font-bold tracking-[0.2em] text-slate-500 mb-0 uppercase">
+                        XSIB
+                      </span>
+                      <span className="block text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-slate-900">
+                        Vocab
+                        <span className="text-transparent bg-clip-text bg-gradient-to-br from-purple-600 to-indigo-600">
+                          Hub.
+                        </span>
+                      </span>
+                    </motion.h1>
+                  </div>
+                </section>
+
                 {/* Features Section */}
               <section className="w-full mb-3">
                 <motion.div
@@ -705,7 +706,18 @@ export default function App() {
             </div>
 
             {/* Right Column: Individual Stats Dashboard */}
-            <div className="w-full mt-4 lg:mt-0 sticky top-24">
+            <div className="w-full mt-2 lg:mt-2 sticky top-24">
+              {/* Test Phase Notice */}
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4 flex items-start gap-3 shadow-sm relative overflow-hidden z-20">
+                 <div className="p-1.5 bg-blue-100 text-blue-600 rounded flex-shrink-0 mt-0.5">
+                    <Info className="w-4 h-4" />
+                 </div>
+                 <div>
+                    <h4 className="text-sm font-bold text-blue-800">Test Phase</h4>
+                    <p className="text-xs font-medium text-blue-600/80 leading-snug">The website is currently in a test phase. Features and content are still being evaluated.</p>
+                 </div>
+              </div>
+
               {studentStats && studentStats.streak > 0 && (
                 <div className="bg-gradient-to-r from-orange-500/20 to-rose-500/20 border border-orange-500/30 rounded-xl p-3 mb-4 flex items-center justify-between z-20 shadow-sm backdrop-blur-sm">
                   <div className="flex items-center gap-3">
@@ -719,6 +731,7 @@ export default function App() {
                   </div>
                 </div>
               )}
+
               <Card className="bg-slate-900 border-slate-800 text-white shadow-xl shadow-purple-900/20 overflow-hidden relative">
                 <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 rounded-full bg-purple-600/20 blur-3xl pointer-events-none"></div>
                 <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-48 h-48 rounded-full bg-blue-600/20 blur-3xl pointer-events-none"></div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, Gamepad2, Type, MousePointerClick, Heart, AlertCircle, RefreshCw, BrainCircuit, Info, Timer, Search } from 'lucide-react';
+import { ArrowLeft, Gamepad2, Type, MousePointerClick, Heart, AlertCircle, RefreshCw, BrainCircuit, Info, Timer, Search, LayoutGrid } from 'lucide-react';
 import { api } from '@/lib/api';
 import { motion, AnimatePresence } from 'motion/react';
 import { WordFallGame } from './games/WordFallGame';
@@ -9,6 +9,7 @@ import { FillBlanksGame } from './games/FillBlanksGame';
 import { MemoryMatchGame } from './games/MemoryMatchGame';
 import { WordScrambleGame } from './games/WordScrambleGame';
 import { WordSearchGame } from './games/WordSearchGame';
+import { MiniCrosswordGame } from './games/MiniCrosswordGame';
 
 import { FloatingWords, AmbientOrbs } from '@/components/AppBackground';
 import { StudentLeaderboard } from '@/components/StudentLeaderboard';
@@ -85,8 +86,53 @@ function WordSearchCardAnimation() {
   );
 }
 
+function MiniCrosswordCardAnimation() {
+  const [letters, setLetters] = useState<{ id: number; char: string; x: number; y: number; delay: number }[]>([]);
+
+  useEffect(() => {
+    // Generate a static "crossword" layout with random letters that fade in
+    const newLetters = [];
+    const words = [
+      { text: "WORDS", x: 1, y: 1, dir: 'H' },
+      { text: "PLAY", x: 3, y: 0, dir: 'V' }
+    ];
+    let id = 0;
+    words.forEach(w => {
+      for (let i = 0; i < w.text.length; i++) {
+        newLetters.push({
+          id: id++,
+          char: w.text[i],
+          x: w.dir === 'H' ? w.x + i : w.x,
+          y: w.dir === 'H' ? w.y : w.y + i,
+          delay: Math.random() * 0.8
+        });
+      }
+    });
+    setLetters(newLetters);
+  }, []);
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none p-2 flex justify-center items-center opacity-30 group-hover:opacity-50 transition-opacity">
+      <div className="relative w-[120px] h-[120px] transform rotate-12 group-hover:scale-110 transition-transform duration-500">
+        {letters.map(l => (
+          <motion.div
+            key={l.id}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: l.delay, duration: 0.5 }}
+            className="absolute bg-white rounded-sm w-[22px] h-[22px] flex items-center justify-center font-black text-amber-600 text-xs shadow-sm"
+            style={{ left: `${l.x * 24}px`, top: `${l.y * 24}px` }}
+          >
+            {l.char}
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function InteractiveGames({ onBack, backgroundWords, onGameComplete, initialGameData }: { onBack: () => void; backgroundWords?: string[], onGameComplete?: () => void, initialGameData?: { game: string, configId: string | null } | null }) {
-  const [selectedGame, setSelectedGame] = useState<'word-fall' | 'fill-blanks' | 'memory-match' | 'word-scramble' | 'word-search' | null>(null);
+  const [selectedGame, setSelectedGame] = useState<'word-fall' | 'fill-blanks' | 'memory-match' | 'word-scramble' | 'word-search' | 'mini-crossword' | null>(null);
   const [gameState, setGameState] = useState<'menu' | 'setup' | 'playing'>('menu');
   const [allWords, setAllWords] = useState<any[]>([]);
   
@@ -109,12 +155,14 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
   const [memoryTimeLimit, setMemoryTimeLimit] = useState<number>(0);
   const [wordSearchTimeLimit, setWordSearchTimeLimit] = useState<number>(120);
   const [wordSearchClueType, setWordSearchClueType] = useState<'translation' | 'definition'>('translation');
+  const [crosswordTimeLimit, setCrosswordTimeLimit] = useState<number>(300);
 
   useEffect(() => {
     if (initialGameData) {
       let sg: any = null;
       if (initialGameData.game === 'Word Scramble') sg = 'word-scramble';
       if (initialGameData.game === 'Word Search') sg = 'word-search';
+      if (initialGameData.game === 'Mini Crossword') sg = 'mini-crossword';
       if (initialGameData.game === 'Fill in the Blanks') sg = 'fill-blanks';
       if (initialGameData.game === 'Memory Match') sg = 'memory-match';
       if (initialGameData.game === 'Word Fall') sg = 'word-fall';
@@ -136,6 +184,10 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
             if (parts.length >= 3) {
               setWordSearchTimeLimit(Number(parts[1]));
               setWordSearchClueType(parts[2] as any);
+            }
+          } else if (sg === 'mini-crossword') {
+            if (parts.length >= 2) {
+              setCrosswordTimeLimit(Number(parts[1]));
             }
           } else if (sg === 'fill-blanks') {
             // FillBlanks-${gameMode}
@@ -198,6 +250,8 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
       case 'memory-match':
         // Memory match gets too crowded with more than ~8-12 words (16-24 cards)
         return shuffled.slice(0, 10);
+      case 'mini-crossword':
+        return shuffled.slice(0, 10);
       case 'word-search':
         // Word search generates a grid based on words, 10-15 is typically a good limit
         return shuffled.slice(0, 15);
@@ -242,7 +296,7 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <h1 className="text-xl font-bold tracking-tight text-white">
-              {selectedGame === 'word-fall' ? 'Word Fall' : selectedGame === 'fill-blanks' ? 'Fill-in the Blanks' : selectedGame === 'word-scramble' ? 'Word Scramble' : selectedGame === 'word-search' ? 'Word Search' : 'Memory Match'}
+              {selectedGame === 'word-fall' ? 'Word Fall' : selectedGame === 'fill-blanks' ? 'Fill-in the Blanks' : selectedGame === 'word-scramble' ? 'Word Scramble' : selectedGame === 'word-search' ? 'Word Search' : selectedGame === 'mini-crossword' ? 'Mini Crossword' : 'Memory Match'}
             </h1>
           </div>
         </header>
@@ -251,6 +305,8 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
             <WordScrambleGame words={gameWords} timeLimit={scrambleTimeLimit} mode={scrambleMode} onGameOver={handleGameOver} />
           ) : selectedGame === 'word-fall' ? (
             <WordFallGame words={gameWords} mode={gameMode} fallingType={fallingType} speed={wordFallSpeed} timeLimit={wordFallTimeLimit} onGameOver={handleGameOver} />
+          ) : selectedGame === 'mini-crossword' ? (
+            <MiniCrosswordGame words={gameWords} timeLimit={crosswordTimeLimit} onGameOver={handleGameOver} />
           ) : selectedGame === 'fill-blanks' ? (
             <FillBlanksGame words={gameWords} mode={gameMode} onGameOver={handleGameOver} />
           ) : selectedGame === 'word-search' ? (
@@ -267,6 +323,7 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
     if (!selectedGame) return '';
     if (selectedGame === 'word-scramble') return `WordScramble-${scrambleMode}-${scrambleTimeLimit}`;
     if (selectedGame === 'word-search') return `WordSearch-${wordSearchTimeLimit}-${wordSearchClueType}`;
+    if (selectedGame === 'mini-crossword') return `Crossword-${crosswordTimeLimit}`;
     if (selectedGame === 'fill-blanks') return `FillBlanks-${gameMode}`;
     if (selectedGame === 'memory-match') return `MemoryMatch-${memoryPreviewTime}-${memoryTimeLimit}`;
     if (selectedGame === 'word-fall') return `WordFall-${gameMode}-${fallingType}-${wordFallSpeed}-${wordFallTimeLimit}`;
@@ -410,8 +467,27 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
                      </div>
                    </div>
                 </div>
-                <div className="p-4">
+                 <div className="p-4">
                   <p className="text-slate-600 text-xs sm:text-sm font-medium leading-relaxed">Find hidden vocabulary words in the grid. Connect letters horizontally, vertically, or diagonally!</p>
+                </div>
+              </div>
+
+              {/* Mini Crossword Card */}
+              <div 
+                className="bg-white flex flex-col border-2 border-slate-200 hover:border-amber-400 hover:shadow-xl hover:shadow-amber-500/10 transition-all cursor-pointer rounded-2xl overflow-hidden group"
+                onClick={() => { setSelectedGame('mini-crossword'); setGameState('setup'); }}
+              >
+                <div className="h-32 bg-gradient-to-br from-amber-500 to-orange-600 p-4 pb-3 flex flex-col justify-end relative overflow-hidden">
+                   <MiniCrosswordCardAnimation />
+                   <div className="flex justify-between items-end relative z-10 w-full gap-2 h-full">
+                     <h3 className="text-xl font-extrabold text-white drop-shadow-sm leading-tight max-w-[75%] break-words">Mini Crossword</h3>
+                     <div className="bg-white/20 backdrop-blur-sm p-3 rounded-2xl flex-shrink-0">
+                       <LayoutGrid className="w-6 h-6 text-white group-hover:scale-125 transition-transform duration-500" />
+                     </div>
+                   </div>
+                </div>
+                <div className="p-4">
+                  <p className="text-slate-600 text-xs sm:text-sm font-medium leading-relaxed">Solve intersecting clues using your vocabulary! An automated mini crossword.</p>
                 </div>
               </div>
             </div>
@@ -489,7 +565,7 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
 
               <div className="flex-1 space-y-4 md:space-y-6 lg:max-w-md flex flex-col justify-between">
                 <div className="space-y-4 md:space-y-6">
-                  {selectedGame !== 'memory-match' && selectedGame !== 'word-scramble' && selectedGame !== 'word-search' && (
+                  {selectedGame !== 'memory-match' && selectedGame !== 'word-scramble' && selectedGame !== 'word-search' && selectedGame !== 'mini-crossword' && (
                   <div>
                     <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 bg-slate-100/50 inline-block px-2 py-1 rounded-md">2. Input Mode</h3>
                     <div className="grid grid-cols-2 gap-2 md:gap-3">
@@ -673,6 +749,25 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
                     </div>
                   </div>
                 )}
+                {selectedGame === 'mini-crossword' && (
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 bg-slate-100/50 inline-block px-2 py-1 rounded-md">2. Time Limit</h3>
+                      <div className="grid grid-cols-4 gap-2 md:gap-3">
+                        {[0, 120, 300, 600].map(time => (
+                          <div 
+                            key={time}
+                            onClick={() => setCrosswordTimeLimit(time)}
+                            className={`cursor-pointer rounded-xl border-2 p-2 md:p-3 flex flex-col items-center gap-1 md:gap-2 transition-all group ${crosswordTimeLimit === time ? 'border-amber-500 bg-amber-50 text-amber-700 shadow-sm' : 'border-slate-200 hover:border-amber-300 hover:bg-slate-50 text-slate-600'}`}
+                          >
+                            <Timer className={`w-5 h-5 md:w-6 md:h-6 ${crosswordTimeLimit === time ? 'text-amber-600' : 'text-slate-400 group-hover:text-amber-500'} transition-colors`} />
+                            <span className="font-bold text-xs md:text-sm text-center">{time === 0 ? 'No Limit' : `${time / 60}m`}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div className="pt-2">
                   <div className="bg-slate-50 p-3 md:p-4 rounded-xl md:rounded-2xl border-2 border-slate-200/60 mb-3 md:mb-4 shadow-sm">
                     <h3 className="font-bold text-slate-800 mb-1 flex items-center gap-2 text-sm md:text-base">
@@ -684,6 +779,7 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
                       {selectedGame === 'memory-match' && 'Flip the cards to reveal words and their meanings. Match all pairs as quickly as possible. Less preview time and stricter time limits will increase your score multiplier.'}
                       {selectedGame === 'word-scramble' && 'Unscramble the letters to reveal the correct word based on the clues before the time runs out. Shorter time limits and definition clues yield higher score multipliers!'}
                       {selectedGame === 'word-search' && 'Search the grid for hidden vocabulary. Stricter time limits and definition clues yield higher score multipliers!'}
+                      {selectedGame === 'mini-crossword' && 'Solve the generated mini crossword by typing answers based on the definitions! Faster times give higher score multipliers!'}
                     </p>
                   </div>
                   <Button 

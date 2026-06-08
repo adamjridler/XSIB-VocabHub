@@ -228,7 +228,7 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', timeL
       
       const basePoints = 10 + Math.round((1 - Math.min(1, dropY / 85)) * 9) * 10;
       const points = Math.round(basePoints * multiplier);
-      setScore(s => s + points);
+      setScore(s => Math.min(5000, s + points));
       playSound('correct');
       copy[matchedIndex] = { ...copy[matchedIndex], status: 'correct', statusTimer: 0, pointsEaten: points };
       activeDropsRef.current = copy;
@@ -288,7 +288,7 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', timeL
 
       const basePoints = 10 + Math.round((1 - Math.min(1, dropY / 85)) * 9) * 10;
       const points = Math.round(basePoints * multiplier);
-      setScore(s => s + points);
+      setScore(s => Math.min(5000, s + points));
       playSound('correct');
       copy[dropIndex] = { ...copy[dropIndex], status: 'correct', statusTimer: 0, pointsEaten: points };
       activeDropsRef.current = copy;
@@ -348,7 +348,7 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', timeL
       if (speed === 'slow') expectedMultiplier *= 0.8;
       if (fallingType === 'definition') expectedMultiplier *= 1.5;
       const trueMaxPerWord = Math.round(100 * expectedMultiplier);
-      const maxPossibleScore = Math.max(1, (statsRef.current.correct + statsRef.current.missed) * trueMaxPerWord);
+      const maxPossibleScore = Math.min(5000, Math.max(1, (statsRef.current.correct + statsRef.current.missed) * trueMaxPerWord));
       const configId = `WordFall-${mode}-${fallingType}-${speed}-${timeLimit}`;
       api.recordGameSession('Word Fall', score, maxPossibleScore, configId);
     }
