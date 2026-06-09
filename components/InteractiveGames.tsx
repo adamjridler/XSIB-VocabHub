@@ -10,6 +10,7 @@ import { MemoryMatchGame } from './games/MemoryMatchGame';
 import { WordScrambleGame } from './games/WordScrambleGame';
 import { WordSearchGame } from './games/WordSearchGame';
 import { MiniCrosswordGame } from './games/MiniCrosswordGame';
+import { MultiplayerMemoryMatchGame } from './games/MultiplayerMemoryMatchGame';
 
 import { FloatingWords, AmbientOrbs } from '@/components/AppBackground';
 import { StudentLeaderboard } from '@/components/StudentLeaderboard';
@@ -134,7 +135,7 @@ function MiniCrosswordCardAnimation() {
 }
 
 export function InteractiveGames({ onBack, backgroundWords, onGameComplete, initialGameData }: { onBack: () => void; backgroundWords?: string[], onGameComplete?: () => void, initialGameData?: { game: string, configId: string | null } | null }) {
-  const [selectedGame, setSelectedGame] = useState<'word-fall' | 'fill-blanks' | 'memory-match' | 'word-scramble' | 'word-search' | 'mini-crossword' | null>(null);
+  const [selectedGame, setSelectedGame] = useState<'word-fall' | 'fill-blanks' | 'memory-match' | 'word-scramble' | 'word-search' | 'mini-crossword' | 'multiplayer-memory' | null>(null);
   const [gameState, setGameState] = useState<'menu' | 'setup' | 'playing'>('menu');
   const [allWords, setAllWords] = useState<any[]>([]);
   
@@ -158,6 +159,9 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
   const [wordSearchTimeLimit, setWordSearchTimeLimit] = useState<number>(120);
   const [wordSearchClueType, setWordSearchClueType] = useState<'translation' | 'definition'>('translation');
   const [crosswordTimeLimit, setCrosswordTimeLimit] = useState<number>(300);
+  const [multiplayerTurnTime, setMultiplayerTurnTime] = useState<number>(15);
+  const [multiplayerMode, setMultiplayerMode] = useState<'translation' | 'definition'>('translation');
+  const [roomAction, setRoomAction] = useState<'create' | 'join'>('create');
 
   useEffect(() => {
     if (initialGameData) {
@@ -313,6 +317,8 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
             <FillBlanksGame words={gameWords} mode={gameMode} onGameOver={handleGameOver} />
           ) : selectedGame === 'word-search' ? (
             <WordSearchGame words={gameWords} timeLimit={wordSearchTimeLimit} clueType={wordSearchClueType} onGameOver={handleGameOver} />
+          ) : selectedGame === 'multiplayer-memory' ? (
+            <MultiplayerMemoryMatchGame words={gameWords} mode={multiplayerMode} turnTimeLimit={multiplayerTurnTime} roomId={roomId} isHost={roomAction === 'create'} onGameOver={handleGameOver} />
           ) : (
             <MemoryMatchGame words={gameWords} previewTime={memoryPreviewTime} timeLimit={memoryTimeLimit} onGameOver={handleGameOver} />
           )}
@@ -493,6 +499,37 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
                 </div>
               </div>
             </div>
+
+            <div className="mt-8 text-center md:text-left mb-4">
+              <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-2">Multiplayer Games</h2>
+              <p className="text-sm text-slate-600">Play with friends using room codes!</p>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {/* Multiplayer Memory */}
+              <div 
+                className="bg-white flex flex-col border-2 border-slate-200 hover:border-fuchsia-400 hover:shadow-xl hover:shadow-fuchsia-500/10 transition-all cursor-pointer rounded-2xl overflow-hidden group"
+                onClick={() => { setSelectedGame('multiplayer-memory'); setGameState('setup'); }}
+              >
+                <div className="h-32 bg-gradient-to-br from-fuchsia-500 to-pink-600 p-4 pb-3 flex flex-col justify-end relative overflow-hidden">
+                   <div className="absolute inset-0 opacity-30 flex justify-center items-center gap-2 px-2 overflow-hidden perspective-1000 pb-2">
+                     <div className="w-10 h-14 bg-white rounded-md border-2 border-fuchsia-200 -rotate-12 translate-y-4 group-hover:rotate-0 group-hover:translate-y-0 group-hover:rotate-y-180 transition-all duration-700 ease-out"></div>
+                     <div className="w-10 h-14 bg-white/60 rounded-md border-2 border-fuchsia-200 rotate-6 -translate-y-2 group-hover:rotate-0 group-hover:translate-y-0 group-hover:shadow-[0_0_15px_rgba(255,255,255,1)] transition-all duration-700 ease-out delay-75"></div>
+                     <div className="w-10 h-14 bg-white rounded-md border-2 border-fuchsia-200 rotate-12 translate-y-4 group-hover:rotate-0 group-hover:translate-y-0 group-hover:-rotate-y-180 transition-all duration-700 ease-out delay-150"></div>
+                   </div>
+                   <div className="flex justify-between items-end relative z-10 w-full gap-2 h-full">
+                     <h3 className="text-xl font-extrabold text-white drop-shadow-sm leading-tight max-w-[75%] break-words">Multiplayer Memory Match</h3>
+                     <div className="bg-white/20 backdrop-blur-sm p-3 rounded-2xl flex-shrink-0 group-hover:rotate-[360deg] transition-transform duration-700">
+                       <span className="text-white text-xl font-black block leading-none">?</span>
+                     </div>
+                   </div>
+                </div>
+                <div className="p-4">
+                  <p className="text-slate-600 text-xs sm:text-sm font-medium leading-relaxed">Play memory match against up to 3 friends! Create a room and see who has the best memory.</p>
+                </div>
+              </div>
+            </div>
+
             </div>
             
             <div className="w-full xl:w-80 flex-shrink-0 h-full flex flex-col">
@@ -502,17 +539,18 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
         )}
 
         {gameState === 'setup' && (
-          <div className="flex flex-col xl:flex-row gap-6 md:gap-8 h-full max-w-7xl mx-auto">
+          <div className={`flex flex-col ${selectedGame === 'multiplayer-memory' ? '' : 'xl:flex-row'} gap-6 md:gap-8 h-full max-w-7xl mx-auto`}>
             <div className="flex-1 bg-white/80 backdrop-blur-md rounded-3xl shadow-xl shadow-purple-900/5 border border-purple-200/50 p-6 md:p-8 overflow-y-auto custom-scrollbar">
               <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 mb-6 tracking-tight">Game Settings</h2>
             
             <div className="flex flex-col lg:flex-row gap-6 md:gap-8">
               {/* Context / Filters */}
-              <div className="flex-1 space-y-4 md:space-y-6">
-                <div>
-                  <h3 className="text-xs md:text-sm font-bold uppercase tracking-widest text-slate-500 mb-3 bg-slate-100/50 inline-block px-3 py-1 rounded-lg">1. Vocabulary Source</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-                    {subjects.length > 0 && (
+              {!(selectedGame === 'multiplayer-memory' && roomAction === 'join') && (
+                <div className="flex-1 space-y-4 md:space-y-6">
+                  <div>
+                    <h3 className="text-xs md:text-sm font-bold uppercase tracking-widest text-slate-500 mb-3 bg-slate-100/50 inline-block px-3 py-1 rounded-lg">1. Vocabulary Source</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                      {subjects.length > 0 && (
                       <div className="bg-white p-4 md:p-5 rounded-2xl border border-slate-200/60 shadow-sm">
                         <label className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
                           <span className="w-2 h-2 rounded-full bg-purple-400"></span>
@@ -561,13 +599,14 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
                   </p>
                 </div>
               </div>
+              )}
 
               {/* Game Modes */}
               <div className="w-px bg-slate-200 hidden lg:block"></div>
 
               <div className="flex-1 space-y-4 md:space-y-6 lg:max-w-md flex flex-col justify-between">
                 <div className="space-y-4 md:space-y-6">
-                  {selectedGame !== 'memory-match' && selectedGame !== 'word-scramble' && selectedGame !== 'word-search' && selectedGame !== 'mini-crossword' && (
+                  {selectedGame !== 'memory-match' && selectedGame !== 'word-scramble' && selectedGame !== 'word-search' && selectedGame !== 'mini-crossword' && selectedGame !== 'multiplayer-memory' && (
                   <div>
                     <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 bg-slate-100/50 inline-block px-2 py-1 rounded-md">2. Input Mode</h3>
                     <div className="grid grid-cols-2 gap-2 md:gap-3">
@@ -712,6 +751,56 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
                     </div>
                   </div>
                 )}
+                
+                {selectedGame === 'multiplayer-memory' && (
+                  <div className="space-y-4">
+                    <div className="flex gap-2">
+                       <Button variant={roomAction === 'create' ? 'default' : 'outline'} className="flex-1" onClick={() => setRoomAction('create')}>Create Room</Button>
+                       <Button variant={roomAction === 'join' ? 'default' : 'outline'} className="flex-1" onClick={() => setRoomAction('join')}>Join Room</Button>
+                    </div>
+                    {roomAction === 'join' ? (
+                       <div>
+                         <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 bg-slate-100/50 inline-block px-2 py-1 rounded-md">Room Code</h3>
+                         <input type="text" value={roomId} onChange={(e) => setRoomId(e.target.value.toUpperCase().slice(0,6))} maxLength={6} placeholder="Enter 6-digit code" className="w-full text-center text-2xl font-black tracking-widest p-4 border-2 border-slate-200 rounded-xl focus:border-fuchsia-500 outline-none uppercase" />
+                       </div>
+                    ) : (
+                    <>
+                    <div>
+                      <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 bg-slate-100/50 inline-block px-2 py-1 rounded-md">2. Clue Type</h3>
+                      <div className="grid grid-cols-2 gap-2 md:gap-3">
+                        <div 
+                          onClick={() => setMultiplayerMode('translation')}
+                          className={`cursor-pointer p-2 md:p-3 rounded-xl border-2 shadow-sm transition-all text-center font-bold text-xs md:text-sm ${multiplayerMode === 'translation' ? 'border-fuchsia-500 bg-fuchsia-50/80 text-fuchsia-700 shadow-fuchsia-500/20' : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 text-slate-600'}`}
+                        >
+                          Translations
+                        </div>
+                        <div 
+                          onClick={() => setMultiplayerMode('definition')}
+                          className={`cursor-pointer p-2 md:p-3 rounded-xl border-2 shadow-sm transition-all text-center font-bold text-xs md:text-sm ${multiplayerMode === 'definition' ? 'border-fuchsia-500 bg-fuchsia-50/80 text-fuchsia-700 shadow-fuchsia-500/20' : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 text-slate-600'}`}
+                        >
+                          Definitions
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 bg-slate-100/50 inline-block px-2 py-1 rounded-md">3. Turn Time Limit</h3>
+                      <div className="grid grid-cols-3 gap-2 md:gap-3">
+                        {[10, 15, 20].map(time => (
+                          <div 
+                            key={time}
+                            onClick={() => setMultiplayerTurnTime(time)}
+                            className={`cursor-pointer rounded-xl border-2 p-2 md:p-3 flex flex-col items-center gap-1 md:gap-2 transition-all group ${multiplayerTurnTime === time ? 'border-fuchsia-500 bg-fuchsia-50 text-fuchsia-700 shadow-sm' : 'border-slate-200 hover:border-fuchsia-300 hover:bg-slate-50 text-slate-600'}`}
+                          >
+                            <Timer className={`w-5 h-5 md:w-6 md:h-6 ${multiplayerTurnTime === time ? 'text-fuchsia-600' : 'text-slate-400 group-hover:text-fuchsia-500'} transition-colors`} />
+                            <span className="font-bold text-xs md:text-sm text-center">{time}s</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    </>
+                    )}
+                  </div>
+                )}
                 </div>
 
                 {selectedGame === 'word-search' && (
@@ -781,22 +870,25 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
                       {selectedGame === 'word-scramble' && 'Unscramble the letters to reveal the correct word based on the clues before the time runs out. Shorter time limits and definition clues yield higher score multipliers!'}
                       {selectedGame === 'word-search' && 'Search the grid for hidden vocabulary. Stricter time limits and definition clues yield higher score multipliers!'}
                       {selectedGame === 'mini-crossword' && 'Solve the generated mini crossword by typing answers based on the definitions! Faster times give higher score multipliers!'}
+                      {selectedGame === 'multiplayer-memory' && 'Join a room with friends or create your own! Match words to their translations/definitions before the turn time runs out!'}
                     </p>
                   </div>
                   <Button 
                     onClick={handleStartGame} 
-                    className="w-full h-12 md:h-14 text-base md:text-lg rounded-xl md:rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold shadow-lg shadow-purple-500/30 transition-all hover:scale-[1.02]"
+                    className="w-full h-12 md:h-14 text-base md:text-lg rounded-xl md:rounded-2xl bg-gradient-to-r from-fuchsia-600 to-pink-600 hover:from-fuchsia-500 hover:to-pink-500 text-white font-bold shadow-lg shadow-fuchsia-500/30 transition-all hover:scale-[1.02]"
                   >
-                    Start Game
+                    {selectedGame === 'multiplayer-memory' && roomAction === 'join' ? 'Join Game' : selectedGame === 'multiplayer-memory' ? 'Create Room' : 'Start Game'}
                   </Button>
                 </div>
               </div>
             </div>
             </div>
 
-          <div className="w-full xl:w-80 flex-shrink-0 flex flex-col">
+          {selectedGame !== 'multiplayer-memory' && (
+            <div className="w-full xl:w-80 flex-shrink-0 flex flex-col">
               <LeaderboardForGame configId={getCurrentGameConfigId()} variant="light" />
             </div>
+          )}
           </div>
         )}
       </main>
