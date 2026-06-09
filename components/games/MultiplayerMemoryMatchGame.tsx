@@ -401,8 +401,8 @@ export function MultiplayerMemoryMatchGame({ words, mode, turnTimeLimit, roomId,
                          )}
                          <AutoTextFit 
                            text={card.text} 
-                           minSize={10} 
-                           maxSize={card.type === 'word' ? 24 : 18} 
+                           minFontSize={10} 
+                           maxFontSize={card.type === 'word' ? 24 : 18} 
                            className="font-bold leading-tight drop-shadow-sm w-full"
                          />
                        </div>

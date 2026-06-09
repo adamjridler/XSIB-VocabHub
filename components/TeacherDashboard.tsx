@@ -1223,6 +1223,32 @@ export function TeacherDashboard({ onLogout }: { onLogout: () => void }) {
                             Reset All Scores
                           </Button>
                         </div>
+                        <div className="flex flex-col gap-4 p-4 border border-red-100 rounded-xl bg-red-50/50 mt-4">
+                          <div>
+                            <h4 className="text-sm font-bold text-red-900 mb-1">Reset All Words</h4>
+                            <p className="text-xs text-red-700/80">Permanently delete all words from the Word Bank across the entire platform. This cannot be undone.</p>
+                          </div>
+                          <Button 
+                            onClick={async () => {
+                              const confirmText = window.prompt("Type 'RESET WORDS' to confirm deleting all vocabulary words across the entire platform. This cannot be undone.");
+                              if (confirmText === 'RESET WORDS') {
+                                try {
+                                  await api.clearAllWords();
+                                  setAllWords([]);
+                                  alert('All words have been successfully reset.');
+                                } catch(e: any) {
+                                  alert('Failed to reset words: ' + e.message);
+                                }
+                              } else if (confirmText !== null) {
+                                alert('Confirmation failed. Words were not reset.');
+                              }
+                            }}
+                            variant="destructive" 
+                            className="w-full uppercase tracking-widest text-xs font-bold"
+                          >
+                            Reset All Words
+                          </Button>
+                        </div>
                       </CardContent>
                     </Card>
                   )}
