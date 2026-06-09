@@ -581,12 +581,16 @@ export const api = {
 
   async resetAllScores() {
     try {
-      const { error: error1 } = await supabase.from('game_sessions').delete().neq('id', 'dummy_id');
-      if (error1) throw error1;
-
-      const { error: error2 } = await supabase.from('profiles').update({ high_score: 0 }).eq('role', 'student');
-      if (error2) throw error2;
-
+      const res = await fetch('/api/reset-all-scores', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to reset scores');
+      }
       return { success: true };
     } catch (err: any) {
       console.error("Error resetting scores:", err);

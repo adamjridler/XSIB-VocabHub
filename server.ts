@@ -111,6 +111,23 @@ async function startServer() {
     }
   });
 
+  app.post('/api/reset-all-scores', async (req, res) => {
+    try {
+      const admin = getSupabaseAdmin();
+      
+      const { error: error1 } = await admin.from('game_sessions').delete().neq('id', 'dummy_id');
+      if (error1) throw error1;
+
+      const { error: error2 } = await admin.from('profiles').update({ high_score: 0 }).eq('role', 'student');
+      if (error2) throw error2;
+
+      res.json({ success: true });
+    } catch (err: any) {
+      console.error("Reset all scores error:", err);
+      res.status(500).json({ error: err.message || "Failed to reset scores" });
+    }
+  });
+
   // Deepseek definitions
   app.post('/api/define', async (req, res) => {
     try {
