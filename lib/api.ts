@@ -269,7 +269,7 @@ export const api = {
   },
 
   async getAccessCodes() {
-    const { data: codes, error } = await supabase.from('access_codes').select('*').order('created_at', { ascending: false });
+    const { data: codes, error } = await supabase.from('access_codes').select('*').neq('code', 'SYS_PUBLIC_MESSAGE').order('created_at', { ascending: false });
     if (error || !codes) return [];
 
     const { data: profiles } = await supabase.from('profiles').select('id, access_code');
@@ -498,6 +498,21 @@ export const api = {
     return hallOfFame;
   },
 
+  async getPublicMessage() {
+    const { data } = await supabase.from('access_codes').select('name').eq('code', 'SYS_PUBLIC_MESSAGE').maybeSingle();
+    return data?.name || '';
+  },
+
+  async setPublicMessage(msg: string) {
+    const { data } = await supabase.from('access_codes').select('id').eq('code', 'SYS_PUBLIC_MESSAGE').maybeSingle();
+    if (!data) {
+       await supabase.from('access_codes').insert({ code: 'SYS_PUBLIC_MESSAGE', name: msg, grade_level: 'admin' });
+    } else {
+       await supabase.from('access_codes').update({ name: msg }).eq('code', 'SYS_PUBLIC_MESSAGE');
+    }
+    return { success: true };
+  },
+
   async getStudentLeaderboard() {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
@@ -562,6 +577,21 @@ export const api = {
       maxScore: s.max_score,
       createdAt: s.created_at
     }));
+  },
+
+  async resetAllScores() {
+    try {
+      const { error: error1 } = await supabase.from('game_sessions').delete().neq('id', 'dummy_id');
+      if (error1) throw error1;
+
+      const { error: error2 } = await supabase.from('profiles').update({ high_score: 0 }).eq('role', 'student');
+      if (error2) throw error2;
+
+      return { success: true };
+    } catch (err: any) {
+      console.error("Error resetting scores:", err);
+      return { success: false, msg: err.message };
+    }
   },
 
   async deleteStudent(uid: string) {

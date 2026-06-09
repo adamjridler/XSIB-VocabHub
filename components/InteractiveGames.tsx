@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, Gamepad2, Type, MousePointerClick, Heart, AlertCircle, RefreshCw, BrainCircuit, Info, Timer, Search, LayoutGrid } from 'lucide-react';
+import { ArrowLeft, Gamepad2, Type, MousePointerClick, Heart, AlertCircle, RefreshCw, BrainCircuit, Info, Timer, Search, LayoutGrid, Swords } from 'lucide-react';
 import { api } from '@/lib/api';
 import { motion, AnimatePresence } from 'motion/react';
 import { WordFallGame } from './games/WordFallGame';
@@ -150,7 +150,7 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
   const [scrambleMode, setScrambleMode] = useState<'translation' | 'definition'>('definition');
   const [scrambleTimeLimit, setScrambleTimeLimit] = useState<number>(30);
   const [wordFallSpeed, setWordFallSpeed] = useState<'slow' | 'normal' | 'fast'>('normal');
-  const [wordFallTimeLimit, setWordFallTimeLimit] = useState<number>(0);
+  const [wordFallTimeLimit, setWordFallTimeLimit] = useState<number>(60);
   const [roomId, setRoomId] = useState('');
   const [playerName, setPlayerName] = useState(api.getUser()?.name || '');
   const [memoryPreviewTime, setMemoryPreviewTime] = useState<number>(0);
@@ -625,9 +625,8 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
                     </div>
                     <div>
                       <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 bg-slate-100/50 inline-block px-2 py-1 rounded-md">5. Time Limit</h3>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
                         {[
-                          { label: 'Unlimited', value: 0 },
                           { label: '1 Minute', value: 60 },
                           { label: '2 Minutes', value: 120 },
                           { label: '3 Minutes', value: 180 }

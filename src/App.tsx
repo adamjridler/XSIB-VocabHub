@@ -78,6 +78,7 @@ export default function App() {
     streak: number;
   } | null>(null);
   const [backgroundWords, setBackgroundWords] = useState<string[]>([]);
+  const [adminMessage, setAdminMessage] = useState<string>('');
   
   const [initialGameData, setInitialGameData] = useState<{game: string, configId: string | null} | null>(null);
 
@@ -98,13 +99,16 @@ export default function App() {
   useEffect(() => {
     async function checkAuthAndStats() {
       try {
-        const [user, words, gameStats] = await Promise.all([
+        const [user, words, gameStats, publicMsg] = await Promise.all([
           api.me(),
           api.getWords().catch(() => []),
           api
             .getGameStats()
             .catch(() => ({ totalSessions: 0, recentScores: [] })),
+          api.getPublicMessage().catch(() => '')
         ]);
+        
+        setAdminMessage(publicMsg || '');
 
         const subjects = new Set(
           words.map((w: any) => w.subject).filter(Boolean),
@@ -260,6 +264,10 @@ export default function App() {
           }));
         })
         .catch((err) => console.error("Failed to fetch game stats", err));
+        
+      api.getPublicMessage().then(msg => {
+         setAdminMessage(msg || '');
+      }).catch(() => {});
     }
   }, [view]);
 
@@ -435,28 +443,47 @@ export default function App() {
           />
         ) : view === "hub" ? (
           <div className="w-full max-w-7xl flex flex-col pb-2">
+            
+            {/* Top Row: Hero and Admin Message */}
+            <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 items-end w-full mb-4 justify-between">
+              {/* Hero Section */}
+              <section className="flex flex-col items-start text-left shrink-0">
+                <div className="flex flex-col items-start justify-center">
+                  <motion.h1
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                  >
+                    <span className="block text-sm font-bold tracking-[0.2em] text-slate-500 mb-0 uppercase">
+                      XSIB
+                    </span>
+                    <span className="block text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter text-slate-900">
+                      Vocab
+                      <span className="text-transparent bg-clip-text bg-gradient-to-br from-purple-600 to-indigo-600">
+                        Hub.
+                      </span>
+                    </span>
+                  </motion.h1>
+                </div>
+              </section>
+
+              {/* Admin Message */}
+              <div className="w-full">
+                {adminMessage && (
+                  <div className="bg-amber-100/60 border border-amber-300/60 rounded-xl p-3 flex flex-col z-20 shadow-md backdrop-blur-sm relative overflow-hidden">
+                    <div className="absolute -right-8 -top-8 w-24 h-24 bg-amber-400/20 blur-3xl rounded-full pointer-events-none"></div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <Info className="w-4 h-4 text-amber-600" />
+                      <p className="text-[11px] font-bold text-amber-800 uppercase tracking-widest leading-tight">Admin Message</p>
+                    </div>
+                    <p className="text-sm font-semibold text-slate-800 whitespace-pre-wrap relative z-10">{adminMessage}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4 items-start w-full">
               <div className="flex flex-col items-start text-left w-full h-full">
-                {/* Hero Section */}
-                <section className="flex flex-col items-start text-left w-full mt-0 mb-3">
-                  <div className="flex flex-col items-start justify-center">
-                    <motion.h1
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: 0.1 }}
-                    >
-                      <span className="block text-sm font-bold tracking-[0.2em] text-slate-500 mb-0 uppercase">
-                        XSIB
-                      </span>
-                      <span className="block text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter text-slate-900">
-                        Vocab
-                        <span className="text-transparent bg-clip-text bg-gradient-to-br from-purple-600 to-indigo-600">
-                          Hub.
-                        </span>
-                      </span>
-                    </motion.h1>
-                  </div>
-                </section>
 
                 {/* Features Section */}
               <section className="w-full mb-3">
@@ -707,19 +734,6 @@ export default function App() {
 
             {/* Right Column: Individual Stats Dashboard */}
             <div className="w-full mt-2 lg:mt-0 sticky top-20">
-              {studentStats && studentStats.streak > 0 && (
-                <div className="bg-gradient-to-r from-orange-500/20 to-rose-500/20 border border-orange-500/30 rounded-xl p-2 mb-2 flex items-center justify-between z-20 shadow-sm backdrop-blur-sm">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-gradient-to-br from-orange-400 to-rose-500 text-white rounded-lg shadow-inner">
-                      <Flame className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-orange-600 uppercase tracking-widest leading-tight">On Fire!</p>
-                      <p className="text-sm font-semibold text-slate-700">You're on a {studentStats.streak} day streak</p>
-                    </div>
-                  </div>
-                </div>
-              )}
 
               <Card className="bg-slate-900 border-slate-800 text-white shadow-xl shadow-purple-900/20 overflow-hidden relative">
                 <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 rounded-full bg-purple-600/20 blur-3xl pointer-events-none"></div>

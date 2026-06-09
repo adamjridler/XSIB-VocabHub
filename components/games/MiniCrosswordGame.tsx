@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { api } from '@/lib/api';
 import { SoundToggle } from '@/components/ui/SoundToggle';

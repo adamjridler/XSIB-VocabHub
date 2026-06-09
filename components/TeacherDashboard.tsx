@@ -61,10 +61,13 @@ export function TeacherDashboard({ onLogout }: { onLogout: () => void }) {
 
   const [stagingWords, setStagingWords] = useState<any[] | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [publicMessage, setPublicMessage] = useState<string>('');
+  const [isUpdatingMessage, setIsUpdatingMessage] = useState(false);
 
   useEffect(() => {
     setUser(api.getUser());
     api.getWords().then(setAllWords);
+    api.getPublicMessage().then(setPublicMessage).catch(() => {});
   }, []);
 
   const handleDeleteWord = async (id: string) => {
@@ -1151,6 +1154,78 @@ export function TeacherDashboard({ onLogout }: { onLogout: () => void }) {
                       </div>
                     </CardContent>
                   </Card>
+
+                  {user?.role === 'admin' && (
+                    <Card className="bg-white border border-indigo-200 rounded-2xl shadow-lg shadow-indigo-500/5">
+                      <CardContent className="p-6">
+                        <h3 className="text-sm font-bold text-indigo-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                          <Settings className="h-4 w-4 text-indigo-600" />
+                          Global Message
+                        </h3>
+                        <div className="flex flex-col gap-3 p-4 border border-indigo-100 rounded-xl bg-indigo-50/50">
+                          <div>
+                            <p className="text-xs text-indigo-700/80 mb-2">This message will be visible to all students on their dashboard.</p>
+                            <textarea 
+                              className="w-full bg-white border border-indigo-200 rounded-lg p-2 text-sm focus:outline-none focus:border-indigo-400 min-h-[80px]"
+                              placeholder="Enter public message here..."
+                              value={publicMessage}
+                              onChange={(e) => setPublicMessage(e.target.value)}
+                            />
+                          </div>
+                          <Button 
+                            onClick={async () => {
+                              setIsUpdatingMessage(true);
+                              try {
+                                await api.setPublicMessage(publicMessage);
+                                alert('Public message updated successfully.');
+                              } catch(e) { console.error(e); alert('Error updating message'); }
+                              setIsUpdatingMessage(false);
+                            }}
+                            disabled={isUpdatingMessage}
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 uppercase tracking-widest text-xs font-bold transition-all"
+                          >
+                            {isUpdatingMessage ? 'Updating...' : 'Update Message'}
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {user?.role === 'admin' && (
+                    <Card className="bg-white border border-red-200 rounded-2xl shadow-lg shadow-red-500/5">
+                      <CardContent className="p-6">
+                        <h3 className="text-sm font-bold text-red-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                          <Settings className="h-4 w-4 text-red-600" />
+                          Danger Zone
+                        </h3>
+                        <div className="flex flex-col gap-4 p-4 border border-red-100 rounded-xl bg-red-50/50">
+                          <div>
+                            <h4 className="text-sm font-bold text-red-900 mb-1">Reset All Scores</h4>
+                            <p className="text-xs text-red-700/80">Permanently delete all student game sessions and set all high scores to zero. This cannot be undone.</p>
+                          </div>
+                          <Button 
+                            onClick={async () => {
+                              const confirmText = window.prompt("Type 'RESET' to confirm deleting all student game scores across the entire platform. This cannot be undone.");
+                              if (confirmText === 'RESET') {
+                                const res = await api.resetAllScores();
+                                if (res.success) {
+                                  alert('All scores have been successfully reset.');
+                                } else {
+                                  alert('Failed to reset scores: ' + res.msg);
+                                }
+                              } else if (confirmText !== null) {
+                                alert('Confirmation failed. Scores were not reset.');
+                              }
+                            }}
+                            variant="destructive" 
+                            className="w-full uppercase tracking-widest text-xs font-bold"
+                          >
+                            Reset All Scores
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
 
                   <div className="pt-2">
                     <Button 
