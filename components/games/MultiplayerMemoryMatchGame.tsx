@@ -369,37 +369,41 @@ export function MultiplayerMemoryMatchGame({ words, mode, turnTimeLimit, roomId,
                return (
                  <motion.div
                    key={card.id}
-                   className={`relative w-full h-24 sm:h-32 md:h-36 lg:h-40 cursor-pointer perspective-1000 ${(!isMyTurn && !isFlipped) ? 'opacity-70 pointer-events-none' : ''}`}
+                   className={`relative w-full h-24 sm:h-32 md:h-36 lg:h-40 cursor-pointer [perspective:1000px] select-none ${(!isMyTurn && !isFlipped) ? 'opacity-70 pointer-events-none' : ''}`}
                    onClick={() => handleCardClick(card.id)}
-                   whileHover={isMyTurn && !isFlipped ? { scale: 1.05 } : {}}
+                   whileHover={isMyTurn && !isFlipped ? { scale: 1.05, translateY: -5 } : {}}
                    whileTap={isMyTurn && !isFlipped ? { scale: 0.95 } : {}}
                  >
                    <motion.div
-                     className="w-full h-full relative preserve-3d transition-transform duration-500 ease-out"
+                     className="w-full h-full relative [transform-style:preserve-3d] shadow-lg rounded-xl sm:rounded-2xl"
+                     initial={false}
                      animate={{ rotateY: isFlipped ? 180 : 0 }}
+                     transition={{ duration: 0.5, type: 'spring', bounce: 0.3 }}
                    >
                      {/* Front of card (hidden state) */}
-                     <div className={`absolute w-full h-full backface-hidden rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border-2 shadow-sm shadow-black/20 flex items-center justify-center ${isMyTurn ? 'border-fuchsia-500/30 hover:border-fuchsia-400 hover:shadow-fuchsia-500/20' : 'border-slate-700'} transition-all`}>
-                       <span className={`text-4xl sm:text-5xl lg:text-6xl font-black ${isMyTurn ? 'text-fuchsia-500/20' : 'text-slate-700'}`}>?</span>
+                     <div className="absolute inset-0 [backface-visibility:hidden] bg-gradient-to-br from-fuchsia-600 via-fuchsia-500 to-pink-600 rounded-xl sm:rounded-2xl flex items-center justify-center border-2 border-fuchsia-400/50 shadow-[inset_0_0_20px_rgba(255,255,255,0.2)] overflow-hidden">
+                       <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.1)_50%,transparent_75%,transparent_100%)] bg-[length:250%_250%] animate-[bg-pan_3s_linear_infinite]"></div>
+                       <span className="text-white/40 font-black text-4xl sm:text-5xl drop-shadow-md z-10 transition-transform duration-300 hover:scale-110">?</span>
                      </div>
                      
                      {/* Back of card (revealed state) */}
-                     <div className={`absolute w-full h-full backface-hidden rounded-2xl flex items-center justify-center p-2 sm:p-4 rotate-y-180 border-2 overflow-hidden shadow-lg ${
-                       isMatched ? 'bg-fuchsia-950/80 border-fuchsia-400/50 shadow-fuchsia-500/20' : 
-                       card.type === 'word' ? 'bg-indigo-600 border-indigo-400' : 'bg-purple-600 border-purple-400'
+                     <div className={`absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-xl sm:rounded-2xl flex items-center justify-center p-2 sm:p-3 text-center border-2 border-b-4 z-10 transition-all duration-300 ${
+                       isMatched 
+                         ? 'bg-gradient-to-b from-fuchsia-50 to-fuchsia-100 border-fuchsia-400 text-fuchsia-800 shadow-[0_0_20px_rgba(232,121,249,0.3)] scale-105'
+                         : 'bg-gradient-to-b from-white to-slate-50 border-slate-200 text-slate-800 shadow-xl shadow-black/10'
                      }`}>
                        {isMatched && (
-                         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
+                         <div className="absolute inset-0 rounded-xl sm:rounded-2xl border-2 border-fuchsia-400 animate-ping opacity-20 pointer-events-none"></div>
                        )}
-                       <div className="w-full h-full flex flex-col justify-center items-center gap-1 z-10 text-center custom-text-fit-container">
+                       <div className="w-full h-full flex flex-col justify-center items-center gap-1 z-20 text-center overflow-hidden">
                          {isMatched && card.type === 'word' && matchedPlayer && (
-                            <span className="text-[10px] sm:text-xs font-bold text-fuchsia-300 uppercase tracking-widest">{matchedPlayer.name}</span>
+                            <span className="text-[10px] sm:text-xs font-bold text-fuchsia-500 uppercase tracking-widest">{matchedPlayer.name}</span>
                          )}
                          <AutoTextFit 
                            text={card.text} 
-                           minSize={12} 
-                           maxSize={card.type === 'word' ? 32 : 24} 
-                           className={`font-bold w-full leading-tight text-white drop-shadow-md py-1`}
+                           minSize={10} 
+                           maxSize={card.type === 'word' ? 24 : 18} 
+                           className="font-bold leading-tight drop-shadow-sm w-full"
                          />
                        </div>
                      </div>
