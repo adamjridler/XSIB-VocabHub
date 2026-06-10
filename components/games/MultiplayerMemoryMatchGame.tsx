@@ -225,20 +225,15 @@ export function MultiplayerMemoryMatchGame({ words, mode, turnTimeLimit, roomId,
                     broadcastState(newState);
                     return newState;
                  } else {
-                    // Turn remains same, add time, clear flips after 1 sec
-                    newState.turnEndsAt = Date.now() + (prev.turnTimeLimit * 1000); // reset timer
-                    setTimeout(() => {
-                       setGameState(curr => {
-                          const newerState = { ...curr, flippedIds: [] };
-                          broadcastState(newerState);
-                          return newerState;
-                       });
-                    }, 1000);
+                    const nextIndex = (newState.currentTurnIndex + 1) % newState.players.length;
+                    newState.flippedIds = [];
+                    newState.currentTurnIndex = nextIndex;
+                    newState.turnEndsAt = Date.now() + (newState.turnTimeLimit * 1000);
                  }
               } else {
                  playSound(false);
-                 // No match. Pass turn after 1.5 sec
-                 setTimeout(() => passTurn(newState), 1500);
+                 newState.turnEndsAt = Date.now() + 2500;
+                 setTimeout(() => passTurn(), 1500);
               }
            }
            
@@ -364,12 +359,8 @@ export function MultiplayerMemoryMatchGame({ words, mode, turnTimeLimit, roomId,
             )}
          </div>
 
-         <div className="flex-1 min-h-0 w-full rounded-3xl bg-white/5 border border-white/10 p-4 md:p-6 overflow-y-auto custom-scrollbar shadow-2xl">
-           <div className={`grid gap-3 w-full h-full pb-8 ${
-             gameState.cards.length <= 12 ? 'grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4' :
-             gameState.cards.length <= 16 ? 'grid-cols-4 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4' :
-             'grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-6'
-           }`}>
+         <div className="flex-1 min-h-0 w-full rounded-3xl bg-white/5 border border-white/10 p-2 sm:p-4 md:p-6 overflow-hidden shadow-2xl flex flex-col items-center">
+           <div className="flex flex-wrap justify-center content-center gap-2 sm:gap-3 lg:gap-4 h-full w-full">
              {gameState.cards.map((card) => {
                const isFlipped = localFlipped.includes(card.id) || card.matched;
                const isMatched = card.matched;
@@ -378,7 +369,8 @@ export function MultiplayerMemoryMatchGame({ words, mode, turnTimeLimit, roomId,
                return (
                  <motion.div
                    key={card.id}
-                   className={`relative w-full h-24 sm:h-32 md:h-36 lg:h-40 cursor-pointer [perspective:1000px] select-none ${(!isMyTurn && !isFlipped) ? 'opacity-70 pointer-events-none' : ''}`}
+                   className={`relative cursor-pointer [perspective:1000px] select-none flex-shrink-0 ${(!isMyTurn && !isFlipped) ? 'opacity-70 pointer-events-none' : ''}`}
+                   style={{ width: 'clamp(85px, min(22vw, 16vh), 180px)', height: 'clamp(75px, min(18vw, 13vh), 140px)' }}
                    onClick={() => handleCardClick(card.id)}
                    whileHover={isMyTurn && !isFlipped ? { scale: 1.05, translateY: -5 } : {}}
                    whileTap={isMyTurn && !isFlipped ? { scale: 0.95 } : {}}
@@ -408,12 +400,12 @@ export function MultiplayerMemoryMatchGame({ words, mode, turnTimeLimit, roomId,
                          {isMatched && card.type === 'word' && matchedPlayer && (
                             <span className="text-[10px] sm:text-xs font-bold text-fuchsia-500 uppercase tracking-widest">{matchedPlayer.name}</span>
                          )}
-                         <AutoTextFit 
-                           text={card.text} 
-                           minFontSize={10} 
-                           maxFontSize={card.type === 'word' ? 24 : 18} 
-                           className="font-bold leading-tight drop-shadow-sm w-full"
-                         />
+                        <AutoTextFit 
+                          text={card.text} 
+                          minFontSize={10} 
+                          maxFontSize={card.type === 'word' ? 24 : 18} 
+                          className="font-bold leading-tight drop-shadow-sm w-full"
+                        />
                        </div>
                      </div>
                    </motion.div>
