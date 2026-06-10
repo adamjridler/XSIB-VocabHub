@@ -11,6 +11,7 @@ import { WordScrambleGame } from './games/WordScrambleGame';
 import { WordSearchGame } from './games/WordSearchGame';
 import { MiniCrosswordGame } from './games/MiniCrosswordGame';
 import { MultiplayerMemoryMatchGame } from './games/MultiplayerMemoryMatchGame';
+import { ScaleWrapper } from '@/components/ScaleWrapper';
 
 import { FloatingWords, AmbientOrbs } from '@/components/AppBackground';
 import { StudentLeaderboard } from '@/components/StudentLeaderboard';
@@ -295,35 +296,37 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
     }
 
     return (
-      <div className="flex flex-col h-screen w-screen overflow-hidden bg-slate-950 text-slate-100 font-sans">
-        <header className="w-full bg-slate-900/80 backdrop-blur-md flex-none shadow-sm z-50 absolute top-0 left-0 border-b border-white/5">
-          <div className="container mx-auto px-6 h-16 flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => setGameState('menu')} className="rounded-full hover:bg-slate-800 text-white">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-xl font-bold tracking-tight text-white">
-              {selectedGame === 'word-fall' ? 'Word Fall' : selectedGame === 'fill-blanks' ? 'Fill-in the Blanks' : selectedGame === 'word-scramble' ? 'Word Scramble' : selectedGame === 'word-search' ? 'Word Search' : selectedGame === 'mini-crossword' ? 'Mini Crossword' : 'Memory Match'}
-            </h1>
-          </div>
-        </header>
-        <main className="flex-1 min-h-0 w-full h-full relative p-0 pt-16 flex flex-col">
-          {selectedGame === 'word-scramble' ? (
-            <WordScrambleGame words={gameWords} timeLimit={scrambleTimeLimit} mode={scrambleMode} onGameOver={handleGameOver} />
-          ) : selectedGame === 'word-fall' ? (
-            <WordFallGame words={gameWords} mode={gameMode} fallingType={fallingType} speed={wordFallSpeed} timeLimit={wordFallTimeLimit} onGameOver={handleGameOver} />
-          ) : selectedGame === 'mini-crossword' ? (
-            <MiniCrosswordGame words={gameWords} timeLimit={crosswordTimeLimit} onGameOver={handleGameOver} />
-          ) : selectedGame === 'fill-blanks' ? (
-            <FillBlanksGame words={gameWords} mode={gameMode} onGameOver={handleGameOver} />
-          ) : selectedGame === 'word-search' ? (
-            <WordSearchGame words={gameWords} timeLimit={wordSearchTimeLimit} clueType={wordSearchClueType} onGameOver={handleGameOver} />
-          ) : selectedGame === 'multiplayer-memory' ? (
-            <MultiplayerMemoryMatchGame words={gameWords} mode={multiplayerMode} turnTimeLimit={multiplayerTurnTime} roomId={roomId} isHost={roomAction === 'create'} onGameOver={handleGameOver} />
-          ) : (
-            <MemoryMatchGame words={gameWords} previewTime={memoryPreviewTime} timeLimit={memoryTimeLimit} onGameOver={handleGameOver} />
-          )}
-        </main>
-      </div>
+      <ScaleWrapper>
+        <div className="flex flex-col h-full w-full overflow-hidden bg-slate-950 text-slate-100 font-sans">
+          <header className="w-full bg-slate-900/80 backdrop-blur-md flex-none shadow-sm z-50 absolute top-0 left-0 border-b border-white/5">
+            <div className="container mx-auto px-6 h-16 flex items-center gap-4">
+              <Button variant="ghost" size="icon" onClick={() => setGameState('menu')} className="rounded-full hover:bg-slate-800 text-white">
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <h1 className="text-xl font-bold tracking-tight text-white">
+                {selectedGame === 'word-fall' ? 'Word Fall' : selectedGame === 'fill-blanks' ? 'Fill-in the Blanks' : selectedGame === 'word-scramble' ? 'Word Scramble' : selectedGame === 'word-search' ? 'Word Search' : selectedGame === 'mini-crossword' ? 'Mini Crossword' : 'Memory Match'}
+              </h1>
+            </div>
+          </header>
+          <main className="flex-1 min-h-0 w-full h-full relative p-0 pt-16 flex flex-col">
+            {selectedGame === 'word-scramble' ? (
+              <WordScrambleGame words={gameWords} timeLimit={scrambleTimeLimit} mode={scrambleMode} onGameOver={handleGameOver} />
+            ) : selectedGame === 'word-fall' ? (
+              <WordFallGame words={gameWords} mode={gameMode} fallingType={fallingType} speed={wordFallSpeed} timeLimit={wordFallTimeLimit} onGameOver={handleGameOver} />
+            ) : selectedGame === 'mini-crossword' ? (
+              <MiniCrosswordGame words={gameWords} timeLimit={crosswordTimeLimit} onGameOver={handleGameOver} />
+            ) : selectedGame === 'fill-blanks' ? (
+              <FillBlanksGame words={gameWords} mode={gameMode} onGameOver={handleGameOver} />
+            ) : selectedGame === 'word-search' ? (
+              <WordSearchGame words={gameWords} timeLimit={wordSearchTimeLimit} clueType={wordSearchClueType} onGameOver={handleGameOver} />
+            ) : selectedGame === 'multiplayer-memory' ? (
+              <MultiplayerMemoryMatchGame words={gameWords} mode={multiplayerMode} turnTimeLimit={multiplayerTurnTime} roomId={roomId} isHost={roomAction === 'create'} onGameOver={handleGameOver} />
+            ) : (
+              <MemoryMatchGame words={gameWords} previewTime={memoryPreviewTime} timeLimit={memoryTimeLimit} onGameOver={handleGameOver} />
+            )}
+          </main>
+        </div>
+      </ScaleWrapper>
     );
   }
 
