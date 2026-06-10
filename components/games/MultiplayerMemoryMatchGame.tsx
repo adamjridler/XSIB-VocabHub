@@ -70,9 +70,14 @@ export function MultiplayerMemoryMatchGame({ words, mode, turnTimeLimit, roomId,
   const [localFlipped, setLocalFlipped] = useState<string[]>([]);
   const [timeLeft, setTimeLeft] = useState(turnTimeLimit);
   const channelRef = useRef<any>(null);
+  const gameStateRef = useRef(gameState);
   const user = api.getUser();
   const isMyTurn = gameState.status === 'playing' && gameState.players[gameState.currentTurnIndex]?.uid === user?.id;
   const myPlayer = gameState.players.find(p => p.uid === user?.id);
+
+  useEffect(() => {
+    gameStateRef.current = gameState;
+  }, [gameState]);
 
   useEffect(() => {
     if (!user) return;
@@ -90,7 +95,7 @@ export function MultiplayerMemoryMatchGame({ words, mode, turnTimeLimit, roomId,
     });
 
     channel.on('broadcast', { event: 'join' }, ({ payload }) => {
-      if (isHost && gameState.status === 'lobby') {
+      if (isHost && gameStateRef.current.status === 'lobby') {
         setGameState(prev => {
           if (prev.players.length >= 4 || prev.players.find(p => p.uid === payload.user.uid)) return prev;
           const newPlayers = [...prev.players, { ...payload.user, score: 0, online: true }];
@@ -103,7 +108,7 @@ export function MultiplayerMemoryMatchGame({ words, mode, turnTimeLimit, roomId,
     });
 
     channel.on('broadcast', { event: 'action' }, ({ payload }) => {
-      if (isHost && gameState.status === 'playing') {
+      if (isHost && gameStateRef.current.status === 'playing') {
         handlePlayerAction(payload);
       }
     });
@@ -202,7 +207,7 @@ export function MultiplayerMemoryMatchGame({ words, mode, turnTimeLimit, roomId,
               if (c1.matchId === c2.matchId && c1.type !== c2.type) {
                  // Match! Give points and keep turn
                  const activePlayerUID = prev.players[prev.currentTurnIndex].uid;
-                 const newPlayers = prev.players.map(p => p.uid === activePlayerUID ? { ...p, score: p.score + 100 } : p);
+                 const newPlayers = prev.players.map(p => p.uid === activePlayerUID ? { ...p, score: p.score + 500 } : p);
                  const newCards = prev.cards.map(c => newFlipped.includes(c.id) ? { ...c, matched: true, matchedBy: activePlayerUID } : c);
                  
                  const allMatched = newCards.every(c => c.matched);
@@ -251,7 +256,11 @@ export function MultiplayerMemoryMatchGame({ words, mode, turnTimeLimit, roomId,
 
     // Optimistic UI
     setLocalFlipped(prev => [...prev, cardId]);
-    channelRef.current?.send({ type: 'broadcast', event: 'action', payload: { type: 'flip', cardId } });
+    if (isHost) {
+      handlePlayerAction({ type: 'flip', cardId });
+    } else {
+      channelRef.current?.send({ type: 'broadcast', event: 'action', payload: { type: 'flip', cardId } });
+    }
   };
 
   const startGame = () => {
