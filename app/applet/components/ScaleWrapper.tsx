@@ -9,17 +9,17 @@ export function ScaleWrapper({ children }: { children: React.ReactNode }) {
       if (!containerRef.current) return;
       const { width, height } = entries[0].contentRect;
       
-      // Target resolution for scaling the games to ensure they aren't cut off
-      const targetWidth = 1024;
+      // 1200x800 provides a good widescreen canvas for the games
+      const targetWidth = 1200;
       const targetHeight = 800;
       
       const scaleX = width / targetWidth;
       const scaleY = height / targetHeight;
       
-      // Preserve aspect ratio by taking the minimum scale needed
+      // Maintain aspect ratio globally
       let newScale = Math.min(scaleX, scaleY);
       
-      // Avoid overscaling the UI on very large displays
+      // Prevent over-scaling on ultra-wide / huge displays
       if (newScale > 1.2) {
         newScale = 1.2;
       }
@@ -37,13 +37,13 @@ export function ScaleWrapper({ children }: { children: React.ReactNode }) {
   return (
     <div 
       ref={containerRef} 
-      className="w-full h-full flex items-center justify-center overflow-hidden bg-slate-950"
+      className="w-full h-full flex items-center justify-center overflow-hidden"
     >
       <div 
         style={{ 
           transform: `scale(${scale})`, 
           transformOrigin: 'center center',
-          width: '1024px',
+          width: '1200px',
           height: '800px',
           display: 'flex',
           flexDirection: 'column',

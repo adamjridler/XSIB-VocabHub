@@ -11,6 +11,7 @@ import { WordScrambleGame } from './games/WordScrambleGame';
 import { WordSearchGame } from './games/WordSearchGame';
 import { MiniCrosswordGame } from './games/MiniCrosswordGame';
 import { MultiplayerMemoryMatchGame } from './games/MultiplayerMemoryMatchGame';
+
 import { ScaleWrapper } from '@/components/ScaleWrapper';
 
 import { FloatingWords, AmbientOrbs } from '@/components/AppBackground';
@@ -163,6 +164,7 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
   const [multiplayerTurnTime, setMultiplayerTurnTime] = useState<number>(15);
   const [multiplayerMode, setMultiplayerMode] = useState<'translation' | 'definition'>('translation');
   const [roomAction, setRoomAction] = useState<'create' | 'join'>('create');
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
 
   useEffect(() => {
     if (initialGameData) {
@@ -227,6 +229,20 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
       }
     }
   }, [initialGameData]);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (gameState === 'playing') {
+        const message = 'Are you sure you want to abandon the active game? Progress will be lost.';
+        e.preventDefault();
+        e.returnValue = message;
+        return message;
+      }
+    };
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [gameState]);
 
   useEffect(() => {
     api.getWords().then(words => {
@@ -297,10 +313,38 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
 
     return (
       <ScaleWrapper>
-        <div className="flex flex-col h-full w-full overflow-hidden bg-slate-950 text-slate-100 font-sans">
+        <div className="flex flex-col h-full w-full min-h-0 overflow-hidden bg-slate-950 text-slate-100 font-sans relative">
+          
+          <AnimatePresence>
+            {showExitConfirm && (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                style={{ zIndex: 9999 }}
+              >
+                <motion.div
+                  initial={{ scale: 0.9, y: 20 }}
+                  animate={{ scale: 1, y: 0 }}
+                  exit={{ scale: 0.9, y: 20 }}
+                  className="bg-white rounded-2xl shadow-2xl p-6 md:p-8 max-w-sm w-full text-center text-slate-900 mx-auto"
+                >
+                  <AlertCircle className="w-16 h-16 text-rose-500 mx-auto mb-4" />
+                  <h3 className="text-2xl font-bold mb-2 tracking-tight">Exit Game?</h3>
+                  <p className="text-slate-600 mb-8">Are you sure you want to abandon the active game? Progress will be lost.</p>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Button variant="outline" className="flex-1" onClick={() => setShowExitConfirm(false)}>Cancel</Button>
+                    <Button variant="destructive" className="flex-1 bg-rose-500 hover:bg-rose-600 text-white shadow-lg shadow-rose-500/20" onClick={() => { setShowExitConfirm(false); setGameState('menu'); }}>Exit Game</Button>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <header className="w-full bg-slate-900/80 backdrop-blur-md flex-none shadow-sm z-50 absolute top-0 left-0 border-b border-white/5">
-            <div className="container mx-auto px-6 h-16 flex items-center gap-4">
-              <Button variant="ghost" size="icon" onClick={() => setGameState('menu')} className="rounded-full hover:bg-slate-800 text-white">
+            <div className="container mx-auto px-4 md:px-6 h-16 flex items-center gap-2 md:gap-4">
+              <Button variant="ghost" size="icon" onClick={() => setShowExitConfirm(true)} className="rounded-full hover:bg-slate-800 text-white shrink-0">
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <h1 className="text-xl font-bold tracking-tight text-white">

@@ -226,14 +226,15 @@ export const api = {
 
     const mapped = data.map((row: any) => ({
       score: row.score,
-      studentName: profilesMap[row.user_id] || 'Anonymous'
+      studentName: profilesMap[row.user_id] || 'Anonymous',
+      userId: row.user_id
     }));
 
     const seen = new Set();
     const unique = [];
     for (const row of mapped) {
-      if (!seen.has(row.studentName)) {
-        seen.add(row.studentName);
+      if (!seen.has(row.userId)) {
+        seen.add(row.userId);
         unique.push(row);
       }
     }
@@ -514,22 +515,6 @@ export const api = {
   },
 
   async getStudentLeaderboard() {
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-
-    // Fetch the sessions for the current month
-    const { data: sessions, error: sessionsError } = await supabase
-      .from('game_sessions')
-      .select('user_id, score')
-      .gte('created_at', startOfMonth);
-
-    const userScores = new Map<string, number>();
-    if (sessions) {
-      for (const s of sessions) {
-        userScores.set(s.user_id, (userScores.get(s.user_id) || 0) + (s.score || 0));
-      }
-    }
-
     const { data: profiles, error } = await supabase
       .from('profiles')
       .select('id, name, high_score, access_code')
@@ -544,7 +529,7 @@ export const api = {
     const results = profiles.map((profile: any) => ({
       id: profile.id,
       name: profile.name,
-      highScore: userScores.get(profile.id) || 0, // Used as monthly score
+      highScore: profile.high_score || 0, // Used as global score
       gradeLevel: profile.access_code ? (codeToGrade.get(profile.access_code) || 'Unknown') : 'Unknown'
     }));
 
