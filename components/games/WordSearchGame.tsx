@@ -365,7 +365,7 @@ export function WordSearchGame({ words, timeLimit = 120, clueType = 'translation
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerUp}
     >
-      <div className="w-full max-w-4xl flex items-center justify-between mb-8">
+      <div className="w-full max-w-4xl flex items-center justify-between mb-4 sm:mb-8 shrink-0">
         <div className="flex gap-4">
           <div className="bg-slate-900 border border-white/10 rounded-2xl px-6 py-3 flex items-center gap-3">
             <Trophy className="h-5 w-5 text-yellow-500" />
@@ -404,10 +404,10 @@ export function WordSearchGame({ words, timeLimit = 120, clueType = 'translation
         )}
       </div>
 
-      <div className="flex flex-col md:flex-row gap-8 w-full max-w-5xl justify-center">
+      <div className="flex flex-col md:flex-row gap-4 lg:gap-8 w-full max-w-5xl justify-center flex-1 min-h-0 overflow-hidden">
         {/* The Grid */}
         <div 
-          className="bg-slate-900 p-2 sm:p-4 rounded-3xl border border-white/10 shadow-xl w-full max-w-lg aspect-square"
+          className="bg-slate-900 p-2 sm:p-4 rounded-3xl border border-white/10 shadow-xl shrink-0 aspect-square w-full max-w-[500px] lg:max-w-lg"
           onPointerMove={(e) => {
             if (!isDragging) return;
             const elem = document.elementFromPoint(e.clientX, e.clientY);
@@ -466,12 +466,12 @@ export function WordSearchGame({ words, timeLimit = 120, clueType = 'translation
         </div>
 
         {/* Word List */}
-        <div className="bg-slate-900 p-6 rounded-3xl border border-white/10 shadow-xl md:min-w-[250px] self-start md:self-stretch flex flex-col">
-          <div className="flex items-center gap-2 mb-4 text-purple-400">
+        <div className="bg-slate-900 p-4 sm:p-6 rounded-3xl border border-white/10 shadow-xl md:min-w-[250px] lg:min-w-[300px] flex-1 min-h-0 flex flex-col">
+          <div className="flex items-center gap-2 mb-4 text-purple-400 shrink-0">
             <Search className="w-5 h-5" />
             <h3 className="font-bold uppercase tracking-wider text-sm">Words to Find</h3>
           </div>
-          <div className="flex flex-wrap md:flex-col gap-2 md:gap-3">
+          <div className="flex flex-col gap-2 md:gap-3 overflow-y-auto custom-scrollbar pr-2 pb-2">
             {Object.values(wordsToFind).map((w: any) => (
               <div 
                 key={w.id} 
