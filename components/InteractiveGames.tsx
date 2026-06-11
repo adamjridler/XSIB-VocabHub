@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, Gamepad2, Type, MousePointerClick, Heart, AlertCircle, RefreshCw, BrainCircuit, Info, Timer, Search, LayoutGrid, Swords } from 'lucide-react';
+import { ArrowLeft, Gamepad2, Type, MousePointerClick, Heart, AlertCircle, RefreshCw, BrainCircuit, Info, Timer, Search, LayoutGrid, Swords, Maximize } from 'lucide-react';
 import { api } from '@/lib/api';
 import { motion, AnimatePresence } from 'motion/react';
 import { WordFallGame } from './games/WordFallGame';
@@ -165,6 +165,7 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
   const [multiplayerMode, setMultiplayerMode] = useState<'translation' | 'definition'>('translation');
   const [roomAction, setRoomAction] = useState<'create' | 'join'>('create');
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [showFullscreenPrompt, setShowFullscreenPrompt] = useState(false);
 
   useEffect(() => {
     if (initialGameData) {
@@ -287,9 +288,34 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
     }
   };
 
-  const handleStartGame = () => {
+  const enterGame = () => {
     setGameWords(getGameWordsArray());
     setGameState('playing');
+  };
+
+  const handleStartGame = () => {
+    if (!document.fullscreenElement) {
+      setShowFullscreenPrompt(true);
+    } else {
+      enterGame();
+    }
+  };
+
+  const confirmFullscreenEnter = async () => {
+    try {
+      if (document.documentElement.requestFullscreen) {
+        await document.documentElement.requestFullscreen();
+      }
+    } catch (err) {
+      console.error("Could not activate fullscreen:", err);
+    }
+    setShowFullscreenPrompt(false);
+    enterGame();
+  };
+
+  const skipFullscreenEnter = () => {
+    setShowFullscreenPrompt(false);
+    enterGame();
   };
 
   const handleGameOver = async (score: number) => {
@@ -389,6 +415,34 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
     <div className="relative h-screen w-screen overflow-hidden flex flex-col bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 text-slate-900 font-sans">
       <FloatingWords backgroundWords={backgroundWords || []} />
       <AmbientOrbs />
+
+      <AnimatePresence>
+        {showFullscreenPrompt && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4 z-[9999]"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 max-w-md w-full text-center text-slate-900 mx-auto"
+            >
+              <div className="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Maximize className="w-10 h-10 text-indigo-600" />
+              </div>
+              <h3 className="text-2xl font-bold mb-3 tracking-tight">Play in Full Screen?</h3>
+              <p className="text-slate-600 mb-8 font-medium">For the best experience without distractions, we recommend playing in full screen mode.</p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button variant="outline" className="flex-1 h-12 text-base font-semibold" onClick={skipFullscreenEnter}>Skip for now</Button>
+                <Button className="flex-1 bg-indigo-600 hover:bg-indigo-700 h-12 text-base font-semibold text-white shadow-lg shadow-indigo-500/30" onClick={confirmFullscreenEnter}>Enter Full Screen</Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <header className="w-full border-b border-purple-200/50 bg-white/70 backdrop-blur-md flex-none shadow-sm z-10 relative">
         <div className="container mx-auto px-6 h-16 flex items-center justify-between">
