@@ -6,9 +6,10 @@ import { motion } from 'motion/react';
 interface LeaderboardForGameProps {
   configId: string;
   variant?: 'light' | 'dark';
+  limit?: number;
 }
 
-export function LeaderboardForGame({ configId, variant = 'dark' }: LeaderboardForGameProps) {
+export function LeaderboardForGame({ configId, variant = 'dark', limit }: LeaderboardForGameProps) {
   const [leaders, setLeaders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -16,7 +17,7 @@ export function LeaderboardForGame({ configId, variant = 'dark' }: LeaderboardFo
     async function fetchLeaders() {
       setLoading(true);
       const data = await api.getGameLeaderboard(configId);
-      setLeaders(data);
+      setLeaders(limit ? data.slice(0, limit) : data);
       setLoading(false);
     }
     fetchLeaders();

@@ -37,17 +37,19 @@ export function ScaleWrapper({ children }: { children: React.ReactNode }) {
   return (
     <div 
       ref={containerRef} 
-      className="w-full h-full flex items-center justify-center overflow-hidden bg-slate-950"
+      className="w-full h-full relative overflow-hidden"
     >
       <div 
         style={{ 
-          transform: `scale(${scale})`, 
-          transformOrigin: 'center center',
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: `translate(-50%, -50%) scale(${scale})`, 
+          transformOrigin: '50% 50%',
           width: '1024px',
           height: '800px',
           display: 'flex',
-          flexDirection: 'column',
-          position: 'relative'
+          flexDirection: 'column'
         }}
         className="flex-shrink-0"
       >

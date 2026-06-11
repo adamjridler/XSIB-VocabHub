@@ -323,7 +323,7 @@ export default function App() {
 
   if (view === "onboarding") {
     return (
-      <div className="relative h-screen w-screen bg-slate-900 text-white flex flex-col items-center justify-center p-6">
+      <div className="fixed inset-0 w-full h-full bg-slate-900 text-white flex flex-col items-center justify-center p-6">
         <AmbientOrbs />
         <div className="z-10 bg-slate-800 p-8 rounded-3xl max-w-lg w-full text-center border border-slate-700 shadow-2xl">
           <PartyPopper className="w-16 h-16 text-yellow-400 mx-auto mb-6" />
@@ -376,11 +376,12 @@ export default function App() {
   }
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden flex flex-col bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 text-slate-900 font-sans selection:bg-purple-200 selection:text-slate-900">
+    <div className="fixed inset-0 w-full h-full overflow-hidden flex flex-col bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 text-slate-900 font-sans selection:bg-purple-200 selection:text-slate-900">
       <FloatingWords backgroundWords={backgroundWords} />
       <AmbientOrbs />
 
       {/* Navigation */}
+      {view !== "games" && (
       <header className="w-full border-b border-purple-200/50 bg-white/70 backdrop-blur-md flex-none shadow-sm z-10 relative">
         <div className="container mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -426,8 +427,9 @@ export default function App() {
           </nav>
         </div>
       </header>
+      )}
 
-      <main className="flex-1 flex flex-col items-center justify-center container mx-auto px-6 relative z-10 overflow-y-auto custom-scrollbar">
+      <main className={`flex-1 flex flex-col items-center justify-center relative z-10 ${view === "games" ? "w-full h-full p-0 overflow-hidden" : "container mx-auto px-6 overflow-y-auto custom-scrollbar"}`}>
         {view === "login" ? (
           <StudentLogin
             onLoginSuccess={(user: any) => {

@@ -53,8 +53,8 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', timeL
     fallSpeed = 0.0015;
     spawnInterval = 4500;
   } else if (speed === 'fast') {
-    fallSpeed = 0.0045;
-    spawnInterval = 2000;
+    fallSpeed = 0.0065;
+    spawnInterval = 1500;
   }
   
   const FALL_SPEED = fallSpeed;
@@ -379,72 +379,72 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', timeL
         transition={{ duration: 0.5, ease: "easeOut" }}
         className="flex flex-col items-center justify-center min-h-full w-full bg-slate-950/90 backdrop-blur-sm p-6 md:p-12 relative z-50 overflow-y-auto"
       >
-        <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
           
           {/* Main Score Area */}
-          <div className="lg:col-span-7 flex flex-col items-center justify-center bg-slate-900/60 backdrop-blur-2xl p-10 md:p-14 rounded-[3rem] border border-white/10 shadow-2xl relative overflow-hidden">
+          <div className="lg:col-span-7 flex flex-col items-center justify-center bg-slate-900/60 backdrop-blur-2xl p-8 md:p-10 rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-transparent via-rose-500 to-transparent opacity-60"></div>
             
-            <h2 className="text-4xl md:text-6xl font-black text-rose-500 uppercase tracking-widest mb-6 drop-shadow-[0_0_15px_rgba(244,63,94,0.5)]">
+            <h2 className="text-4xl md:text-5xl font-black text-rose-500 uppercase tracking-widest mb-4 drop-shadow-[0_0_15px_rgba(244,63,94,0.5)]">
               {timeLeft <= 0 ? "Time's Up!" : "Game Over"}
             </h2>
             
-            <p className="text-sm md:text-base font-semibold text-slate-400 uppercase tracking-[0.2em] mb-2">Final Score</p>
-            <p className="text-7xl md:text-9xl font-black text-white mb-4 drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">{score}</p>
+            <p className="text-xs md:text-sm font-semibold text-slate-400 uppercase tracking-[0.2em] mb-2">Final Score</p>
+            <p className="text-6xl md:text-8xl font-black text-white mb-4 drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">{score}</p>
             
             {score >= highScore && score > 0 && (
               <motion.div 
                 initial={{ scale: 0 }} 
                 animate={{ scale: 1 }} 
                 transition={{ type: "spring", delay: 0.5 }}
-                className="bg-amber-500/20 text-amber-300 px-6 py-2 rounded-full text-sm font-bold tracking-wider uppercase border border-amber-500/50 flex flex-row items-center gap-2 mb-8 shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+                className="bg-amber-500/20 text-amber-300 px-6 py-2 rounded-full text-sm font-bold tracking-wider uppercase border border-amber-500/50 flex flex-row items-center gap-2 mb-6 shadow-[0_0_15px_rgba(245,158,11,0.3)]"
               >
                 <Trophy className="w-5 h-5" /> New High Score!
               </motion.div>
             )}
             
-            <Button onClick={() => onGameOver(score)} size="lg" className="mt-6 h-16 px-12 rounded-full text-xl shadow-purple-600/30 bg-purple-600 hover:bg-purple-500 font-bold hover:scale-105 transition-all w-full md:w-auto shadow-lg">
+            <Button onClick={() => onGameOver(score)} size="lg" className="mt-4 h-14 px-10 rounded-full text-lg shadow-purple-600/30 bg-purple-600 hover:bg-purple-500 font-bold hover:scale-105 transition-all w-full md:w-auto shadow-lg">
               Continue Exploring
             </Button>
           </div>
 
           {/* Analytics Area */}
-          <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
-            <div className="bg-slate-900/40 p-6 rounded-3xl border border-white/5 flex flex-col justify-center">
-              <div className="flex items-center gap-3 mb-2 text-slate-400">
-                <Target className="w-5 h-5 text-emerald-500" />
-                <span className="font-bold tracking-wide uppercase text-sm">Accuracy</span>
+          <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
+            <div className="bg-slate-900/40 p-4 md:p-5 rounded-2xl border border-white/5 flex flex-col justify-center">
+              <div className="flex items-center gap-3 mb-1 text-slate-400">
+                <Target className="w-4 h-4 text-emerald-500" />
+                <span className="font-bold tracking-wide uppercase text-xs">Accuracy</span>
               </div>
-              <p className="text-4xl font-black text-white">{accuracy}%</p>
-              <p className="text-sm font-medium text-slate-500 mt-2">{stats.correct} correct, {stats.missed} missed</p>
+              <p className="text-3xl md:text-3xl font-black text-white">{accuracy}%</p>
+              <p className="text-xs md:text-sm font-medium text-slate-500 mt-1">{stats.correct} correct, {stats.missed} missed</p>
             </div>
 
-            <div className="bg-slate-900/40 p-6 rounded-3xl border border-white/5 flex flex-col justify-center">
-              <div className="flex items-center gap-3 mb-2 text-slate-400">
-                <Flame className="w-5 h-5 text-orange-500" />
-                <span className="font-bold tracking-wide uppercase text-sm">Best Streak</span>
+            <div className="bg-slate-900/40 p-4 md:p-5 rounded-2xl border border-white/5 flex flex-col justify-center">
+              <div className="flex items-center gap-3 mb-1 text-slate-400">
+                <Flame className="w-4 h-4 text-orange-500" />
+                <span className="font-bold tracking-wide uppercase text-xs">Best Streak</span>
               </div>
-              <p className="text-4xl font-black text-white">{stats.highestStreak} <span className="text-base font-medium text-slate-500">words</span></p>
+              <p className="text-3xl md:text-3xl font-black text-white">{stats.highestStreak} <span className="text-sm font-medium text-slate-500">words</span></p>
             </div>
 
-            <div className="bg-slate-900/40 p-6 rounded-3xl border border-white/5 flex flex-row items-center justify-between">
+            <div className="bg-slate-900/40 p-4 md:p-5 rounded-2xl border border-white/5 flex flex-row items-center justify-between">
               <div>
-                <div className="flex items-center gap-3 mb-2 text-slate-400">
-                  <Activity className="w-5 h-5 text-rose-500" />
-                  <span className="font-bold tracking-wide uppercase text-sm">Hardest Word</span>
+                <div className="flex items-center gap-3 mb-1 text-slate-400">
+                  <Activity className="w-4 h-4 text-rose-500" />
+                  <span className="font-bold tracking-wide uppercase text-xs">Hardest Word</span>
                 </div>
-                <p className="text-3xl font-bold text-white max-w-[12rem] truncate" title={mostDifficultWord}>{mostDifficultWord}</p>
+                <p className="text-2xl md:text-2xl font-bold text-white max-w-[10rem] md:max-w-[12rem] truncate" title={mostDifficultWord}>{mostDifficultWord}</p>
               </div>
               {maxMisses > 0 && (
                 <div className="text-right">
-                  <span className="bg-rose-500/20 text-rose-400 px-4 py-2 rounded-full text-xs font-bold border border-rose-500/30">
+                  <span className="bg-rose-500/20 text-rose-400 px-3 py-1.5 rounded-full text-[10px] font-bold border border-rose-500/30">
                     {maxMisses} misses
                   </span>
                 </div>
               )}
             </div>
             
-            <LeaderboardForGame configId={`WordFall-${mode}-${fallingType}-${speed}-${timeLimit}`} />
+            <LeaderboardForGame configId={`WordFall-${mode}-${fallingType}-${speed}-${timeLimit}`} limit={4} />
           </div>
         </div>
       </motion.div>
@@ -460,7 +460,7 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', timeL
       </div>
 
       {/* Top Bar */}
-      <div className="absolute top-0 left-0 w-full p-6 md:p-8 flex items-start justify-between z-20 pointer-events-none">
+      <div className="absolute top-0 left-0 w-full p-6 md:p-8 flex items-start justify-between z-[60] pointer-events-none">
         <div className="flex gap-2 bg-slate-900/50 backdrop-blur-md p-3 rounded-2xl border border-white/5">
           {[...Array(3)].map((_, i) => (
             <Heart key={i} className={`w-8 h-8 ${i < lives ? 'text-rose-500 fill-rose-500 drop-shadow-[0_0_8px_rgba(244,63,94,0.8)]' : 'text-slate-700'}`} />
@@ -598,7 +598,7 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', timeL
 
       {/* Input Area (Typing Mode) */}
       {mode === 'typing' && (
-        <div className="p-6 bg-slate-800 z-20">
+        <div className="p-6 bg-slate-800 relative z-[60] shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
           <input
             autoFocus
             type="text"

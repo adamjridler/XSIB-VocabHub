@@ -305,54 +305,54 @@ export function WordSearchGame({ words, timeLimit = 120, clueType = 'translation
           : { duration: 0.6, ease: "easeOut" }}
         className={`flex flex-col items-center justify-center min-h-full w-full p-6 md:p-12 relative z-50 overflow-y-auto ${isSuccess ? 'bg-gradient-to-b from-indigo-950 to-slate-950' : 'bg-slate-950/90 backdrop-blur-sm'}`}
       >
-        <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mt-6">
+        <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-center mt-6">
           
           {/* Main Score Area */}
-          <div className="lg:col-span-7 flex flex-col items-center justify-center bg-slate-900/60 backdrop-blur-2xl p-10 md:p-14 rounded-[3rem] border border-white/10 shadow-2xl relative overflow-hidden">
+          <div className="lg:col-span-7 flex flex-col items-center justify-center bg-slate-900/60 backdrop-blur-2xl p-8 md:p-10 rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden">
             <div className={`absolute top-0 inset-x-0 h-2 opacity-60 ${isSuccess ? 'bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500' : 'bg-gradient-to-r from-transparent via-rose-500 to-transparent'}`}></div>
             
-            <h2 className={`text-4xl md:text-6xl font-black uppercase tracking-widest mb-6 ${isSuccess ? 'text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400 drop-shadow-[0_0_20px_rgba(52,211,153,0.4)]' : 'text-rose-500 drop-shadow-[0_0_15px_rgba(244,63,94,0.5)]'} text-center text-balance`}>
+            <h2 className={`text-4xl md:text-5xl font-black uppercase tracking-widest mb-4 ${isSuccess ? 'text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400 drop-shadow-[0_0_20px_rgba(52,211,153,0.4)]' : 'text-rose-500 drop-shadow-[0_0_15px_rgba(244,63,94,0.5)]'} text-center text-balance`}>
               {isSuccess ? 'Victory!' : "Time's Up"}
             </h2>
             
-            <p className="text-sm md:text-base font-semibold text-slate-400 uppercase tracking-[0.2em] mb-2">Final Score</p>
-            <p className={`text-7xl md:text-9xl font-black text-white mb-4 ${isSuccess ? 'drop-shadow-[0_0_30px_rgba(52,211,153,0.3)]' : 'drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]'}`}>{score}</p>
+            <p className="text-xs md:text-sm font-semibold text-slate-400 uppercase tracking-[0.2em] mb-2">Final Score</p>
+            <p className={`text-6xl md:text-8xl font-black text-white mb-4 ${isSuccess ? 'drop-shadow-[0_0_30px_rgba(52,211,153,0.3)]' : 'drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]'}`}>{score}</p>
             
             {score >= highScore && score > 0 && (
               <motion.div 
                 initial={{ scale: 0 }} 
                 animate={{ scale: 1 }} 
                 transition={{ type: "spring", delay: 0.5 }}
-                className="bg-amber-500/20 text-amber-300 px-6 py-2 rounded-full text-sm font-bold tracking-wider uppercase border border-amber-500/50 flex flex-row items-center gap-2 mb-8 shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+                className="bg-amber-500/20 text-amber-300 px-6 py-2 rounded-full text-sm font-bold tracking-wider uppercase border border-amber-500/50 flex flex-row items-center gap-2 mb-6 shadow-[0_0_15px_rgba(245,158,11,0.3)]"
               >
                 <Trophy className="w-5 h-5" /> New High Score!
               </motion.div>
             )}
             
-            <Button onClick={() => onGameOver(score)} size="lg" className={`mt-6 h-16 px-12 rounded-full text-xl shadow-lg font-bold hover:scale-105 transition-all w-full md:w-auto ${isSuccess ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/30 text-white' : 'shadow-rose-600/30 bg-rose-600 hover:bg-rose-500'}`}>
+            <Button onClick={() => onGameOver(score)} size="lg" className={`mt-4 h-14 px-10 rounded-full text-lg shadow-lg font-bold hover:scale-105 transition-all w-full md:w-auto ${isSuccess ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/30 text-white' : 'shadow-rose-600/30 bg-rose-600 hover:bg-rose-500'}`}>
               Continue Exploring
             </Button>
           </div>
 
           {/* Analytics Area */}
-          <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
-            <div className="bg-slate-900/40 p-6 rounded-3xl border border-white/5 flex flex-col justify-center">
-              <div className="flex items-center gap-3 mb-2 text-slate-400">
-                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                <span className="font-bold tracking-wide uppercase text-sm">Words Found</span>
+          <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
+            <div className="bg-slate-900/40 p-4 md:p-5 rounded-2xl border border-white/5 flex flex-col justify-center">
+              <div className="flex items-center gap-3 mb-1 text-slate-400">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                <span className="font-bold tracking-wide uppercase text-xs">Words Found</span>
               </div>
-              <p className="text-4xl font-black text-white">{wordsFoundCount} <span className="text-base font-medium text-slate-500">of {totalWords}</span></p>
+              <p className="text-3xl font-black text-white">{wordsFoundCount} <span className="text-sm font-medium text-slate-500">of {totalWords}</span></p>
             </div>
 
-            <div className="bg-slate-900/40 p-6 rounded-3xl border border-white/5 flex flex-col justify-center">
-              <div className="flex items-center gap-3 mb-2 text-slate-400">
-                <Clock className="w-5 h-5 text-blue-400" />
-                <span className="font-bold tracking-wide uppercase text-sm">Time Left</span>
+            <div className="bg-slate-900/40 p-4 md:p-5 rounded-2xl border border-white/5 flex flex-col justify-center">
+              <div className="flex items-center gap-3 mb-1 text-slate-400">
+                <Clock className="w-4 h-4 text-blue-400" />
+                <span className="font-bold tracking-wide uppercase text-xs">Time Left</span>
               </div>
-              <p className="text-4xl font-black text-white">{timeLeft}s</p>
+              <p className="text-3xl font-black text-white">{timeLeft}s</p>
             </div>
 
-            <LeaderboardForGame configId={`WordSearch-${timeLimit}-${clueType}`} />
+            <LeaderboardForGame configId={`WordSearch-${timeLimit}-${clueType}`} limit={4} />
           </div>
         </div>
       </motion.div>

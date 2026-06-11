@@ -338,8 +338,13 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
     }
 
     return (
-      <ScaleWrapper>
-        <div className="flex flex-col h-full w-full min-h-0 overflow-hidden bg-slate-950 text-slate-100 font-sans relative">
+      <div className="fixed inset-0 w-full h-full flex flex-col bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 font-sans overflow-hidden">
+        {/* Render background effects inside the container */}
+        <FloatingWords backgroundWords={backgroundWords || []} />
+        <AmbientOrbs />
+
+        <ScaleWrapper>
+          <div className="flex flex-col h-full w-full min-h-0 overflow-hidden bg-slate-900/90 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 shadow-2xl text-slate-100 font-sans relative z-10 transition-colors">
           
           <AnimatePresence>
             {showExitConfirm && (
@@ -397,6 +402,7 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
           </main>
         </div>
       </ScaleWrapper>
+      </div>
     );
   }
 
@@ -412,7 +418,7 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
   };
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden flex flex-col bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 text-slate-900 font-sans">
+    <div className="fixed inset-0 w-full h-full overflow-hidden flex flex-col bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 text-slate-900 font-sans">
       <FloatingWords backgroundWords={backgroundWords || []} />
       <AmbientOrbs />
 
