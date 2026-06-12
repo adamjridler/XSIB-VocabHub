@@ -25,6 +25,7 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', timeL
   const [input, setInput] = useState('');
   const [roundEnd, setRoundEnd] = useState(false);
   const [timeLeft, setTimeLeft] = useState(timeLimit);
+  const [floatingPoints, setFloatingPoints] = useState<{ id: string, points: number, x: number, y: number }[]>([]);
 
   useEffect(() => {
     if (!roundEnd) {
@@ -71,6 +72,14 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', timeL
     highestStreak: 0,
     wordMisses: {} as Record<string, number>
   });
+
+  const showPointsPopup = (points: number, x: number, y: number) => {
+    const id = `fp-${Date.now()}-${Math.random()}`;
+    setFloatingPoints(prev => [...prev, { id, points, x, y }]);
+    setTimeout(() => {
+      setFloatingPoints(prev => prev.filter(p => p.id !== id));
+    }, 1500);
+  };
 
   useEffect(() => {
     livesRef.current = lives;
@@ -251,6 +260,7 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', timeL
         origin: { x: originX, y: originY },
         colors: ['#a855f7', '#3b82f6', '#ec4899']
       });
+      showPointsPopup(points, originX * window.innerWidth, originY * window.innerHeight - 50);
       
       statsRef.current.correct += 1;
       statsRef.current.currentStreak += 1;
@@ -304,6 +314,7 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', timeL
         origin: { x: originX, y: originY },
         colors: ['#a855f7', '#3b82f6', '#ec4899']
       });
+      showPointsPopup(points, originX * window.innerWidth, originY * window.innerHeight - 50);
       
       statsRef.current.correct += 1;
       statsRef.current.currentStreak += 1;
@@ -471,9 +482,15 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', timeL
         </div>
         <div className="flex items-start gap-3 pointer-events-auto">
           <SoundToggle />
-          <div className="bg-slate-900/50 backdrop-blur-md px-6 py-3 text-purple-300 font-bold text-3xl font-mono rounded-2xl border border-white/5 shadow-[0_0_15px_rgba(168,85,247,0.2)] text-right">
+          <motion.div 
+            key={score}
+            initial={{ scale: 1.2, color: '#fcd34d', borderColor: '#fcd34d' }}
+            animate={{ scale: 1, color: '#d8b4fe', borderColor: 'rgba(255,255,255,0.05)' }}
+            transition={{ type: "spring", stiffness: 300, damping: 15 }}
+            className="bg-slate-900/50 backdrop-blur-md px-6 py-3 font-bold text-3xl font-mono rounded-2xl border shadow-[0_0_15px_rgba(168,85,247,0.2)] text-right"
+          >
             {score.toString().padStart(5, '0')}
-          </div>
+          </motion.div>
         </div>
       </div>
 
@@ -538,7 +555,7 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', timeL
                 x: drop.x === 'center' ? "-50%" : "0%"
               }}
               transition={{ repeat: drop.status === 'falling' ? Infinity : 0, duration: 2, ease: "easeInOut" }}
-              className={`absolute text-center p-5 md:p-6 rounded-3xl border text-white font-medium z-20 w-[calc(100vw-2rem)] sm:w-auto max-w-[calc(100vw-2rem)] md:max-w-md ${styling}`}
+              className={`absolute text-center p-4 md:p-6 rounded-3xl border text-white font-medium z-20 w-[95%] sm:w-auto max-w-[95%] ${fallingType === 'definition' ? 'md:max-w-2xl lg:max-w-3xl' : 'md:max-w-md lg:max-w-xl'} ${styling}`}
               style={positionStyles}
             >
               {/* Particle Explosions on Correct/Wrong */}
@@ -565,7 +582,7 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', timeL
                 </div>
               )}
 
-              <div className="relative text-xl md:text-2xl py-2 px-2 sm:px-6 whitespace-normal w-full leading-tight text-white drop-shadow-md flex flex-col items-center gap-2">
+              <div className={`relative ${fallingType === 'definition' ? 'text-base md:text-xl' : 'text-xl md:text-3xl'} py-2 px-2 sm:px-4 whitespace-normal w-full leading-tight text-white drop-shadow-md flex flex-col items-center gap-2`}>
                 {drop.text}
                 {drop.status === 'correct' && (
                   <div className="flex flex-col items-center">
@@ -577,22 +594,42 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', timeL
               </div>
               
               {mode === 'multiple-choice' && drop.status === 'falling' && (
-                <div className="mt-6 grid grid-cols-2 gap-3 pointer-events-auto relative">
+                <div className="mt-4 grid grid-cols-2 gap-2 pointer-events-auto relative">
                   {drop.options?.map((opt: string) => (
                     <Button 
                       key={opt}
                       size="lg" 
                       variant="secondary" 
-                      className="p-1 font-bold bg-white/10 w-full h-[60px] hover:bg-white/20 text-white border border-white/10 hover:border-white/40 backdrop-blur-sm transition-all shadow-inner"
+                      className="p-1 font-bold bg-white/10 w-full h-[48px] md:h-[60px] hover:bg-white/20 text-white border border-white/10 hover:border-white/40 backdrop-blur-sm transition-all shadow-inner"
                       onClick={(e) => handleChoice(opt, drop.id, e)}
                     >
-                      <AutoTextFit text={opt} minFontSize={12} maxFontSize={18} className="w-full font-bold" />
+                      <AutoTextFit text={opt} minFontSize={12} maxFontSize={22} className="w-full font-bold" />
                     </Button>
                   ))}
                 </div>
               )}
             </motion.div>
           )})}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {floatingPoints.map(point => (
+            <div
+              key={point.id}
+              className="fixed z-[100] pointer-events-none"
+              style={{ left: point.x, top: point.y, transform: "translate(-50%, -50%)" }}
+            >
+              <motion.div
+                initial={{ opacity: 0, y: 0, scale: 0.5 }}
+                animate={{ opacity: 1, y: -120, scale: 1.5 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 1.2, ease: "easeOut" }}
+                className="text-yellow-300 font-extrabold font-mono drop-shadow-[0_0_15px_rgba(253,224,71,0.8)] whitespace-nowrap"
+              >
+                <div className="text-4xl md:text-5xl">+{point.points}</div>
+              </motion.div>
+            </div>
+          ))}
         </AnimatePresence>
       </div>
 

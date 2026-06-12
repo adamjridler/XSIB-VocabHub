@@ -1,17 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-export function ScaleWrapper({ children }: { children: React.ReactNode }) {
+export function ScaleWrapper({ children, targetWidth: propTargetWidth, targetHeight: propTargetHeight }: { children: React.ReactNode, targetWidth?: number, targetHeight?: number }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
+
+  const targetWidth = propTargetWidth || 1024;
+  const targetHeight = propTargetHeight || 800;
 
   useEffect(() => {
     const observer = new ResizeObserver((entries) => {
       if (!containerRef.current) return;
       const { width, height } = entries[0].contentRect;
-      
-      // Target resolution for scaling the games to ensure they aren't cut off
-      const targetWidth = 1024;
-      const targetHeight = 800;
       
       const scaleX = width / targetWidth;
       const scaleY = height / targetHeight;
@@ -32,7 +31,7 @@ export function ScaleWrapper({ children }: { children: React.ReactNode }) {
     }
     
     return () => observer.disconnect();
-  }, []);
+  }, [targetWidth, targetHeight]);
 
   return (
     <div 
@@ -46,8 +45,8 @@ export function ScaleWrapper({ children }: { children: React.ReactNode }) {
           left: '50%',
           transform: `translate(-50%, -50%) scale(${scale})`, 
           transformOrigin: '50% 50%',
-          width: '1024px',
-          height: '800px',
+          width: `${targetWidth}px`,
+          height: `${targetHeight}px`,
           display: 'flex',
           flexDirection: 'column'
         }}

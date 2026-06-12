@@ -358,7 +358,12 @@ export function MemoryMatchGame({ words, previewTime = 0, timeLimit = 0, onGameO
                       }`}
                     >
                       {isMatched && (
-                        <div className="absolute inset-0 rounded-xl sm:rounded-2xl border-2 border-rose-400 animate-ping opacity-20 pointer-events-none"></div>
+                        <motion.div 
+                          className="absolute inset-0 rounded-xl sm:rounded-2xl bg-white pointer-events-none"
+                          initial={{ opacity: 0.8, scale: 0.9 }}
+                          animate={{ opacity: 0, scale: 1.1 }}
+                          transition={{ duration: 0.5, ease: "easeOut" }}
+                        />
                       )}
                       <div className="w-full max-h-full overflow-y-auto overflow-x-hidden flex items-center justify-center z-20" style={{ scrollbarWidth: 'none' }}>
                         <AutoTextFit 

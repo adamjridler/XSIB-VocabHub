@@ -211,7 +211,7 @@ export function MultiplayerMemoryMatchGame({ words, mode, turnTimeLimit, roomId,
                  const newCards = prev.cards.map(c => newFlipped.includes(c.id) ? { ...c, matched: true, matchedBy: activePlayerUID } : c);
                  
                  const allMatched = newCards.every(c => c.matched);
-                 playSound(true);
+                 playSound('correct');
                  
                  newState = {
                     ...newState,
@@ -231,7 +231,6 @@ export function MultiplayerMemoryMatchGame({ words, mode, turnTimeLimit, roomId,
                     newState.turnEndsAt = Date.now() + (newState.turnTimeLimit * 1000);
                  }
               } else {
-                 playSound(false);
                  newState.turnEndsAt = Date.now() + 2500;
                  setTimeout(() => passTurn(), 1500);
               }
@@ -394,7 +393,7 @@ export function MultiplayerMemoryMatchGame({ words, mode, turnTimeLimit, roomId,
                          : 'bg-gradient-to-b from-white to-slate-50 border-slate-200 text-slate-800 shadow-xl shadow-black/10'
                      }`}>
                        {isMatched && (
-                         <div className="absolute inset-0 rounded-xl sm:rounded-2xl border-2 border-fuchsia-400 animate-ping opacity-20 pointer-events-none"></div>
+                         <motion.div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-white pointer-events-none" initial={{ opacity: 0.8, scale: 0.9 }} animate={{ opacity: 0, scale: 1.1 }} transition={{ duration: 0.5, ease: "easeOut" }}></motion.div>
                        )}
                        <div className="w-full h-full flex flex-col justify-center items-center gap-1 z-20 text-center overflow-hidden">
                          {isMatched && card.type === 'word' && matchedPlayer && (

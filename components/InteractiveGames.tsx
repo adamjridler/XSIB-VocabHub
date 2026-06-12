@@ -258,8 +258,8 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
   const toggleLevel = (l: string) => setLevelFilters(prev => prev.includes(l) ? prev.filter(p => p !== l) : [...prev, l]);
 
   const filteredWords = allWords.filter(w => {
-    const sMatch = subjectFilters.length === 0 || subjectFilters.includes(w.subject);
-    const lMatch = levelFilters.length === 0 || levelFilters.includes(w.level);
+    const sMatch = subjects.length === 0 ? true : subjectFilters.includes(w.subject);
+    const lMatch = levels.length === 0 ? true : levelFilters.includes(w.level);
     return sMatch && lMatch;
   });
 
@@ -318,8 +318,19 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
     enterGame();
   };
 
-  const handleGameOver = async (score: number) => {
+  const exitToMenu = async () => {
     setGameState('menu');
+    if (document.fullscreenElement) {
+      try {
+        await document.exitFullscreen();
+      } catch (err) {
+        console.error("Could not exit fullscreen:", err);
+      }
+    }
+  };
+
+  const handleGameOver = async (score: number) => {
+    await exitToMenu();
     if (onGameComplete) {
       onGameComplete();
     }
@@ -343,7 +354,7 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
         <FloatingWords backgroundWords={backgroundWords || []} />
         <AmbientOrbs />
 
-        <ScaleWrapper>
+        <ScaleWrapper targetWidth={selectedGame === 'word-fall' && fallingType === 'definition' ? 1400 : 1024}>
           <div className="flex flex-col h-full w-full min-h-0 overflow-hidden bg-slate-900/90 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 shadow-2xl text-slate-100 font-sans relative z-10 transition-colors">
           
           <AnimatePresence>
@@ -366,7 +377,7 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
                   <p className="text-slate-600 mb-8">Are you sure you want to abandon the active game? Progress will be lost.</p>
                   <div className="flex flex-col sm:flex-row gap-3">
                     <Button variant="outline" className="flex-1" onClick={() => setShowExitConfirm(false)}>Cancel</Button>
-                    <Button variant="destructive" className="flex-1 bg-rose-500 hover:bg-rose-600 text-white shadow-lg shadow-rose-500/20" onClick={() => { setShowExitConfirm(false); setGameState('menu'); }}>Exit Game</Button>
+                    <Button variant="destructive" className="flex-1 bg-rose-500 hover:bg-rose-600 text-white shadow-lg shadow-rose-500/20" onClick={() => { setShowExitConfirm(false); exitToMenu(); }}>Exit Game</Button>
                   </div>
                 </motion.div>
               </motion.div>
@@ -408,12 +419,13 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
 
   const getCurrentGameConfigId = () => {
     if (!selectedGame) return '';
-    if (selectedGame === 'word-scramble') return `WordScramble-${scrambleMode}-${scrambleTimeLimit}`;
-    if (selectedGame === 'word-search') return `WordSearch-${wordSearchTimeLimit}-${wordSearchClueType}`;
-    if (selectedGame === 'mini-crossword') return `Crossword-${crosswordTimeLimit}`;
-    if (selectedGame === 'fill-blanks') return `FillBlanks-${gameMode}`;
-    if (selectedGame === 'memory-match') return `MemoryMatch-${memoryPreviewTime}-${memoryTimeLimit}`;
-    if (selectedGame === 'word-fall') return `WordFall-${gameMode}-${fallingType}-${wordFallSpeed}-${wordFallTimeLimit}`;
+    const filters = `sub-${subjectFilters.sort().join(',')}-lvl-${levelFilters.sort().join(',')}`;
+    if (selectedGame === 'word-scramble') return `WordScramble-${scrambleMode}-${scrambleTimeLimit}-${filters}`;
+    if (selectedGame === 'word-search') return `WordSearch-${wordSearchTimeLimit}-${wordSearchClueType}-${filters}`;
+    if (selectedGame === 'mini-crossword') return `Crossword-${crosswordTimeLimit}-${filters}`;
+    if (selectedGame === 'fill-blanks') return `FillBlanks-${gameMode}-${filters}`;
+    if (selectedGame === 'memory-match') return `MemoryMatch-${memoryPreviewTime}-${memoryTimeLimit}-${filters}`;
+    if (selectedGame === 'word-fall') return `WordFall-${gameMode}-${fallingType}-${wordFallSpeed}-${wordFallTimeLimit}-${filters}`;
     return '';
   };
 
@@ -659,9 +671,17 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                       {subjects.length > 0 && (
                       <div className="bg-white p-4 md:p-5 rounded-2xl border border-slate-200/60 shadow-sm">
-                        <label className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-purple-400"></span>
-                          Subjects
+                        <label className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-purple-400"></span>
+                            Subjects
+                          </div>
+                          <button 
+                            onClick={() => setSubjectFilters(subjectFilters.length === subjects.length ? [] : subjects as string[])}
+                            className="text-purple-600 hover:text-purple-700 underline text-[10px] normal-case tracking-normal cursor-pointer"
+                          >
+                            {subjectFilters.length === subjects.length ? 'Deselect All' : 'Select All'}
+                          </button>
                         </label>
                         <div className="space-y-3">
                           {subjects.map(s => (
@@ -680,9 +700,17 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
                     )}
                     {levels.length > 0 && (
                       <div className="bg-white p-4 md:p-5 rounded-2xl border border-slate-200/60 shadow-sm">
-                        <label className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-blue-400"></span>
-                          Levels
+                        <label className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-blue-400"></span>
+                            Levels
+                          </div>
+                          <button 
+                            onClick={() => setLevelFilters(levelFilters.length === levels.length ? [] : levels as string[])}
+                            className="text-blue-600 hover:text-blue-700 underline text-[10px] normal-case tracking-normal cursor-pointer"
+                          >
+                            {levelFilters.length === levels.length ? 'Deselect All' : 'Select All'}
+                          </button>
                         </label>
                         <div className="space-y-3">
                           {levels.map(l => (
@@ -982,7 +1010,8 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
                   </div>
                   <Button 
                     onClick={handleStartGame} 
-                    className="w-full h-12 md:h-14 text-base md:text-lg rounded-xl md:rounded-2xl bg-gradient-to-r from-fuchsia-600 to-pink-600 hover:from-fuchsia-500 hover:to-pink-500 text-white font-bold shadow-lg shadow-fuchsia-500/30 transition-all hover:scale-[1.02]"
+                    disabled={filteredWords.length === 0 && !(selectedGame === 'multiplayer-memory' && roomAction === 'join')}
+                    className="w-full h-12 md:h-14 text-base md:text-lg rounded-xl md:rounded-2xl bg-gradient-to-r from-fuchsia-600 to-pink-600 hover:from-fuchsia-500 hover:to-pink-500 text-white font-bold shadow-lg shadow-fuchsia-500/30 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:pointer-events-none"
                   >
                     {selectedGame === 'multiplayer-memory' && roomAction === 'join' ? 'Join Game' : selectedGame === 'multiplayer-memory' ? 'Create Room' : 'Start Game'}
                   </Button>
