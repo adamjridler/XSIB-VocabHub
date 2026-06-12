@@ -95,10 +95,10 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', timeL
     // Spawn loop
     const spawnTimer = setInterval(() => {
       const prev = activeDropsRef.current;
-      // Limit max active falling items to 3
-      if (prev.filter(d => !d.status || d.status === 'falling').length >= 3) return;
+      // Limit max active falling items to 4
+      if (prev.filter(d => !d.status || d.status === 'falling').length >= 4) return;
 
-      const LANES = ['left', 'center', 'right'];
+      const LANES = ['lane-1', 'lane-2', 'lane-3', 'lane-4'];
       // Ensure no other drop is in the same lane near the top
       const availableLanes = LANES.filter(lane => !prev.some(p => p.x === lane && p.y < 35));
       if (availableLanes.length === 0) return;
@@ -151,7 +151,7 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', timeL
       wordRef: firstWord,
       text: fallingType === 'translation' ? firstWord.translation || firstWord.definition : firstWord.definition,
       y: -5,
-      x: 'center', // Center initially
+      x: 'lane-2', // Center-ish initially
       options,
       status: 'falling'
     }];
@@ -532,30 +532,32 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', timeL
               borderColor: borderColor
             };
 
-            if (drop.x === 'left') {
-              positionStyles.left = '1rem';
-            } else if (drop.x === 'right') {
-              positionStyles.right = '1rem';
-            } else {
-              positionStyles.left = '50%';
+            if (drop.x === 'lane-1') {
+              positionStyles.left = '1%';
+            } else if (drop.x === 'lane-2') {
+              positionStyles.left = '26%';
+            } else if (drop.x === 'lane-3') {
+              positionStyles.left = '51%';
+            } else if (drop.x === 'lane-4') {
+              positionStyles.left = '76%';
             }
 
             return (
             <motion.div
               key={drop.id}
               id={`drop-${drop.id}`}
-              initial={{ x: drop.x === 'center' ? "-50%" : "0%" }}
+              initial={{ x: "0%" }}
               animate={drop.status === 'falling' ? {
                 rotate: [-2, 2, -2],
                 y: [0, -3, 0],
-                x: drop.x === 'center' ? "-50%" : "0%"
+                x: "0%"
               } : { 
                 rotate: 0, 
                 y: 0,
-                x: drop.x === 'center' ? "-50%" : "0%"
+                x: "0%"
               }}
               transition={{ repeat: drop.status === 'falling' ? Infinity : 0, duration: 2, ease: "easeInOut" }}
-              className={`absolute text-center p-4 md:p-6 rounded-3xl border text-white font-medium z-20 w-[95%] sm:w-auto max-w-[95%] ${fallingType === 'definition' ? 'md:max-w-2xl lg:max-w-3xl' : 'md:max-w-md lg:max-w-xl'} ${styling}`}
+              className={`absolute text-center p-2 md:p-3 rounded-xl md:rounded-2xl border text-white font-medium z-20 w-[23vw] max-w-[23vw] ${styling}`}
               style={positionStyles}
             >
               {/* Particle Explosions on Correct/Wrong */}
@@ -575,14 +577,14 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', timeL
                           y: Math.sin(angle) * distance 
                         }}
                         transition={{ duration: 0.6, ease: "easeOut" }}
-                        className={`absolute w-4 h-4 rounded-full ${drop.status === 'correct' ? 'bg-emerald-400' : 'bg-rose-400'}`}
+                        className={`absolute w-3 h-3 md:w-4 md:h-4 rounded-full ${drop.status === 'correct' ? 'bg-emerald-400' : 'bg-rose-400'}`}
                       />
                     );
                   })}
                 </div>
               )}
 
-              <div className={`relative ${fallingType === 'definition' ? 'text-base md:text-xl' : 'text-xl md:text-3xl'} py-2 px-2 sm:px-4 whitespace-normal w-full leading-tight text-white drop-shadow-md flex flex-col items-center gap-2`}>
+              <div className={`relative ${fallingType === 'definition' ? 'text-[10px] sm:text-xs md:text-sm lg:text-base' : 'text-sm md:text-xl'} py-1 md:py-2 px-1 sm:px-2 whitespace-normal w-full leading-tight md:leading-snug text-white drop-shadow-md flex flex-col items-center gap-1 md:gap-2`}>
                 {drop.text}
                 {drop.status === 'correct' && (
                   <div className="flex flex-col items-center">
@@ -598,12 +600,12 @@ export function WordFallGame({ words, mode, fallingType, speed = 'normal', timeL
                   {drop.options?.map((opt: string) => (
                     <Button 
                       key={opt}
-                      size="lg" 
+                      size="sm" 
                       variant="secondary" 
-                      className="p-1 font-bold bg-white/10 w-full h-[48px] md:h-[60px] hover:bg-white/20 text-white border border-white/10 hover:border-white/40 backdrop-blur-sm transition-all shadow-inner"
+                      className="p-1 font-bold bg-white/10 w-full h-[36px] md:h-[48px] hover:bg-white/20 text-white border border-white/10 hover:border-white/40 backdrop-blur-sm transition-all shadow-inner"
                       onClick={(e) => handleChoice(opt, drop.id, e)}
                     >
-                      <AutoTextFit text={opt} minFontSize={12} maxFontSize={22} className="w-full font-bold" />
+                      <AutoTextFit text={opt} minFontSize={8} maxFontSize={16} className="w-full font-bold" />
                     </Button>
                   ))}
                 </div>

@@ -137,10 +137,10 @@ async function startServer() {
          return;
       }
   
-      const prompt = `Define the word "${word}" for a student. Provide the data in valid JSON format with the following keys:
+      const prompt = `Define the word "${word}" for a high-school student. Provide the data in valid JSON format with the following keys:
   - "word": The word itself, correctly spelled.
-  - "definition": A clear, concise definition.
-  - "example": A simple example sentence.
+  - "definition": A clear, concise definition (max 2 short sentences). CRITICAL: Do NOT include the target word ("${word}") or any of its root variants in the definition.
+  - "example": A simple example sentence appropriate for high-school level.
   - "translation": The translation in Chinese.
   If the word is terribly misspelled and you can guess what they meant, correct the "word" field. If it forms no sense, return {"error": "Invalid word"}. Keep it strictly JSON without markdown wrappers.`;
   
@@ -172,6 +172,53 @@ async function startServer() {
     } catch (error) {
       console.error('DeepSeek Error:', error);
       res.status(500).json({ error: 'Failed to communicate with DeepSeek' });
+    }
+  });
+
+  app.post('/api/variants', async (req, res) => {
+    try {
+      const { word } = req.body;
+      if (!word) {
+         res.status(400).json({ error: 'Word is required' });
+         return;
+      }
+  
+      const prompt = `Provide 3 different or alternative meanings/definitions for the English word "${word}" suitable for high-school students. 
+Return ONLY a JSON array of objects without markdown wrappers. Each object MUST have the following keys:
+- "definition": A clear, concise definition for this specific variant (max 2 short sentences). Do NOT include the target word ("${word}") or any of its root variants in the definition.
+- "example": A simple example sentence using this variant.
+- "translation": The translation of this variant in Simplified Chinese.`;
+  
+      const response = await fetch('https://api.deepseek.com/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: 'deepseek-chat',
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+  
+      if (!response.ok) {
+        res.status(response.status).json({ error: 'DeepSeek API error' });
+        return;
+      }
+  
+      const data = await response.json();
+      let content = data.choices[0].message.content.trim();
+      if (content.startsWith('```json')) content = content.replace(/^```json/, '').replace(/```$/, '').trim();
+      else if (content.startsWith('```')) content = content.replace(/^```/, '').replace(/```$/, '').trim();
+      
+      let variants = JSON.parse(content);
+      if (!Array.isArray(variants)) {
+        variants = [variants];
+      }
+      res.json({ variants });
+    } catch (error) {
+      console.error('DeepSeek Error:', error);
+      res.status(500).json({ error: 'Failed to fetch variants' });
     }
   });
 

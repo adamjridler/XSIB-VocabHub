@@ -23,6 +23,7 @@ export function FillBlanksGame({ words, mode, onGameOver }: FillBlanksGameProps)
   const [userAnswers, setUserAnswers] = useState<Record<number, string>>({});
   const [loading, setLoading] = useState(true);
   const [feedback, setFeedback] = useState<Record<number, 'correct' | 'wrong' | null>>({});
+  const [options, setOptions] = useState<string[]>([]);
 
   const statsRef = useRef({
     blanksFilledCorrectly: 0,
@@ -52,6 +53,7 @@ export function FillBlanksGame({ words, mode, onGameOver }: FillBlanksGameProps)
       const res = await api.generateBlanks(wordsToUse);
       setParagraph(res.text);
       setAnswers(res.answers);
+      setOptions(wordsToUse.sort());
       setUserAnswers({});
       setFeedback({});
     } catch (err) {
@@ -142,7 +144,7 @@ export function FillBlanksGame({ words, mode, onGameOver }: FillBlanksGameProps)
                  disabled={feedback[idx] === 'correct'}
               >
                  <option value="" disabled>___</option>
-                 {words.map(w => w.word).sort().map(w => <option key={w} value={w}>{w}</option>)}
+                 {options.map(w => <option key={w} value={w}>{w}</option>)}
               </select>
               {feedback[idx] === 'correct' && (
                 <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1.5, opacity: 0 }} transition={{ duration: 0.5 }} className="absolute inset-0 rounded-xl border-2 border-emerald-400 pointer-events-none" />

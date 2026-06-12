@@ -10,7 +10,7 @@ import {
   CheckCircle2,
   AlertCircle,
   Edit2,
-  Trash2, BarChart3, Search, SortAsc, Users, Maximize2, Loader2, Trophy
+  Trash2, BarChart3, Search, SortAsc, Users, Maximize2, Loader2, Trophy, RefreshCw, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -60,6 +60,9 @@ export function TeacherDashboard({ onLogout }: { onLogout: () => void }) {
   const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
 
   const [stagingWords, setStagingWords] = useState<any[] | null>(null);
+  const [variantsModalWordId, setVariantsModalWordId] = useState<string | null>(null);
+  const [variantsData, setVariantsData] = useState<any[]>([]);
+  const [isLoadingVariants, setIsLoadingVariants] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [publicMessage, setPublicMessage] = useState<string>('');
   const [isUpdatingMessage, setIsUpdatingMessage] = useState(false);
@@ -134,6 +137,31 @@ export function TeacherDashboard({ onLogout }: { onLogout: () => void }) {
     }).catch(err => {
          handleStagingUpdate(id, { error: true, definition: 'Error loading suggestion.', example: '', translation: '' });
     });
+  };
+
+  const openVariantsModal = async (wordObj: any) => {
+    setVariantsModalWordId(wordObj.id);
+    setVariantsData([]);
+    setIsLoadingVariants(true);
+    try {
+      const API_BASE = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${API_BASE}/api/variants`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('appToken')}` },
+        body: JSON.stringify({ word: wordObj.word })
+      });
+      const data = await response.json();
+      if (data.variants && Array.isArray(data.variants)) {
+        setVariantsData(data.variants);
+      } else {
+        setVariantsData([]);
+      }
+    } catch (e) {
+      console.error(e);
+      setVariantsData([]);
+    } finally {
+      setIsLoadingVariants(false);
+    }
   };
 
   const handleStagingSubmit = async () => {
@@ -631,9 +659,15 @@ export function TeacherDashboard({ onLogout }: { onLogout: () => void }) {
                                 disabled={wordObj.isLoading}
                               />
                             </div>
-                            <button onClick={() => handleStagingDelete(wordObj.id)} className="p-1.5 text-slate-500 hover:text-red-600 transition-colors" disabled={wordObj.isLoading}>
-                              <Trash2 className="h-4 w-4" />
-                            </button>
+                            <div className="flex items-center gap-2">
+                              <button onClick={() => openVariantsModal(wordObj)} className="p-1.5 text-slate-500 hover:text-purple-600 transition-colors flex items-center gap-1 text-xs font-semibold" disabled={wordObj.isLoading || !!wordObj.error} title="Look up variants">
+                                <RefreshCw className="h-4 w-4" />
+                                <span className="hidden sm:inline">Variants</span>
+                              </button>
+                              <button onClick={() => handleStagingDelete(wordObj.id)} className="p-1.5 text-slate-500 hover:text-red-600 transition-colors" disabled={wordObj.isLoading}>
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
                           </div>
                           
                           {wordObj.error && wordObj.suggestion && (
@@ -1310,6 +1344,77 @@ export function TeacherDashboard({ onLogout }: { onLogout: () => void }) {
         </div>
       </div>
       </div>
+      
+      {variantsModalWordId && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col"
+          >
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+              <h2 className="text-xl font-bold text-slate-800">Alternative Definitions</h2>
+              <button 
+                onClick={() => setVariantsModalWordId(null)}
+                className="text-slate-400 hover:text-slate-600 transition-colors"
+                title="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto bg-slate-50/50 space-y-4">
+              {isLoadingVariants ? (
+                <div className="py-12 flex flex-col items-center justify-center text-purple-600">
+                  <Loader2 className="w-10 h-10 animate-spin mb-4" />
+                  <p className="font-medium text-sm">Searching for alternatives...</p>
+                </div>
+              ) : variantsData.length > 0 ? (
+                variantsData.map((variant, i) => (
+                  <div key={i} className="bg-white border text-left border-slate-200 rounded-2xl p-5 shadow-sm hover:border-purple-300 hover:shadow-md transition-all group">
+                    <div className="flex flex-col sm:flex-row gap-4 justify-between items-start">
+                      <div className="space-y-2 flex-1">
+                        <div>
+                          <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 block mb-1">Definition</span>
+                          <p className="text-slate-800 leading-relaxed text-sm">{variant.definition}</p>
+                        </div>
+                        <div>
+                          <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 block mb-1">Translation</span>
+                          <p className="text-slate-800 leading-relaxed text-sm">{variant.translation}</p>
+                        </div>
+                        <div>
+                          <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 block mb-1">Example</span>
+                          <p className="text-slate-600 italic text-sm">"{variant.example}"</p>
+                        </div>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        className="shrink-0 bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100 uppercase text-[10px] tracking-widest font-bold shadow-none"
+                        onClick={() => {
+                          handleStagingUpdate(variantsModalWordId, {
+                            definition: variant.definition,
+                            translation: variant.translation,
+                            example: variant.example,
+                            error: false
+                          });
+                          setVariantsModalWordId(null);
+                        }}
+                      >
+                        Use This
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="py-12 text-center text-slate-500">
+                  <p>No variants found.</p>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
