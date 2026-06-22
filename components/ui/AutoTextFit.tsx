@@ -6,9 +6,10 @@ interface AutoTextFitProps {
   maxFontSize?: number;
   className?: string;
   defaultFontSize?: number;
+  wrap?: boolean;
 }
 
-export function AutoTextFit({ text, minFontSize = 10, maxFontSize = 120, defaultFontSize, className = '' }: AutoTextFitProps) {
+export function AutoTextFit({ text, minFontSize = 10, maxFontSize = 120, defaultFontSize, wrap = false, className = '' }: AutoTextFitProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
   
@@ -25,10 +26,18 @@ export function AutoTextFit({ text, minFontSize = 10, maxFontSize = 120, default
       let currentSize = defaultFontSize || maxFontSize;
       textNode.style.fontSize = `${currentSize}px`;
       
-      // We reduce font size until the text width is smaller than the container width
-      while (textNode.scrollWidth > container.clientWidth && currentSize > minFontSize) {
-        currentSize -= 1;
-        textNode.style.fontSize = `${currentSize}px`;
+      if (wrap) {
+        // For wrapped text, we check if the scrollHeight exceeds the clientHeight
+        while (textNode.scrollHeight > container.clientHeight && currentSize > minFontSize) {
+          currentSize -= 1;
+          textNode.style.fontSize = `${currentSize}px`;
+        }
+      } else {
+        // We reduce font size until the text width is smaller than the container width
+        while (textNode.scrollWidth > container.clientWidth && currentSize > minFontSize) {
+          currentSize -= 1;
+          textNode.style.fontSize = `${currentSize}px`;
+        }
       }
       
       setFontSize(currentSize);
@@ -44,11 +53,11 @@ export function AutoTextFit({ text, minFontSize = 10, maxFontSize = 120, default
     if (containerRef.current) observer.observe(containerRef.current);
     
     return () => observer.disconnect();
-  }, [text, minFontSize, maxFontSize, defaultFontSize]);
+  }, [text, minFontSize, maxFontSize, defaultFontSize, wrap]);
 
   return (
-    <div ref={containerRef} className={`w-full overflow-hidden flex items-center justify-center ${className}`}>
-      <span ref={textRef} style={{ fontSize: `${fontSize}px`, whiteSpace: 'nowrap', lineHeight: '1.2' }}>
+    <div ref={containerRef} className={`w-full h-full overflow-hidden flex items-center justify-center ${className}`}>
+      <span ref={textRef} style={{ fontSize: `${fontSize}px`, whiteSpace: wrap ? 'normal' : 'nowrap', wordBreak: wrap ? 'break-word' : 'normal', lineHeight: '1.2' }}>
         {text}
       </span>
     </div>

@@ -447,7 +447,7 @@ export default function App() {
           <div className="w-full max-w-7xl flex flex-col pb-2">
             
             {/* Top Row: Hero and Admin Message */}
-            <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 items-end w-full mb-4 justify-between">
+            <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4 w-full mb-4 items-end">
               {/* Hero Section */}
               <section className="flex flex-col items-start text-left shrink-0">
                 <div className="flex flex-col items-start justify-center">
@@ -470,15 +470,16 @@ export default function App() {
               </section>
 
               {/* Admin Message */}
-              <div className="w-full">
+              <div className="w-full flex justify-end">
                 {adminMessage && (
-                  <div className="bg-amber-100/60 border border-amber-300/60 rounded-xl p-3 flex flex-col z-20 shadow-md backdrop-blur-sm relative overflow-hidden">
-                    <div className="absolute -right-8 -top-8 w-24 h-24 bg-amber-400/20 blur-3xl rounded-full pointer-events-none"></div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <Info className="w-4 h-4 text-amber-600" />
-                      <p className="text-[11px] font-bold text-amber-800 uppercase tracking-widest leading-tight">Admin Message</p>
+                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col z-20 shadow-xl shadow-purple-900/20 relative overflow-hidden w-fit max-w-full">
+                    <div className="absolute -right-8 -top-8 w-24 h-24 bg-purple-500/20 blur-2xl rounded-full pointer-events-none"></div>
+                    <div className="absolute -left-8 -bottom-8 w-24 h-24 bg-indigo-500/20 blur-2xl rounded-full pointer-events-none"></div>
+                    <div className="flex items-center gap-2 mb-1.5 relative z-10">
+                      <Info className="w-4 h-4 text-purple-400" />
+                      <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-tight">Admin Message</p>
                     </div>
-                    <p className="text-sm font-semibold text-slate-800 whitespace-pre-wrap relative z-10">{adminMessage}</p>
+                    <p className="text-sm font-medium text-slate-200 whitespace-pre-wrap relative z-10 leading-relaxed">{adminMessage}</p>
                   </div>
                 )}
               </div>
