@@ -108,6 +108,7 @@ export const api = {
       this.setUser(sessionUser);
       return sessionUser; // Return fresh DB user meta
     }
+    localStorage.removeItem("appUser");
     return null;
   },
 

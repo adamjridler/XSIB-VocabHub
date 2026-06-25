@@ -48,7 +48,7 @@ export default function App() {
     | "study"
     | "games"
     | "onboarding"
-  >("login");
+  >(api.getUser() ? (api.getUser()?.role === "student" ? "hub" : "dashboard") : "login");
   const [stats, setStats] = useState<{
     words: number;
     subjects: number;
@@ -175,12 +175,14 @@ export default function App() {
         setBackgroundWords(bgWords.slice(0, 15));
 
         if (user) {
-          setView(user.role === "student" ? "hub" : "dashboard");
+          setView((prev) => prev === "login" ? (user.role === "student" ? "hub" : "dashboard") : prev);
         } else {
           setView("login");
         }
       } catch (e) {
-        setView("login");
+        if (!api.getUser()) {
+          setView("login");
+        }
       }
     }
     checkAuthAndStats();
