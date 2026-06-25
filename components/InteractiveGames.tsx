@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, Gamepad2, Type, MousePointerClick, Heart, AlertCircle, RefreshCw, BrainCircuit, Info, Timer, Search, LayoutGrid, Swords, Maximize } from 'lucide-react';
+import { ArrowLeft, Gamepad2, Type, MousePointerClick, Heart, AlertCircle, RefreshCw, BrainCircuit, Info, Timer, Search, LayoutGrid, Swords, Maximize, Minimize } from 'lucide-react';
 import { api } from '@/lib/api';
 import { motion, AnimatePresence } from 'motion/react';
 import { WordFallGame } from './games/WordFallGame';
@@ -13,7 +13,6 @@ import { MiniCrosswordGame } from './games/MiniCrosswordGame';
 import { MultiplayerMemoryMatchGame } from './games/MultiplayerMemoryMatchGame';
 import { MultiplayerRadialMatchGame } from './games/MultiplayerRadialMatchGame';
 
-import { ScaleWrapper } from '@/components/ScaleWrapper';
 
 import { FloatingWords, AmbientOrbs } from '@/components/AppBackground';
 import { StudentLeaderboard } from '@/components/StudentLeaderboard';
@@ -168,6 +167,30 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
   const [roomAction, setRoomAction] = useState<'create' | 'join'>('create');
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [showFullscreenPrompt, setShowFullscreenPrompt] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      if (containerRef.current) {
+        containerRef.current.requestFullscreen().catch(err => {
+          console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+        });
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  };
 
   useEffect(() => {
     if (initialGameData) {
@@ -351,13 +374,12 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
     }
 
     return (
-      <div className="fixed inset-0 w-full h-full flex flex-col bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 font-sans overflow-hidden">
+      <div ref={containerRef} className="fixed inset-0 w-full h-full flex flex-col bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 font-sans overflow-hidden">
         {/* Render background effects inside the container */}
         <FloatingWords backgroundWords={backgroundWords || []} />
         <AmbientOrbs />
 
-        <ScaleWrapper targetWidth={selectedGame === 'word-fall' && fallingType === 'definition' ? 1400 : 1024}>
-          <div className="flex flex-col h-full w-full min-h-0 overflow-hidden bg-slate-900/90 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 shadow-2xl text-slate-100 font-sans relative z-10 transition-colors">
+        <div className="flex flex-col h-full w-full min-h-0 overflow-hidden bg-slate-900/90 backdrop-blur-2xl md:rounded-[2.5rem] border-0 md:border border-white/10 shadow-2xl text-slate-100 font-sans relative z-10 transition-colors">
           
           <AnimatePresence>
             {showExitConfirm && (
@@ -387,13 +409,18 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
           </AnimatePresence>
 
           <header className="w-full bg-slate-900/80 backdrop-blur-md flex-none shadow-sm z-50 absolute top-0 left-0 border-b border-white/5">
-            <div className="container mx-auto px-4 md:px-6 h-16 flex items-center gap-2 md:gap-4">
-              <Button variant="ghost" size="icon" onClick={() => setShowExitConfirm(true)} className="rounded-full hover:bg-slate-800 text-white shrink-0">
-                <ArrowLeft className="h-5 w-5" />
+            <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
+              <div className="flex items-center gap-2 md:gap-4">
+                <Button variant="ghost" size="icon" onClick={() => setShowExitConfirm(true)} className="rounded-full hover:bg-slate-800 text-white shrink-0">
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+                <h1 className="text-xl font-bold tracking-tight text-white">
+                  {selectedGame === 'word-fall' ? 'Word Fall' : selectedGame === 'fill-blanks' ? 'Fill-in the Blanks' : selectedGame === 'word-scramble' ? 'Word Scramble' : selectedGame === 'word-search' ? 'Word Search' : selectedGame === 'mini-crossword' ? 'Mini Crossword' : selectedGame === 'multiplayer-radial' ? 'Radial Rush' : 'Memory Match'}
+                </h1>
+              </div>
+              <Button variant="ghost" size="icon" onClick={toggleFullscreen} className="rounded-full hover:bg-slate-800 text-white shrink-0">
+                {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
               </Button>
-              <h1 className="text-xl font-bold tracking-tight text-white">
-                {selectedGame === 'word-fall' ? 'Word Fall' : selectedGame === 'fill-blanks' ? 'Fill-in the Blanks' : selectedGame === 'word-scramble' ? 'Word Scramble' : selectedGame === 'word-search' ? 'Word Search' : selectedGame === 'mini-crossword' ? 'Mini Crossword' : selectedGame === 'multiplayer-radial' ? 'Radial Rush' : 'Memory Match'}
-              </h1>
             </div>
           </header>
           <main className="flex-1 min-h-0 w-full h-full relative p-0 pt-16 flex flex-col">
@@ -416,7 +443,6 @@ export function InteractiveGames({ onBack, backgroundWords, onGameComplete, init
             )}
           </main>
         </div>
-      </ScaleWrapper>
       </div>
     );
   }
