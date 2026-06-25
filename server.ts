@@ -261,6 +261,42 @@ Return ONLY a JSON array of objects without markdown wrappers. Each object MUST 
     }
   });
   
+  app.post('/api/check-two-words-sentence', async (req, res) => {
+    try {
+      const { word1, word2, sentence } = req.body;
+      const prompt = `The student has written the following sentence trying to use both "${word1}" and "${word2}" (they may have changed the form of the words, which is allowed): 
+"${sentence}". 
+Check if the sentence is grammatically correct and uses BOTH words correctly and naturally in the same sentence. 
+Pay special attention to ESL common mistakes. 
+Provide encouraging feedback and a 'fixed' or improved version of the sentence if it was incorrect or unnatural.
+IMPORTANT: In the 'fixedSentence', you MUST wrap EVERY SINGLE word that you changed, added, or corrected with <b> tags. Compare your fixed sentence to the student's original sentence word-by-word, and ensure ALL modifications are highlighted (e.g., if they wrote "visualizing" and you changed it to "visualize", it must be "<b>visualize</b>").
+Return ONLY JSON in this exact format: {"correct": boolean, "feedback": "Your explanation here", "fixedSentence": "The improved sentence here with <b> tags around EVERY changed word (or empty if it was already perfect)"}`;
+  
+      const response = await fetch('https://api.deepseek.com/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: 'deepseek-chat',
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+  
+      if (!response.ok) throw new Error('DeepSeek API Error');
+      const data = await response.json();
+      let content = data.choices[0].message.content.trim();
+      if (content.startsWith("```json")) {
+        content = content.replace(/^```json\n/, "").replace(/\n```$/, "");
+      }
+      res.json(JSON.parse(content));
+    } catch (error) {
+      console.error('Check two words sentence Error:', error);
+      res.status(500).json({ error: 'Failed to analyze sentence.' });
+    }
+  });
+
   app.post('/api/check-sentence', async (req, res) => {
     try {
       const { word, sentence } = req.body;

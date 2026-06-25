@@ -2,12 +2,84 @@ import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, RefreshCw, CheckCircle2, MessageSquare, BookOpen, Brain, XCircle } from "lucide-react";
+import { ArrowLeft, RefreshCw, CheckCircle2, MessageSquare, BookOpen, Brain, XCircle, PenTool, LayoutGrid } from "lucide-react";
 import { AutoTextFit } from '@/components/ui/AutoTextFit';
 import { motion, AnimatePresence } from "motion/react";
 import { Input } from "@/components/ui/input";
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { SentenceBuilder } from "./SentenceBuilder";
+import { FloatingWords, AmbientOrbs } from "@/components/AppBackground";
 
 export function StudyVocab({ onBack }: { onBack: () => void }) {
+  const [studyMode, setStudyMode] = useState<'menu' | 'flashcards' | 'sentence-builder'>('menu');
+  const [backgroundWords, setBackgroundWords] = useState<string[]>([]);
+
+  useEffect(() => {
+    // Fetch words for the menu background if needed, or rely on child components to show them
+    api.getWords().then(words => {
+      setBackgroundWords(words.map((w: any) => w.word).sort(() => Math.random() - 0.5).slice(0, 15));
+    });
+  }, []);
+
+  if (studyMode === 'menu') {
+    return (
+      <div className="fixed inset-0 w-full h-full overflow-hidden flex flex-col bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 text-slate-900 font-sans selection:bg-purple-200">
+        <FloatingWords backgroundWords={backgroundWords} />
+        <AmbientOrbs />
+        <header className="relative w-full bg-white/70 backdrop-blur-md flex-none z-10 px-6 py-4 flex items-center shadow-sm border-b border-purple-100">
+          <Button variant="ghost" size="icon" onClick={onBack} className="text-slate-500 hover:text-slate-900 mr-4">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div className="flex-1">
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight">Study Vocab</h1>
+          </div>
+        </header>
+
+        <main className="relative flex-1 overflow-y-auto p-4 md:p-8 flex flex-col items-center justify-center z-10">
+          <div className="max-w-4xl w-full">
+            <h2 className="text-3xl font-bold text-center mb-8 text-slate-800 tracking-tight">Choose a Study Mode</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card
+                className="group relative bg-white/80 backdrop-blur border-2 border-transparent hover:border-purple-300 rounded-[2rem] shadow-xl hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300 cursor-pointer overflow-hidden p-8 flex flex-col items-center text-center"
+                onClick={() => setStudyMode('flashcards')}
+              >
+                <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <LayoutGrid className="w-10 h-10 text-purple-600" />
+                </div>
+                <CardTitle className="text-2xl font-bold mb-4 tracking-tight">Smart Flashcards</CardTitle>
+                <CardDescription className="text-base text-slate-500 font-medium">
+                  Review definitions, translations, and AI-powered context examples.
+                </CardDescription>
+              </Card>
+
+              <Card
+                className="group relative bg-white/80 backdrop-blur border-2 border-transparent hover:border-emerald-300 rounded-[2rem] shadow-xl hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-300 cursor-pointer overflow-hidden p-8 flex flex-col items-center text-center"
+                onClick={() => setStudyMode('sentence-builder')}
+              >
+                <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <PenTool className="w-10 h-10 text-emerald-600" />
+                </div>
+                <CardTitle className="text-2xl font-bold mb-4 tracking-tight">Sentence Builder</CardTitle>
+                <CardDescription className="text-base text-slate-500 font-medium">
+                  Combine two random words into a single sentence and get AI feedback.
+                </CardDescription>
+              </Card>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (studyMode === 'sentence-builder') {
+    return <SentenceBuilder onBack={() => setStudyMode('menu')} />;
+  }
+
+  return <SmartFlashcards onBack={() => setStudyMode('menu')} backgroundWords={backgroundWords} />;
+}
+
+function SmartFlashcards({ onBack, backgroundWords }: { onBack: () => void, backgroundWords: string[] }) {
   const [words, setWords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -23,47 +95,6 @@ export function StudyVocab({ onBack }: { onBack: () => void }) {
   const [practiceSentence, setPracticeSentence] = useState("");
   const [practiceFeedback, setPracticeFeedback] = useState<{correct: boolean, feedback: string} | null>(null);
   const [isPracticing, setIsPracticing] = useState(false);
-
-  const FloatingWords = () => {
-    const [mounted, setMounted] = useState(false);
-    useEffect(() => setMounted(true), []);
-    if (!mounted || words.length === 0) return null;
-
-    const backgroundWords = words.map((w: any) => w.word).sort(() => Math.random() - 0.5).slice(0, 15);
-    
-    return (
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-[1] select-none">
-        {backgroundWords.map((w, i) => {
-          const startX = Math.random() * 100;
-          const startY = Math.random() * 100;
-          const moveX = (Math.random() > 0.5 ? 1 : -1) * (30 + Math.random() * 40);
-          const moveY = (Math.random() > 0.5 ? 1 : -1) * (30 + Math.random() * 40);
-          
-          return (
-            <motion.div
-              key={i}
-              className="absolute text-5xl md:text-8xl font-[800] tracking-tight whitespace-nowrap text-purple-900/[0.04]"
-              style={{ left: `${startX}%`, top: `${startY}%` }}
-              animate={{
-                opacity: [0, 1, 0],
-                x: [0, moveX],
-                y: [0, moveY],
-                scale: [0.7, 1.2, 0.7]
-              }}
-              transition={{
-                duration: 20 + Math.random() * 15,
-                repeat: Infinity,
-                delay: Math.random() * 8,
-                ease: "easeInOut"
-              }}
-            >
-              {w}
-            </motion.div>
-          );
-        })}
-      </div>
-    );
-  };
 
   useEffect(() => {
     loadWords();
@@ -166,7 +197,7 @@ export function StudyVocab({ onBack }: { onBack: () => void }) {
 
   if (loading) {
     return (
-      <div className="h-screen w-screen flex flex-col items-center justify-center bg-slate-50 text-slate-900">
+      <div className="fixed inset-0 w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 text-slate-900">
         <RefreshCw className="h-8 w-8 animate-spin text-purple-600 mb-4" />
         <p className="font-medium text-slate-500 uppercase tracking-widest text-sm">Preparing Deck...</p>
       </div>
@@ -175,8 +206,8 @@ export function StudyVocab({ onBack }: { onBack: () => void }) {
 
   if (words.length === 0) {
     return (
-      <div className="h-screen w-screen flex flex-col items-center justify-center bg-slate-50 text-slate-900 p-6">
-        <div className="bg-white p-8 rounded-3xl shadow-xl max-w-md w-full text-center border border-purple-100">
+      <div className="fixed inset-0 w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 text-slate-900 p-6">
+        <div className="bg-white/80 backdrop-blur p-8 rounded-3xl shadow-xl max-w-md w-full text-center border border-purple-100">
           <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <BookOpen className="h-8 w-8 text-purple-600" />
           </div>
@@ -189,31 +220,10 @@ export function StudyVocab({ onBack }: { onBack: () => void }) {
   }
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden flex flex-col bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 text-slate-900 font-sans selection:bg-purple-200">
+    <div className="fixed inset-0 w-full h-full overflow-hidden flex flex-col bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 text-slate-900 font-sans selection:bg-purple-200">
       
-      <FloatingWords />
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <motion.div 
-          animate={{ x: [0, 100, 0], y: [0, -50, 0], scale: [1, 1.1, 1] }}
-          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] rounded-full bg-blue-300/30 blur-[100px]"
-        />
-        <motion.div 
-          animate={{ x: [0, -100, 0], y: [0, 100, 0], scale: [1, 1.2, 1] }}
-          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-purple-300/30 blur-[120px]"
-        />
-        <motion.div 
-          animate={{ x: [0, 50, -50, 0], y: [0, 50, 0], scale: [1, 0.9, 1] }}
-          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[20%] left-[60%] w-[30vw] h-[30vw] rounded-full bg-indigo-300/30 blur-[90px]"
-        />
-        <motion.div 
-          animate={{ x: [0, -40, 40, 0], y: [0, -60, 0], scale: [1, 1.3, 1] }}
-          transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-[20%] left-[30%] w-[25vw] h-[25vw] rounded-full bg-cyan-200/30 blur-[100px]"
-        />
-      </div>
+      <FloatingWords backgroundWords={backgroundWords} />
+      <AmbientOrbs />
 
       <header className="relative w-full border-b border-purple-200/50 bg-white/70 backdrop-blur-md flex-none z-10 px-6 py-4 flex items-center shadow-sm">
         <Button variant="ghost" size="icon" onClick={onBack} className="text-slate-500 hover:text-slate-900 mr-4">
