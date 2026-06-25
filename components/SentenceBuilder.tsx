@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { FloatingWords, AmbientOrbs } from "@/components/AppBackground";
+import { AmbientOrbs } from "@/components/AppBackground";
 
 // Helper to safely render fixed sentences with highlighted <b> tags
 function HighlightedText({ text }: { text: string }) {
@@ -168,7 +168,6 @@ export function SentenceBuilder({ onBack }: { onBack: () => void }) {
   return (
     <div className="fixed inset-0 w-full h-full overflow-hidden flex flex-col bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 text-slate-900 font-sans selection:bg-purple-200">
       
-      <FloatingWords backgroundWords={allWords.map((w: any) => w.word).sort(() => Math.random() - 0.5).slice(0, 15)} />
       <AmbientOrbs />
 
       <header className="relative w-full border-b border-purple-200/50 bg-white/70 backdrop-blur-md flex-none z-10 px-4 py-3 flex items-center justify-between shadow-sm">
